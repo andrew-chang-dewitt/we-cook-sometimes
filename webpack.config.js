@@ -4,19 +4,10 @@ module.exports = (env) => {
   // getting host as an environment variable:
   // https://webpack.js.org/guides/environment-variables/
   const host = env.host
-
-  const sassLoader = {
-    loader: 'sass-loader',
-    options: {
-      implementation: require('dart-sass'),
-      sassOptions: {
-        fiber: require('fiber'),
-      },
-    },
-  }
+  const isProd = env.production
 
   return {
-    mode: 'development',
+    mode: env.production ? 'production' : 'development',
 
     // enable sourcemaps for debugging
     devtool: 'source-map',
@@ -35,7 +26,8 @@ module.exports = (env) => {
 
     plugins: [
       new MiniCssExtractPlugin({
-        filename: '[name]-[contenthash].css',
+        filename: isProd ? '[name]-[contenthash].css' : '[name].css',
+        chunkFilename: isProd ? '[id]-[contenthash].css' : '[id].css',
       }),
     ],
 
@@ -56,25 +48,54 @@ module.exports = (env) => {
         // sass support, from https://adamrackis.dev/css-modules/
         // with minor changes
         {
-          test: /\.s[ac]ss$/i,
+          test: /\.sass$/i,
           oneOf: [
-            // match module.sass/scss files fist
+            // match module.sass files fist
             {
-              test: /\.module.\.s[ac]ss$/i,
+              test: /\.module.\.sass$/i,
               use: [
-                MiniCssExtractPlugin,
+                {
+                  loader: MiniCssExtractPlugin.loader,
+                  options: {
+                    hmr: !isProd,
+                  },
+                },
                 {
                   loader: 'css-loader',
-                  options: { modules: true, exportOnlyLocals: false },
+                  options: { modules: true },
                 },
-                sassLoader,
+                {
+                  loader: 'sass-loader',
+                  options: {
+                    // implementation: require('sass'),
+                    sassOptions: {
+                      fiber: require('fiber'),
+                    },
+                  },
+                },
               ],
             },
 
-            // then global sass/scss files next
+            // then global sass files next
             {
-              test: /\.module.\.s[ac]ss$/i,
-              use: [MiniCssExtractPlugin.loader, 'css-loader', sassLoader],
+              use: [
+                {
+                  loader: MiniCssExtractPlugin.loader,
+                  options: {
+                    hmr: !isProd,
+                  },
+                },
+                'css-loader',
+                {
+                  loader: 'sass-loader',
+                  options: {
+                    // implementation: require('sass'),
+                    sassOptions: {
+                      fiber: require('fiber'),
+                    },
+                  },
+                },
+              ],
             },
           ],
         },
