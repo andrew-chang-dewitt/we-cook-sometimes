@@ -6,7 +6,7 @@
     "coverage": "nyc npm run test",
     "clean": "rm -rf dist",
     "prebuild": "npm run clean && npm run format && npm run coverage",
-    "build": "webpack --env.production",
+    "build": "webpack --env.production --env.host=andrew-chang-dewitt.dev",
     "dev": "webpack-dev-server --env.host=devtest.andrew-chang-dewitt.dev --no-inline --open"
   },
   "nyc": {
