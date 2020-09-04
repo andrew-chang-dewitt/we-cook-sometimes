@@ -5,7 +5,7 @@
     "test": "mocha",
     "coverage": "nyc npm run test",
     "prebuild": "npm run lint && npm run coverage",
-    "build": "webpack --mode=production",
+    "build": "webpack --env.production --env.host=andrew-chang-dewitt.dev",
     "dev": "webpack-dev-server --env.host=devtest.andrew-chang-dewitt.dev --no-inline --open"
   },
   "nyc": {
