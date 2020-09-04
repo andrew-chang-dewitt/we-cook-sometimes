@@ -1,4 +1,5 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = (env) => {
   // getting host as an environment variable:
@@ -7,7 +8,7 @@ module.exports = (env) => {
   const isProd = env.production
 
   return {
-    mode: env.production ? 'production' : 'development',
+    mode: isProd ? 'production' : 'development',
 
     // enable sourcemaps for debugging
     devtool: 'source-map',
@@ -21,13 +22,18 @@ module.exports = (env) => {
     },
 
     resolve: {
-      extensions: ['.ts', '.tsx'],
+      extensions: ['.ts', '.tsx', '.sass', '.css'],
     },
 
     plugins: [
       new MiniCssExtractPlugin({
-        filename: isProd ? '[name]-[contenthash].css' : '[name].css',
-        chunkFilename: isProd ? '[id]-[contenthash].css' : '[id].css',
+        filename: isProd ? '[name].[contenthash].css' : '[name].css',
+        chunkFilename: isProd ? '[id].[contenthash].css' : '[id].css',
+      }),
+      new HtmlWebpackPlugin({
+        title: 'We Cook Sometimes - Recipes',
+        template: './src/index.html',
+        filename: 'index.html',
       }),
     ],
 
@@ -48,53 +54,48 @@ module.exports = (env) => {
         // sass support, from https://adamrackis.dev/css-modules/
         // with minor changes
         {
-          test: /\.sass$/i,
+          test: /\.s?[a|c]ss$/i,
           oneOf: [
             // match module.sass files fist
             {
-              test: /\.module.\.sass$/i,
+              test: /\.module\.s?[a|c]ss$/i,
+              exclude: /node_modules/,
+              sideEffects: true,
               use: [
                 {
                   loader: MiniCssExtractPlugin.loader,
                   options: {
                     hmr: !isProd,
+                    esModule: true,
                   },
                 },
                 {
                   loader: 'css-loader',
-                  options: { modules: true },
-                },
-                {
-                  loader: 'sass-loader',
                   options: {
-                    // implementation: require('sass'),
-                    sassOptions: {
-                      fiber: require('fiber'),
+                    modules: {
+                      localIdentName: '[path][name]__[local]--[hash:base64:5]',
+                      exportOnlyLocals: false,
                     },
                   },
                 },
+                // 'sass-loader',
               ],
             },
 
             // then global sass files next
             {
+              exclude: /node_modules/,
+              sideEffects: true,
               use: [
                 {
                   loader: MiniCssExtractPlugin.loader,
                   options: {
                     hmr: !isProd,
+                    esModule: true,
                   },
                 },
                 'css-loader',
-                {
-                  loader: 'sass-loader',
-                  options: {
-                    // implementation: require('sass'),
-                    sassOptions: {
-                      fiber: require('fiber'),
-                    },
-                  },
-                },
+                // 'sass-loader',
               ],
             },
           ],

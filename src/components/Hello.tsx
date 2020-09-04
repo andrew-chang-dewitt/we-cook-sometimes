@@ -1,6 +1,7 @@
 import * as React from 'react'
 
-import styles from './Hello.module.sass'
+// import styles from './Hello.module.sass'
+import styles from './Hello.module.css'
 
 export class Hello extends React.Component {
   render() {
