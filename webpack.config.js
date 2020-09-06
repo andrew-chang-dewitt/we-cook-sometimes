@@ -2,10 +2,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = (env) => {
-  // getting host as an environment variable:
-  // https://webpack.js.org/guides/environment-variables/
-  const host = env.host
-  const isProd = env.production
+  const isProd = env ? env.production : false
 
   return {
     mode: isProd ? 'production' : 'development',
@@ -16,9 +13,6 @@ module.exports = (env) => {
     devServer: {
       contentBase: './src/',
       compress: true,
-      // public property required to allow to serve website on external
-      // host: https://stackoverflow.com/a/43621275/4642869
-      public: host,
     },
 
     resolve: {
@@ -78,7 +72,7 @@ module.exports = (env) => {
                     },
                   },
                 },
-                // 'sass-loader',
+                'sass-loader',
               ],
             },
 
@@ -95,7 +89,7 @@ module.exports = (env) => {
                   },
                 },
                 'css-loader',
-                // 'sass-loader',
+                'sass-loader',
               ],
             },
           ],

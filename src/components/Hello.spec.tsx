@@ -8,7 +8,7 @@ configure({ adapter: new Adapter() })
 
 import { Hello } from './Hello'
 
-describe('Hello', () => {
+describe('component/Hello', () => {
   it('renders a greeting', () => {
     const wrapper = shallow(<Hello />)
 
