@@ -7,7 +7,7 @@
     "clean": "rm -rf dist",
     "prebuild": "npm run clean && npm run format && npm run coverage",
     "build": "webpack --env.production --env.host=andrew-chang-dewitt.dev",
-    "dev": "webpack-dev-server --env.host=devtest.andrew-chang-dewitt.dev --no-inline --open"
+    "dev": "webpack-dev-server --no-inline --open --public devtest.andrew-chang-dewitt.dev"
   },
   "nyc": {
     "all": true,
@@ -60,11 +60,11 @@
     "css-loader": "^4.2.2",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
-    "fiber": "^1.0.4",
     "html-webpack-plugin": "^4.4.1",
     "ignore-styles": "^5.0.1",
     "mini-css-extract-plugin": "^0.11.0",
     "mocha": "^7.1.2",
+    "msw": "^0.20.5",
     "nyc": "^15.0.1",
     "prettier": "^2.0.5",
     "sass": "^1.26.10",
