@@ -3,7 +3,7 @@ import { expect } from 'chai'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
 
-import { trelloFetch } from './fetch'
+import { trello } from './fetch'
 
 describe('lib/Fetch', () => {
   const server = setupServer(
@@ -23,6 +23,6 @@ describe('lib/Fetch', () => {
   })
 
   it('returns data from a given API endpoint', async () => {
-    expect(await trelloFetch('test')).to.deep.equal({ data: 'This is Fetch' })
+    expect(await trello('test')).to.deep.equal({ data: 'This is Fetch' })
   })
 })
