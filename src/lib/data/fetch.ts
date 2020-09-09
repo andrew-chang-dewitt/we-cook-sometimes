@@ -124,6 +124,9 @@ export interface RecipeAPI {
   labels: Array<Tag>
   idAttachmentCover: string
   idList: string
+  // adding dynamic property to allow for dynamic assignment in
+  // test factories
+  [index: string]: any
 }
 
 export interface Recipe {
@@ -134,21 +137,22 @@ export interface Recipe {
   idList: string
 }
 
+interface RecipesById {
+  [index: string]: Recipe
+}
+
+interface RecipesByLabelId {
+  [index: string]: Array<string>
+}
+
+export interface RecipeList {
+  list: RecipesById
+  hashedByLabels: RecipesByLabelId
+}
+
 export const recipes = (
   minDimensions: MinDimensions | null = null
-): Promise<Recipe[]> => {
-  const filterPublished = (cards: RecipeAPI[]) => {
-    let filtered: RecipeAPI[] = []
-
-    cards.forEach((card) => {
-      card.labels.some((label) => label.name === 'published')
-        ? filtered.push(card)
-        : null
-    })
-
-    return filtered
-  }
-
+): Promise<RecipeList> => {
   const resolveImage = (
     recipe: RecipeAPI,
     minDimensions: MinDimensions | null
@@ -164,13 +168,41 @@ export const recipes = (
     }
   }
 
-  return trello<RecipeAPI[]>(
+  const hashByID = (recipes: Recipe[]): RecipesById => {
+    let result: RecipesById = {}
+
+    recipes.forEach((recipe) => {
+      result[recipe.id] = recipe
+    })
+
+    return result
+  }
+
+  const hashByLabels = (recipes: Recipe[]): RecipesByLabelId => {
+    let result: RecipesByLabelId = {}
+
+    recipes.forEach((recipe) => {
+      recipe.tags.forEach((tag) => {
+        if (result[tag.id]) result[tag.id].push(recipe.id)
+        else result[tag.id] = [recipe.id]
+      })
+    })
+
+    return result
+  }
+
+  const result = trello<RecipeAPI[]>(
     board + '/cards?fields=id,name,idList,labels,idAttachmentCover'
   )
-    .then(filterPublished)
     .then((recipes) =>
       recipes.map((recipe) => resolveImage(recipe, minDimensions))
     )
+    .then((recipes) => ({
+      list: hashByID(recipes),
+      hashedByLabels: hashByLabels(recipes),
+    }))
+
+  return result
 }
 
 export interface RecipeAPIDetails {

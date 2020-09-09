@@ -3,7 +3,15 @@ import { expect } from 'chai'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
 
-import { recipes, tags, details, image, Tag, ImageAPI } from './fetch'
+import {
+  recipes,
+  tags,
+  details,
+  image,
+  Tag,
+  ImageAPI,
+  RecipeAPI,
+} from './fetch'
 
 const Factories = {
   API: {
@@ -50,6 +58,37 @@ const Factories = {
 
         return img
       },
+    },
+
+    Recipe: {
+      create: (): RecipeAPI => ({
+        id: 'id',
+        name: 'one',
+        idAttachmentCover: 'img',
+        idList: 'list',
+        labels: [
+          Factories.API.Tag.createWithData({
+            id: 'labelATag',
+            name: 'a tag',
+          }),
+        ],
+      }),
+
+      createWithProperties: (
+        properties: { key: string; value: any }[]
+      ): RecipeAPI => {
+        const recipe = Factories.API.Recipe.create()
+
+        properties.map(({ key, value }) => {
+          recipe[key] = value
+        })
+
+        return recipe
+      },
+    },
+
+    Tag: {
+      createWithData: (data: { id: string; name: string }): Tag => data as Tag,
     },
   },
 }
@@ -125,59 +164,86 @@ describe('lib/data/fetch', () => {
   })
 
   describe('recipes()', () => {
-    const card1 = {
-      id: '1',
-      name: 'one',
-      idAttachmentCover: 'img1',
-      idList: 'list1',
-      labels: [
-        {
-          name: 'a label',
-        },
-      ],
-    }
-    const card2 = {
-      id: '2',
-      name: 'two',
-      idAttachmentCover: 'img2',
-      idList: 'list2',
-      labels: [
-        {
-          name: 'published',
-        },
-      ],
-    }
+    const card1 = Factories.API.Recipe.createWithProperties([
+      { key: 'id', value: 'recipe1' },
+      {
+        key: 'labels',
+        value: [
+          { id: 'labelCommon', name: 'common' },
+          { id: 'labelALabel', name: 'a label' },
+        ],
+      },
+    ])
+    const card2 = Factories.API.Recipe.createWithProperties([
+      { key: 'id', value: 'recipe2' },
+      {
+        key: 'labels',
+        value: [
+          { id: 'labelCommon', name: 'common' },
+          { id: 'labelPublished', name: 'published' },
+          { id: 'labelAUniqueLabel', name: 'a unique label' },
+        ],
+      },
+    ])
+    const card3 = Factories.API.Recipe.createWithProperties([
+      { key: 'id', value: 'recipe3' },
+      {
+        key: 'labels',
+        value: [
+          { id: 'labelCommon', name: 'common' },
+          { id: 'labelPublished', name: 'published' },
+          { id: 'labelADifferentLabel', name: 'a different label' },
+        ],
+      },
+    ])
 
     beforeEach(() => {
       server.use(
         rest.get(root + board + '/cards', (_, res, ctx) =>
-          res(ctx.json([card1, card2]))
+          res(ctx.json([card1, card2, card3]))
         )
       )
       server.use(
-        rest.get(`${root}/card/2/attachments/img2`, (_, res, ctx) =>
+        rest.get(`${root}/card/recipe1/attachments/img`, (_, res, ctx) =>
+          res(ctx.json(Factories.API.Image.createWithId('imgId')))
+        )
+      )
+      server.use(
+        rest.get(`${root}/card/recipe2/attachments/img`, (_, res, ctx) =>
+          res(ctx.json(Factories.API.Image.createWithId('imgId')))
+        )
+      )
+      server.use(
+        rest.get(`${root}/card/recipe3/attachments/img`, (_, res, ctx) =>
           res(ctx.json(Factories.API.Image.createWithId('imgId')))
         )
       )
     })
 
-    it('returns a list of published cards', async () => {
+    it('returns a hashmap of recipes indexed by their ID', async () => {
       const result = await recipes()
 
-      expect(result).to.have.lengthOf(1)
-      expect(result[0].id).to.equal(card2.id)
-      expect(result[0].name).to.equal(card2.name)
-      expect(result[0].idList).to.equal(card2.idList)
-      expect(result[0].tags).to.deep.equal(card2.labels)
-      // because the image property is also a Promise, it needs unwrapped
-      // here with an await (in addition to the one when defining result)
-      expect((await result[0].coverImage).id).to.equal('imgId')
+      expect(result.list['recipe1'].id).to.equal('recipe1')
+      expect(result.list['recipe2'].id).to.equal('recipe2')
+      expect(result.list['recipe3'].id).to.equal('recipe3')
+    })
+
+    it('also returns a hashmap of recipeIDs indexed by labelID', async () => {
+      const result = await recipes()
+
+      expect(result.hashedByLabels).to.deep.equal({
+        labelCommon: ['recipe1', 'recipe2', 'recipe3'],
+        labelPublished: ['recipe2', 'recipe3'],
+        labelALabel: ['recipe1'],
+        labelAUniqueLabel: ['recipe2'],
+        labelADifferentLabel: ['recipe3'],
+      })
     })
 
     it('can specify a minimum height and/or width for the cover images, to be handled by image()', async () => {
       const result = await recipes({ height: 10, width: 10 })
 
-      expect((await result[0].coverImage).url).to.equal('url10')
+      expect((await result.list['recipe2'].coverImage).url).to.equal('url10')
     })
   })
 
