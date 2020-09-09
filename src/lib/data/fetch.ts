@@ -42,6 +42,9 @@ export interface Image {
 
 export interface ImageAPI extends Image {
   previews: Array<Preview>
+  // adding dynamic property to allow for dynamic assignment in
+  // test factories
+  [index: string]: any
 }
 
 const isBigger = (
@@ -93,8 +96,6 @@ export const image = (
     `/card/${cardId}/attachments/${imageId}?fields=id,name,url,previews`
   )
 
-  // FIXME: I'm not sure this part is even working, but it needs pulled out
-  // into a separate function so it can be used in recipeDetails() as well
   if (minDimensions)
     return api.then((res) => {
       const index = findBestFit(res, minDimensions)
@@ -117,15 +118,7 @@ export const image = (
     })
 }
 
-export interface Recipe {
-  id: string
-  name: string
-  labels: Array<Tag>
-  coverImage: Image
-  idList: string
-}
-
-interface RecipeAPI {
+export interface RecipeAPI {
   id: string
   name: string
   labels: Array<Tag>
@@ -133,7 +126,15 @@ interface RecipeAPI {
   idList: string
 }
 
-export const recipes = (): Promise<RecipeAPI[]> => {
+export interface Recipe {
+  id: string
+  name: string
+  tags: Array<Tag>
+  coverImage: Promise<Image>
+  idList: string
+}
+
+export const recipes = (): Promise<Recipe[]> => {
   const filterPublished = (cards: RecipeAPI[]) => {
     let filtered: RecipeAPI[] = []
 
@@ -146,9 +147,23 @@ export const recipes = (): Promise<RecipeAPI[]> => {
     return filtered
   }
 
+  const resolveImage = (recipe: RecipeAPI): Recipe => {
+    const resolved = image(recipe.id, recipe.idAttachmentCover)
+
+    return {
+      id: recipe.id,
+      name: recipe.name,
+      tags: recipe.labels,
+      idList: recipe.idList,
+      coverImage: resolved,
+    }
+  }
+
   return trello<RecipeAPI[]>(
     board + '/cards?fields=id,name,idList,labels,idAttachmentCover'
-  ).then(filterPublished)
+  )
+    .then(filterPublished)
+    .then((recipes) => recipes.map((recipe) => resolveImage(recipe)))
 }
 
 export interface RecipeAPIDetails {
