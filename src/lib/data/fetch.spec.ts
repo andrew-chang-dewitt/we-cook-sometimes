@@ -1,7 +1,11 @@
 import 'mocha'
-import { expect } from 'chai'
+import chai from 'chai'
+import chaiAsPromised from 'chai-as-promised'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
+
+chai.use(chaiAsPromised)
+const expect = chai.expect
 
 import {
   recipes,
@@ -136,9 +140,15 @@ describe('lib/data/fetch', () => {
     })
 
     it('only requires a min height or a width to be specified', async () => {
-      expect((await image('1', '1', { height: 100 })).url).to.deep.equal(
-        'url100'
-      )
+      expect((await image('1', '1', { height: 100 })).url).to.equal('url100')
+    })
+
+    it('but at least one must be given, despite being optional on the MinDimensions interface', () => {
+      expect(image('1', '1', {}))
+        .to.eventually.be.rejectedWith(
+          'at least one property on minDimensions must be provided: {}'
+        )
+        .and.be.an.instanceOf(TypeError)
     })
 
     it('must be >= both, if two dimensions are given', async () => {

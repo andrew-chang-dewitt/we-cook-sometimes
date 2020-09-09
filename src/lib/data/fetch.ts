@@ -13,6 +13,8 @@ const trello = <T>(endpoint: string): Promise<T> => {
   // guard against fetch being undefined for server-side calls
   let fetch
 
+  // we don't need to test that fetch is correctly polyfilled
+  /* istanbul ignore next */
   if (!fetch) {
     fetch = require('node-fetch')
   }
@@ -66,7 +68,7 @@ const findBestFit = (res: ImageAPI, minDimensions: MinDimensions): number => {
     const bigger = isBigger(preview, minDimensions)
 
     // when the first preview not bigger is found, store previous
-    // index for extracting the preview's url
+    // index for extracting the preview's URL
     if (bigger) {
       index = current
     }
@@ -85,9 +87,13 @@ export const image = (
   minDimensions: MinDimensions | null = null
 ): Promise<Image> => {
   if (minDimensions) {
-    if (minDimensions.height === null && minDimensions.width === null) {
-      throw TypeError(
-        `at least one property on minDimensions must be provided: ${minDimensions}`
+    if (!minDimensions.height && !minDimensions.width) {
+      return Promise.reject(
+        TypeError(
+          `at least one property on minDimensions must be provided: ${JSON.stringify(
+            minDimensions
+          )}`
+        )
       )
     }
   }
@@ -137,11 +143,11 @@ export interface Recipe {
   idList: string
 }
 
-interface RecipesById {
+export interface RecipesById {
   [index: string]: Recipe
 }
 
-interface RecipesByLabelId {
+export interface RecipesByLabelId {
   [index: string]: Array<string>
 }
 
