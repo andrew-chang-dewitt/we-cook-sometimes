@@ -134,7 +134,9 @@ export interface Recipe {
   idList: string
 }
 
-export const recipes = (): Promise<Recipe[]> => {
+export const recipes = (
+  minDimensions: MinDimensions | null = null
+): Promise<Recipe[]> => {
   const filterPublished = (cards: RecipeAPI[]) => {
     let filtered: RecipeAPI[] = []
 
@@ -147,8 +149,11 @@ export const recipes = (): Promise<Recipe[]> => {
     return filtered
   }
 
-  const resolveImage = (recipe: RecipeAPI): Recipe => {
-    const resolved = image(recipe.id, recipe.idAttachmentCover)
+  const resolveImage = (
+    recipe: RecipeAPI,
+    minDimensions: MinDimensions | null
+  ): Recipe => {
+    const resolved = image(recipe.id, recipe.idAttachmentCover, minDimensions)
 
     return {
       id: recipe.id,
@@ -163,7 +168,9 @@ export const recipes = (): Promise<Recipe[]> => {
     board + '/cards?fields=id,name,idList,labels,idAttachmentCover'
   )
     .then(filterPublished)
-    .then((recipes) => recipes.map((recipe) => resolveImage(recipe)))
+    .then((recipes) =>
+      recipes.map((recipe) => resolveImage(recipe, minDimensions))
+    )
 }
 
 export interface RecipeAPIDetails {

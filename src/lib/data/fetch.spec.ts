@@ -124,7 +124,7 @@ describe('lib/data/fetch', () => {
     expect(await tags()).to.deep.equal(labels)
   })
 
-  it('recipes() returns a list of published cards', async () => {
+  describe('recipes()', () => {
     const card1 = {
       id: '1',
       name: 'one',
@@ -147,27 +147,38 @@ describe('lib/data/fetch', () => {
         },
       ],
     }
-    server.use(
-      rest.get(root + board + '/cards', (_, res, ctx) =>
-        res(ctx.json([card1, card2]))
-      )
-    )
-    server.use(
-      rest.get(`${root}/card/2/attachments/img2`, (_, res, ctx) =>
-        res(ctx.json(Factories.API.Image.createWithId('imgId')))
-      )
-    )
 
-    const result = await recipes()
+    beforeEach(() => {
+      server.use(
+        rest.get(root + board + '/cards', (_, res, ctx) =>
+          res(ctx.json([card1, card2]))
+        )
+      )
+      server.use(
+        rest.get(`${root}/card/2/attachments/img2`, (_, res, ctx) =>
+          res(ctx.json(Factories.API.Image.createWithId('imgId')))
+        )
+      )
+    })
 
-    expect(result).to.have.lengthOf(1)
-    expect(result[0].id).to.equal(card2.id)
-    expect(result[0].name).to.equal(card2.name)
-    expect(result[0].idList).to.equal(card2.idList)
-    expect(result[0].tags).to.deep.equal(card2.labels)
-    // because the image property is also a Promise, it needs unwrapped
-    // here with an await (in addition to the one when defining result)
-    expect((await result[0].coverImage).id).to.equal('imgId')
+    it('returns a list of published cards', async () => {
+      const result = await recipes()
+
+      expect(result).to.have.lengthOf(1)
+      expect(result[0].id).to.equal(card2.id)
+      expect(result[0].name).to.equal(card2.name)
+      expect(result[0].idList).to.equal(card2.idList)
+      expect(result[0].tags).to.deep.equal(card2.labels)
+      // because the image property is also a Promise, it needs unwrapped
+      // here with an await (in addition to the one when defining result)
+      expect((await result[0].coverImage).id).to.equal('imgId')
+    })
+
+    it('can specify a minimum height and/or width for the cover images, to be handled by image()', async () => {
+      const result = await recipes({ height: 10, width: 10 })
+
+      expect((await result[0].coverImage).url).to.equal('url10')
+    })
   })
 
   describe('details()', () => {
