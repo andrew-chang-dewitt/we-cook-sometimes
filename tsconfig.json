@@ -2,6 +2,7 @@
   "compilerOptions": {
     "incremental": true,
     "target": "es6",
+    "lib": ["es2017"],
     "module": "commonjs",
     "jsx": "react",
     "sourceMap": true,
