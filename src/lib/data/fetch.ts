@@ -22,7 +22,7 @@ const trello = <T>(endpoint: string): Promise<T> => {
   return fetch(root + endpoint).then((res: any) => res.json())
 }
 
-export const tags = (): Promise<Tag[]> => trello<Tag[]>(board + '/labels')
+const tags = (): Promise<Tag[]> => trello<Tag[]>(board + '/labels')
 
 interface MinDimensions {
   height?: number
@@ -81,7 +81,7 @@ const findBestFit = (res: ImageAPI, minDimensions: MinDimensions): number => {
   return index
 }
 
-export const image = (
+const image = (
   cardId: string,
   imageId: string,
   minDimensions: MinDimensions | null = null
@@ -154,7 +154,7 @@ export interface RecipesByLabelId {
   [index: string]: Array<string>
 }
 
-export const recipes = (
+const recipes = (
   minDimensions: MinDimensions | null = null
 ): Promise<Recipe[]> => {
   const resolveImage = (
@@ -188,7 +188,7 @@ export interface RecipeDetails extends RecipeAPIDetails {
   images: Array<Image>
 }
 
-export const details = async (
+const details = async (
   id: string,
   minDimensions: MinDimensions | null = null
 ): Promise<RecipeDetails> => {
@@ -227,4 +227,11 @@ export const details = async (
     id: card.id,
     desc: card.desc,
   }
+}
+
+export default {
+  tags,
+  image,
+  recipes,
+  details,
 }

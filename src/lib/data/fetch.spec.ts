@@ -7,15 +7,7 @@ import { setupServer } from 'msw/node'
 chai.use(chaiAsPromised)
 const expect = chai.expect
 
-import {
-  recipes,
-  tags,
-  details,
-  image,
-  Tag,
-  ImageAPI,
-  RecipeAPI,
-} from './fetch'
+import fetch, { Tag, ImageAPI, RecipeAPI } from './fetch'
 
 export const Factories = {
   API: {
@@ -125,7 +117,7 @@ describe('lib/data/fetch', () => {
     })
 
     it('returns an Image object for a given recipe & image ID', async () => {
-      expect(await image('1', '1')).to.deep.equal({
+      expect(await fetch.image('1', '1')).to.deep.equal({
         url: 'url',
         id: imgObj.id,
         name: imgObj.name,
@@ -134,17 +126,19 @@ describe('lib/data/fetch', () => {
     })
 
     it('can return the smallest scaled image that is still >= the optionally given dimensions', async () => {
-      expect((await image('1', '1', { height: 9, width: 9 })).url).to.equal(
-        'url10'
-      )
+      expect(
+        (await fetch.image('1', '1', { height: 9, width: 9 })).url
+      ).to.equal('url10')
     })
 
     it('only requires a min height or a width to be specified', async () => {
-      expect((await image('1', '1', { height: 100 })).url).to.equal('url100')
+      expect((await fetch.image('1', '1', { height: 100 })).url).to.equal(
+        'url100'
+      )
     })
 
     it('but at least one must be given, despite being optional on the MinDimensions interface', () => {
-      expect(image('1', '1', {}))
+      expect(fetch.image('1', '1', {}))
         .to.eventually.be.rejectedWith(
           'at least one property on minDimensions must be provided: {}'
         )
@@ -153,13 +147,13 @@ describe('lib/data/fetch', () => {
 
     it('must be >= both, if two dimensions are given', async () => {
       expect(
-        (await image('1', '1', { height: 1, width: 100 })).url
+        (await fetch.image('1', '1', { height: 1, width: 100 })).url
       ).to.deep.equal('url100')
     })
 
     it("returns the largest available, if there isn't one any bigger", async () => {
       expect(
-        (await image('1', '1', { height: 101, width: 101 })).url
+        (await fetch.image('1', '1', { height: 101, width: 101 })).url
       ).to.deep.equal('url100')
     })
   })
@@ -170,7 +164,7 @@ describe('lib/data/fetch', () => {
       rest.get(root + board + '/labels', (_, res, ctx) => res(ctx.json(labels)))
     )
 
-    expect(await tags()).to.deep.equal(labels)
+    expect(await fetch.tags()).to.deep.equal(labels)
   })
 
   describe('recipes()', () => {
@@ -231,7 +225,7 @@ describe('lib/data/fetch', () => {
     })
 
     it('returns an array of recipes', async () => {
-      const result = await recipes()
+      const result = await fetch.recipes()
 
       expect(result[0].id).to.equal('recipe1')
       expect(result[1].id).to.equal('recipe2')
@@ -239,7 +233,7 @@ describe('lib/data/fetch', () => {
     })
 
     it('can specify a minimum height and/or width for the cover images, to be handled by image()', async () => {
-      const result = await recipes({ height: 10, width: 10 })
+      const result = await fetch.recipes({ height: 10, width: 10 })
 
       expect((await result[0].coverImage).url).to.equal('url10')
     })
@@ -311,7 +305,7 @@ describe('lib/data/fetch', () => {
     })
 
     it('returns the extra details for a given recipe', async () => {
-      const result = await details('1')
+      const result = await fetch.details('1')
 
       expect(result.id).to.equal('1')
       expect(result.desc).to.equal('description')
@@ -320,28 +314,28 @@ describe('lib/data/fetch', () => {
     })
 
     it('can return the smallest scaled images that are still >= the optionally given dimensions', async () => {
-      const result = await details('1', { height: 10, width: 10 })
+      const result = await fetch.details('1', { height: 10, width: 10 })
 
       expect(result.images[0].url).to.equal('url1-10')
       expect(result.images[1].url).to.equal('url2-10')
     })
 
     it('only requires a min height or a width to be specified', async () => {
-      const result = await details('1', { width: 100 })
+      const result = await fetch.details('1', { width: 100 })
 
       expect(result.images[0].url).to.equal('url1-100')
       expect(result.images[1].url).to.equal('url2-100')
     })
 
     it('must be >= both, if two dimensions are given', async () => {
-      const result = await details('1', { height: 1, width: 100 })
+      const result = await fetch.details('1', { height: 1, width: 100 })
 
       expect(result.images[0].url).to.equal('url1-100')
       expect(result.images[1].url).to.equal('url2-100')
     })
 
     it("returns the largest available, if there isn't one any bigger", async () => {
-      const result = await details('1', { height: 101, width: 101 })
+      const result = await fetch.details('1', { height: 101, width: 101 })
 
       expect(result.images[0].url).to.equal('url1-100')
       expect(result.images[1].url).to.equal('url2-100')
