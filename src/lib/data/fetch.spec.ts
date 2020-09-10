@@ -13,7 +13,7 @@ import {
   RecipeAPI,
 } from './fetch'
 
-const Factories = {
+export const Factories = {
   API: {
     Image: {
       create: (): ImageAPI => ({
@@ -220,30 +220,18 @@ describe('lib/data/fetch', () => {
       )
     })
 
-    it('returns a hashmap of recipes indexed by their ID', async () => {
+    it('returns an array of recipes', async () => {
       const result = await recipes()
 
-      expect(result.list['recipe1'].id).to.equal('recipe1')
-      expect(result.list['recipe2'].id).to.equal('recipe2')
-      expect(result.list['recipe3'].id).to.equal('recipe3')
-    })
-
-    it('also returns a hashmap of recipeIDs indexed by labelID', async () => {
-      const result = await recipes()
-
-      expect(result.hashedByLabels).to.deep.equal({
-        labelCommon: ['recipe1', 'recipe2', 'recipe3'],
-        labelPublished: ['recipe2', 'recipe3'],
-        labelALabel: ['recipe1'],
-        labelAUniqueLabel: ['recipe2'],
-        labelADifferentLabel: ['recipe3'],
-      })
+      expect(result[0].id).to.equal('recipe1')
+      expect(result[1].id).to.equal('recipe2')
+      expect(result[2].id).to.equal('recipe3')
     })
 
     it('can specify a minimum height and/or width for the cover images, to be handled by image()', async () => {
       const result = await recipes({ height: 10, width: 10 })
 
-      expect((await result.list['recipe2'].coverImage).url).to.equal('url10')
+      expect((await result[0].coverImage).url).to.equal('url10')
     })
   })
 
