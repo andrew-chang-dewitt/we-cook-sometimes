@@ -23,24 +23,74 @@ const hashByTags = (recipes: fetch.Recipe[]): fetch.RecipesByLabelId => {
   return result
 }
 
-export interface RecipeList {
-  allByID: fetch.RecipesById
-  allByTags: fetch.RecipesByLabelId
-  remaining: fetch.RecipesById
-  // eliminateByTags: (tags: fetch.Tag[]) => RecipeList
+interface ExternalState {
+  readonly allByID: fetch.RecipesById
+  readonly remaining: string[]
 }
 
-const create = (data: fetch.Recipe[]): RecipeList => {
-  const allByID = hashByID(data)
+interface State extends ExternalState {
+  readonly allByTags: fetch.RecipesByLabelId
+}
+
+interface Eliminator {
+  (tagIds: string[]): RecipeList
+}
+
+export interface RecipeList extends ExternalState {
+  eliminateByTags: Eliminator
+}
+
+const getter = ({ allByID, remaining }: ExternalState): ExternalState => {
+  return {
+    get allByID() {
+      return allByID
+    },
+    get remaining() {
+      return remaining
+    },
+  }
+}
+
+const eliminator = (state: State): { eliminateByTags: Eliminator } => {
+  const { allByTags, remaining } = state
 
   return {
-    allByID: allByID,
-    allByTags: hashByTags(data),
-    remaining: allByID,
-    // eliminateByTags: (tags) => {
+    eliminateByTags: (tagIds) => {
+      // make a copy of remaining, to not mutate the
+      // previous state
+      let newRemaining: string[] = [...remaining]
 
-    // }
+      tagIds.forEach((tag) => {
+        newRemaining = newRemaining.filter(
+          (recipeId) => !allByTags[tag].includes(recipeId)
+        )
+      })
+
+      return createFromExisting({
+        ...state,
+        remaining: newRemaining,
+      })
+    },
   }
+}
+
+const createFromExisting = (state: State): RecipeList =>
+  Object.assign({}, getter(state), eliminator(state))
+
+const create = (data: fetch.Recipe[]): RecipeList => {
+  // build lookup tables
+  const allByID = hashByID(data)
+  const allByTags = hashByTags(data)
+
+  // initialize list of recipes not yet eliminated as
+  // an array of all recipe IDs
+  const remaining = Object.keys(allByID)
+
+  return Object.assign(
+    {},
+    getter({ allByID, remaining }),
+    eliminator({ allByID, allByTags, remaining })
+  )
 }
 
 export default {
