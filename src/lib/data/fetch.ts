@@ -141,6 +141,9 @@ export interface Recipe {
   tags: Array<Tag>
   coverImage: Promise<Image>
   idList: string
+  // adding dynamic property to allow for dynamic assignment in
+  // test factories
+  [index: string]: any
 }
 
 export interface RecipesById {
@@ -151,14 +154,9 @@ export interface RecipesByLabelId {
   [index: string]: Array<string>
 }
 
-export interface RecipeList {
-  list: RecipesById
-  hashedByLabels: RecipesByLabelId
-}
-
 export const recipes = (
   minDimensions: MinDimensions | null = null
-): Promise<RecipeList> => {
+): Promise<Recipe[]> => {
   const resolveImage = (
     recipe: RecipeAPI,
     minDimensions: MinDimensions | null
@@ -174,41 +172,11 @@ export const recipes = (
     }
   }
 
-  const hashByID = (recipes: Recipe[]): RecipesById => {
-    let result: RecipesById = {}
-
-    recipes.forEach((recipe) => {
-      result[recipe.id] = recipe
-    })
-
-    return result
-  }
-
-  const hashByLabels = (recipes: Recipe[]): RecipesByLabelId => {
-    let result: RecipesByLabelId = {}
-
-    recipes.forEach((recipe) => {
-      recipe.tags.forEach((tag) => {
-        if (result[tag.id]) result[tag.id].push(recipe.id)
-        else result[tag.id] = [recipe.id]
-      })
-    })
-
-    return result
-  }
-
-  const result = trello<RecipeAPI[]>(
+  return trello<RecipeAPI[]>(
     board + '/cards?fields=id,name,idList,labels,idAttachmentCover'
+  ).then((recipes) =>
+    recipes.map((recipe) => resolveImage(recipe, minDimensions))
   )
-    .then((recipes) =>
-      recipes.map((recipe) => resolveImage(recipe, minDimensions))
-    )
-    .then((recipes) => ({
-      list: hashByID(recipes),
-      hashedByLabels: hashByLabels(recipes),
-    }))
-
-  return result
 }
 
 export interface RecipeAPIDetails {
