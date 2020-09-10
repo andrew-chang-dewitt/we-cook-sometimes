@@ -86,11 +86,7 @@ const create = (data: fetch.Recipe[]): RecipeList => {
   // an array of all recipe IDs
   const remaining = Object.keys(allByID)
 
-  return Object.assign(
-    {},
-    getter({ allByID, remaining }),
-    eliminator({ allByID, allByTags, remaining })
-  )
+  return createFromExisting({ allByID, allByTags, remaining })
 }
 
 export default {
