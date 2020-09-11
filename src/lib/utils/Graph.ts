@@ -4,6 +4,7 @@ interface AdjacencyList {
 
 interface State {
   readonly adjacencyList: AdjacencyList
+  readonly directed: boolean
 }
 
 interface AddVertex {
@@ -22,9 +23,12 @@ export interface Graph extends State {
 const createFromState = (state: State): Graph =>
   Object.assign({}, getters(state), vertexAdder(state), edgeAdder(state))
 
-const getters = ({ adjacencyList }: State): State => ({
+const getters = ({ adjacencyList, directed }: State): State => ({
   get adjacencyList() {
     return adjacencyList
+  },
+  get directed() {
+    return directed
   },
 })
 
@@ -43,8 +47,8 @@ const vertexAdder = (state: State): { addVertex: AddVertex } => ({
   },
 })
 
-const edgeAdder = (state: State): { addEdge: AddEdge } => ({
-  addEdge: (vertex, edge) => {
+const edgeAdder = (state: State): { addEdge: AddEdge } => {
+  const addEdge = (state: State, vertex: string, edge: string): State => {
     // check if vertex already exists
     if (!state.adjacencyList[vertex])
       throw TypeError(
@@ -63,13 +67,28 @@ const edgeAdder = (state: State): { addEdge: AddEdge } => ({
     // check if the edge already exists before adding it
     vertexList.includes(edge) ? null : vertexList.push(edge)
 
-    return createFromState({ ...state, adjacencyList: newList })
-  },
-})
+    return { ...state, adjacencyList: newList }
+  }
+
+  const addDirected: AddEdge = (fromVertex, toVertex) => {
+    return createFromState(addEdge(state, fromVertex, toVertex))
+  }
+
+  const addUndirected: AddEdge = (vertexA, vertexB) => {
+    let newState = addEdge(state, vertexA, vertexB)
+    newState = addEdge(newState, vertexB, vertexA)
+    return createFromState(newState)
+  }
+
+  return {
+    addEdge: !state.directed ? addUndirected : addDirected,
+  }
+}
 
 const create = (existingAdjacencyList: AdjacencyList = {}): Graph => {
   const state = {
     adjacencyList: existingAdjacencyList,
+    directed: false,
   }
 
   return Object.assign({}, getters(state), vertexAdder(state), edgeAdder(state))
