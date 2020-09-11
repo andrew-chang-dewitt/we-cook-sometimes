@@ -77,5 +77,12 @@ describe('lib/utils/Graph', () => {
       expect(ab.adjacencyList['A']).to.contain('B')
       expect(ab.adjacencyList['B']).to.contain('A')
     })
+
+    it('but it can be directed, if specified at creation', () => {
+      const ab = graph.create({}, true).addVertex('A').addVertex('B').addEdge('A', 'B')
+
+      expect(ab.adjacencyList['A']).to.contain('B')
+      expect(ab.adjacencyList['B']).to.not.contain('A')
+    })
   })
 })

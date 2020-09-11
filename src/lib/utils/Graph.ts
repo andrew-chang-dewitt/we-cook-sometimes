@@ -85,10 +85,13 @@ const edgeAdder = (state: State): { addEdge: AddEdge } => {
   }
 }
 
-const create = (existingAdjacencyList: AdjacencyList = {}): Graph => {
+const create = (
+  existingAdjacencyList: AdjacencyList = {},
+  directed: boolean = false
+): Graph => {
   const state = {
     adjacencyList: existingAdjacencyList,
-    directed: false,
+    directed: directed,
   }
 
   return Object.assign({}, getters(state), vertexAdder(state), edgeAdder(state))
