@@ -69,4 +69,13 @@ describe('lib/utils/Graph', () => {
       )
     })
   })
+
+  describe('undirected vs directed', () => {
+    it('is undirected by default', () => {
+      const ab = graph.create().addVertex('A').addVertex('B').addEdge('A', 'B')
+
+      expect(ab.adjacencyList['A']).to.contain('B')
+      expect(ab.adjacencyList['B']).to.contain('A')
+    })
+  })
 })
