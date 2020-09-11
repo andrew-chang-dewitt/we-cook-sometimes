@@ -1,6 +1,6 @@
 import * as fetch from '../data/fetch'
 
-const hashByID = (recipes: fetch.Recipe[]): fetch.RecipesById => {
+const hashById = (recipes: fetch.Recipe[]): fetch.RecipesById => {
   let result: fetch.RecipesById = {}
 
   recipes.forEach((recipe) => {
@@ -79,7 +79,7 @@ const createFromExisting = (state: State): RecipeList =>
 
 const create = (data: fetch.Recipe[]): RecipeList => {
   // build lookup tables
-  const allByID = hashByID(data)
+  const allByID = hashById(data)
   const allByTags = hashByTags(data)
 
   // initialize list of recipes not yet eliminated as
