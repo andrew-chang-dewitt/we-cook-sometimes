@@ -5,6 +5,7 @@ interface AdjacencyList {
 interface State {
   readonly adjacencyList: AdjacencyList
   readonly directed: boolean
+  readonly acyclical: boolean
 }
 
 interface AddVertex {
@@ -15,20 +16,34 @@ interface AddEdge {
   (vertex: string, edge: string): Graph
 }
 
-export interface Graph extends State {
+// interface ForEach {
+//   (callback: (vertex: string) => void): Graph
+// }
+
+export interface Graph {
+  readonly adjacencyList: AdjacencyList
   addVertex: AddVertex
   addEdge: AddEdge
+  // forEach: ForEach
 }
 
-const createFromState = (state: State): Graph =>
+const graph = (state: State): Graph =>
   Object.assign({}, getters(state), vertexAdder(state), edgeAdder(state))
 
-const getters = ({ adjacencyList, directed }: State): State => ({
+// const traverser = (): { traverse: Traverse } => {
+//   return {
+//     traverse: () => {
+//       console.log(this)
+//       return this
+//     },
+//   }
+// }
+
+const getters = ({
+  adjacencyList,
+}: State): { adjacencyList: AdjacencyList } => ({
   get adjacencyList() {
     return adjacencyList
-  },
-  get directed() {
-    return directed
   },
 })
 
@@ -43,7 +58,7 @@ const vertexAdder = (state: State): { addVertex: AddVertex } => ({
     const newList = { ...state.adjacencyList }
     newList[vertex] = []
 
-    return createFromState({ ...state, adjacencyList: newList })
+    return graph({ ...state, adjacencyList: newList })
   },
 })
 
@@ -61,23 +76,50 @@ const edgeAdder = (state: State): { addEdge: AddEdge } => {
         `A Vertex, \`${edge}\`, does not exist; a new Edge must match an existing Vertex.`
       )
 
-    const newList = { ...state.adjacencyList }
-    const vertexList = newList[vertex]
+    // spread the list of neighbors to shallow clone it
+    // to avoid side affecting the given state
+    const edges = [...state.adjacencyList[vertex]]
 
     // check if the edge already exists before adding it
-    vertexList.includes(edge) ? null : vertexList.push(edge)
+    edges.includes(edge) ? null : edges.push(edge)
+
+    // spread the adjacency list to shallow clone it
+    const newList = { ...state.adjacencyList }
+    // then replace the old list of neighbors with the new one
+    newList[vertex] = edges
+    // this avoids unnecessarily cloning all neighbors lists
+    // when they aren't changing
 
     return { ...state, adjacencyList: newList }
   }
 
+  const enforceAcyclicality = (
+    graph: Graph
+    // fromVertex: string,
+    // toVertex: string
+  ): Graph => {
+    // if (hasCycle(graph))
+    //   throw TypeError(
+    //     `Can not add edge ${fromVertex}${toVertex} because it creates a Cycle & this graph was created as a Directed Acyclical graph`
+    //   )
+
+    return graph
+  }
+
   const addDirected: AddEdge = (fromVertex, toVertex) => {
-    return createFromState(addEdge(state, fromVertex, toVertex))
+    const newGraph = graph(addEdge(state, fromVertex, toVertex))
+
+    return state.acyclical
+      ? enforceAcyclicality(
+          newGraph
+          // fromVertex, toVertex
+        )
+      : newGraph
   }
 
   const addUndirected: AddEdge = (vertexA, vertexB) => {
-    let newState = addEdge(state, vertexA, vertexB)
-    newState = addEdge(newState, vertexB, vertexA)
-    return createFromState(newState)
+    const newState = addEdge(state, vertexA, vertexB)
+    return graph(addEdge(newState, vertexB, vertexA))
   }
 
   return {
@@ -86,15 +128,23 @@ const edgeAdder = (state: State): { addEdge: AddEdge } => {
 }
 
 const create = (
-  existingAdjacencyList: AdjacencyList = {},
-  directed: boolean = false
+  adjacencyList: AdjacencyList = {},
+  directed: boolean = false,
+  acyclical: boolean = false
 ): Graph => {
-  const state = {
-    adjacencyList: existingAdjacencyList,
-    directed: directed,
+  const state: State = {
+    adjacencyList,
+    directed,
+    acyclical,
   }
 
-  return Object.assign({}, getters(state), vertexAdder(state), edgeAdder(state))
+  return graph(state)
 }
+
+// const hasCycle = (graph: Graph): boolean => {
+//   graph.traverse()
+//
+//   return false
+// }
 
 export default { create }

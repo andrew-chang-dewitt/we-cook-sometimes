@@ -4,12 +4,8 @@ import { expect } from 'chai'
 import graph, { Graph } from './Graph'
 
 describe('lib/utils/Graph', () => {
-  let aGraph: Graph
-
   it('initializes with an empty adjacency list', () => {
-    aGraph = graph.create()
-
-    expect(aGraph.adjacencyList).to.be.empty
+    expect(graph.create().adjacencyList).to.be.empty
   })
 
   it('can be given an existing adjacency list to start with', () => {
@@ -19,17 +15,22 @@ describe('lib/utils/Graph', () => {
   })
 
   describe('addVertex()', () => {
+    let oldGraph: Graph
     let newGraph: Graph
 
+    before(() => {
+      oldGraph = graph.create()
+    })
+
     it('adding a vertex returns a new graph with the new vertex', () => {
-      newGraph = aGraph.addVertex('A')
+      newGraph = oldGraph.addVertex('A')
 
       expect(newGraph.adjacencyList['A']).to.exist
     })
 
     it('without altering the old graph', () => {
-      expect(newGraph.adjacencyList).to.not.deep.equal(aGraph.adjacencyList)
-      expect(aGraph.adjacencyList['A']).to.not.exist
+      expect(newGraph.adjacencyList).to.not.deep.equal(oldGraph.adjacencyList)
+      expect(oldGraph.adjacencyList['A']).to.not.exist
     })
 
     it("won't add a vertex if it already exists", () => {
@@ -41,12 +42,23 @@ describe('lib/utils/Graph', () => {
   })
 
   describe('addEdge()', () => {
-    let newGraph = graph.create({ A: [], B: [] })
+    let oldGraph: Graph
+    let newGraph: Graph
+
+    before(() => {
+      oldGraph = graph.create({ A: [], B: [] })
+    })
 
     it('can add edges', () => {
-      newGraph = newGraph.addEdge('A', 'B')
+      newGraph = oldGraph.addEdge('A', 'B')
 
       expect(newGraph.adjacencyList['A']).to.deep.equal(['B'])
+    })
+
+    it('without altering the old graph', () => {
+      expect(newGraph.adjacencyList).to.not.deep.equal(oldGraph.adjacencyList)
+      expect(oldGraph.adjacencyList['A']).to.be.empty
+      expect(oldGraph.adjacencyList['B']).to.be.empty
     })
 
     it("but it won't add an edge again if it already exists", () => {
@@ -70,6 +82,22 @@ describe('lib/utils/Graph', () => {
     })
   })
 
+  // describe('forEach()', () => {
+  //   it('iterates over every node in the graph, executing the provided callback', () => {
+  //     const oldGraph = graph.create()
+  //     oldGraph.addVertex('A')
+  //     oldGraph.addVertex('B')
+  //     oldGraph.addVertex('C')
+  //     oldGraph.addEdge('A', 'B')
+  //     oldGraph.addEdge('A', 'C')
+  //     oldGraph.addEdge('B', 'C')
+
+  //     let visited: string[] = []
+
+  //     oldGraph.forEach((node) => visited.push(node))
+  //   })
+  // })
+
   describe('undirected vs directed', () => {
     it('is undirected by default', () => {
       const ab = graph.create().addVertex('A').addVertex('B').addEdge('A', 'B')
@@ -79,10 +107,60 @@ describe('lib/utils/Graph', () => {
     })
 
     it('but it can be directed, if specified at creation', () => {
-      const ab = graph.create({}, true).addVertex('A').addVertex('B').addEdge('A', 'B')
+      const ab = graph
+        .create({}, true)
+        .addVertex('A')
+        .addVertex('B')
+        .addEdge('A', 'B')
 
       expect(ab.adjacencyList['A']).to.contain('B')
       expect(ab.adjacencyList['B']).to.not.contain('A')
+    })
+
+    describe('directed', () => {
+      it('is allowed to be cyclical by default', () => {
+        expect(
+          graph
+            .create()
+            .addVertex('A')
+            .addVertex('B')
+            .addEdge('A', 'B')
+            .addEdge('B', 'A').adjacencyList
+        ).to.deep.equal({
+          A: ['B'],
+          B: ['A'],
+        })
+      })
+
+      // it('but can be be required to enforce that it is acyclical', () => {
+      //   expect((_: any) =>
+      //     graph
+      //       .create({}, false, true)
+      //       .addVertex('A')
+      //       .addVertex('B')
+      //       .addEdge('A', 'B')
+      //       .addEdge('B', 'A')
+      //   ).to.throw(
+      //     TypeError,
+      //     /.*can not add Edge BA.*creates a cycle.*acyclical/i
+      //   )
+      // })
+
+      // it('enforces acyclicality across paths with a length of 3+ nodes', () => {
+      //   expect((_: any) =>
+      //     graph
+      //       .create({}, false, true)
+      //       .addVertex('A')
+      //       .addVertex('B')
+      //       .addVertex('C')
+      //       .addEdge('A', 'B')
+      //       .addEdge('B', 'C')
+      //       .addEdge('C', 'A')
+      //   ).to.throw(
+      //     TypeError,
+      //     /.*can not add Edge BA.*creates a cycle.*acyclical/i
+      //   )
+      // })
     })
   })
 })
