@@ -4,6 +4,7 @@ interface AdjacencyList {
 
 interface State {
   readonly adjacencyList: AdjacencyList
+  root: string | null
   readonly directed: boolean
   readonly acyclical: boolean
 }
@@ -16,28 +17,106 @@ interface AddEdge {
   (vertex: string, edge: string): Graph
 }
 
-// interface ForEach {
-//   (callback: (vertex: string) => void): Graph
-// }
+interface ForEach {
+  (callback: (vertex: string) => void): Graph
+}
 
 export interface Graph {
   readonly adjacencyList: AdjacencyList
   addVertex: AddVertex
   addEdge: AddEdge
-  // forEach: ForEach
+  forEach: ForEach
+  iterator: () => Iterator<string>
 }
 
 const graph = (state: State): Graph =>
-  Object.assign({}, getters(state), vertexAdder(state), edgeAdder(state))
+  Object.assign(
+    {},
+    getters(state),
+    vertexAdder(state),
+    edgeAdder(state),
+    forEacher(state),
+    iterable(state)
+  )
 
-// const traverser = (): { traverse: Traverse } => {
-//   return {
-//     traverse: () => {
-//       console.log(this)
-//       return this
-//     },
-//   }
-// }
+export interface Iterator<T> {
+  next: () => T | null
+}
+
+const iterable = ({
+  adjacencyList,
+  root,
+}: State): { iterator: () => Iterator<string> } => ({
+  iterator: () => {
+    const visited: string[] = []
+    const stack: string[] = []
+
+    if (!root)
+      throw TypeError(
+        'Cannot iterate over graph without having a root; either your graph has no vertices, or has them, but has no root defined.'
+      )
+
+    stack.push(root)
+
+    return {
+      next: () => {
+        const recur = (): string | null => {
+          const current = stack[stack.length - 1]
+
+          if (!current) return null
+
+          if (!visited.includes(current)) {
+            visited.push(current)
+            return current
+          }
+
+          if (
+            adjacencyList[current].every((neighbor) =>
+              visited.includes(neighbor)
+            )
+          ) {
+            stack.pop()
+
+            return recur()
+          }
+
+          const remaining = adjacencyList[current]
+            .reduce((accumulator: string[], neighbor) => {
+              if (!visited.includes(neighbor)) accumulator.push(neighbor)
+
+              return accumulator
+            }, [])
+            .sort()
+
+          stack.push(remaining[0])
+
+          return recur()
+        }
+
+        return recur()
+      },
+    }
+  },
+})
+
+const forEacher = (state: State): { forEach: ForEach } => ({
+  forEach: (callback) => {
+    const iterator = iterable(state).iterator()
+
+    let current = iterator.next()
+
+    const recur = () => {
+      while (current) {
+        callback(current)
+        current = iterator.next()
+      }
+    }
+
+    recur()
+
+    return graph(state)
+  },
+})
 
 const getters = ({
   adjacencyList,
@@ -54,6 +133,9 @@ const vertexAdder = (state: State): { addVertex: AddVertex } => ({
       throw TypeError(
         `A Vertex, \`${vertex}\`, already exists; the same vertex can not be added again.`
       )
+
+    // if this is the first vertex, make it the root
+    if (Object.keys(state.adjacencyList).length === 0) state.root = vertex
 
     const newList = { ...state.adjacencyList }
     newList[vertex] = []
@@ -94,14 +176,14 @@ const edgeAdder = (state: State): { addEdge: AddEdge } => {
   }
 
   const enforceAcyclicality = (
-    graph: Graph
-    // fromVertex: string,
-    // toVertex: string
+    graph: Graph,
+    fromVertex: string,
+    toVertex: string
   ): Graph => {
-    // if (hasCycle(graph))
-    //   throw TypeError(
-    //     `Can not add edge ${fromVertex}${toVertex} because it creates a Cycle & this graph was created as a Directed Acyclical graph`
-    //   )
+    if (hasCycle(graph))
+      throw TypeError(
+        `Can not add edge ${fromVertex}${toVertex} because it creates a Cycle & this graph was created as a Directed Acyclical graph`
+      )
 
     return graph
   }
@@ -110,10 +192,7 @@ const edgeAdder = (state: State): { addEdge: AddEdge } => {
     const newGraph = graph(addEdge(state, fromVertex, toVertex))
 
     return state.acyclical
-      ? enforceAcyclicality(
-          newGraph
-          // fromVertex, toVertex
-        )
+      ? enforceAcyclicality(newGraph, fromVertex, toVertex)
       : newGraph
   }
 
@@ -130,21 +209,23 @@ const edgeAdder = (state: State): { addEdge: AddEdge } => {
 const create = (
   adjacencyList: AdjacencyList = {},
   directed: boolean = false,
-  acyclical: boolean = false
+  acyclical: boolean = false,
+  root: string | null = null
 ): Graph => {
   const state: State = {
     adjacencyList,
     directed,
     acyclical,
+    root,
   }
 
   return graph(state)
 }
 
-// const hasCycle = (graph: Graph): boolean => {
-//   graph.traverse()
-//
-//   return false
-// }
+const hasCycle = (graph: Graph): boolean => {
+  graph
+
+  return false
+}
 
 export default { create }

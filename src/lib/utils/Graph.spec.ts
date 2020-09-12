@@ -1,7 +1,7 @@
 import 'mocha'
 import { expect } from 'chai'
 
-import graph, { Graph } from './Graph'
+import graph, { Graph, Iterator } from './Graph'
 
 describe('lib/utils/Graph', () => {
   it('initializes with an empty adjacency list', () => {
@@ -82,21 +82,108 @@ describe('lib/utils/Graph', () => {
     })
   })
 
-  // describe('forEach()', () => {
-  //   it('iterates over every node in the graph, executing the provided callback', () => {
-  //     const oldGraph = graph.create()
-  //     oldGraph.addVertex('A')
-  //     oldGraph.addVertex('B')
-  //     oldGraph.addVertex('C')
-  //     oldGraph.addEdge('A', 'B')
-  //     oldGraph.addEdge('A', 'C')
-  //     oldGraph.addEdge('B', 'C')
+  describe('iterator()', () => {
+    it('returns an Iterator made from the graph', () => {
+      const aGraph = graph.create(
+        {
+          A: ['B', 'C', 'E'],
+          B: ['C'],
+          C: ['D', 'E'],
+          D: ['F'],
+          E: [],
+          F: [],
+        },
+        true,
+        false,
+        'A'
+      )
 
-  //     let visited: string[] = []
+      expect(aGraph.iterator()).to.exist
+    })
 
-  //     oldGraph.forEach((node) => visited.push(node))
-  //   })
-  // })
+    it('throws an error if the graph does not have a root vertext defined', () => {
+      const aGraph = graph.create(
+        {
+          A: ['B', 'C', 'E'],
+          B: ['C'],
+          C: ['D', 'E'],
+          D: ['F'],
+          E: [],
+          F: [],
+        },
+        true
+      )
+
+      expect(() => aGraph.iterator()).to.throw(
+        TypeError,
+        /.*cannot iterate.*without.*root/i
+      )
+    })
+
+    describe('next()', () => {
+      let iterator: Iterator<string>
+
+      before(() => {
+        iterator = graph
+          .create(
+            {
+              A: ['B', 'C', 'E'],
+              B: ['C'],
+              C: ['D', 'E'],
+              D: ['F'],
+              E: [],
+              F: [],
+            },
+            true,
+            false,
+            'A'
+          )
+          .iterator()
+      })
+
+      it('returns the next item in the iterator ', () => {
+        expect(iterator.next()).to.equal('A')
+      })
+
+      it('side-effects the iterator so that calling next again returns the item after the one returned last time', () => {
+        expect(iterator.next()).to.equal('B')
+      })
+
+      it('uses a depth-first traversal algorithm for determining vertex order', () => {
+        let iterated: Array<string | null> = []
+
+        iterated.push(iterator.next())
+        iterated.push(iterator.next())
+        iterated.push(iterator.next())
+        iterated.push(iterator.next())
+
+        expect(iterated).to.deep.equal(['C', 'D', 'F', 'E'])
+      })
+
+      it('returns null if there are no items left in the iterator', () => {
+        expect(iterator.next()).to.be.null
+      })
+    })
+  })
+
+  describe('forEach()', () => {
+    it('iterates over every node in the graph, executing the provided callback', () => {
+      const oldGraph = graph
+        .create()
+        .addVertex('A')
+        .addVertex('B')
+        .addVertex('C')
+        .addEdge('A', 'B')
+        .addEdge('A', 'C')
+        .addEdge('B', 'C')
+
+      let visited: string[] = []
+
+      oldGraph.forEach((node) => visited.push(node))
+
+      expect(visited).to.include.members(['A', 'B', 'C'])
+    })
+  })
 
   describe('undirected vs directed', () => {
     it('is undirected by default', () => {
