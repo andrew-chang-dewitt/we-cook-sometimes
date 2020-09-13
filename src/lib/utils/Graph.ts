@@ -18,7 +18,9 @@ interface AddEdge {
 }
 
 export interface Traverser<T> {
-  next: () => T | null
+  (): {
+    next: () => T | null
+  }
 }
 
 interface ForEach {
@@ -29,7 +31,7 @@ export interface Graph {
   readonly adjacencyList: AdjacencyList
   addNode: AddNode
   addEdge: AddEdge
-  traverser: () => Traverser<string>
+  traverser: Traverser<string>
   forEach: ForEach
 }
 
@@ -37,16 +39,19 @@ const GraphBuilder = (state: State): Graph =>
   Object.assign(
     {},
     getters(state),
-    nodeAdder(state),
-    edgeAdder(state),
-    forEacher(state),
+    nodeAddable(state),
+    edgeAddable(state),
+    forEachable(state),
     traversable(state)
   )
+
+class CycleError extends Error {}
 
 const traversable = ({
   adjacencyList,
   root,
-}: State): { traverser: () => Traverser<string> } => ({
+  acyclical,
+}: State): { traverser: Traverser<string> } => ({
   traverser: () => {
     const visited: string[] = []
     const stack: string[] = []
@@ -62,6 +67,7 @@ const traversable = ({
       next: () => {
         const recur = (): string | null => {
           const current = stack[stack.length - 1]
+          const neighbors = adjacencyList[current]
 
           if (!current) return null
 
@@ -71,16 +77,21 @@ const traversable = ({
           }
 
           if (
-            adjacencyList[current].every((neighbor) =>
-              visited.includes(neighbor)
-            )
+            acyclical &&
+            neighbors.some((neighbor) => stack.includes(neighbor))
           ) {
+            throw new CycleError(
+              'A cycle has been detected while traversing & this graph is marked as acyclical'
+            )
+          }
+
+          if (neighbors.every((neighbor) => visited.includes(neighbor))) {
             stack.pop()
 
             return recur()
           }
 
-          const remaining = adjacencyList[current]
+          const remaining = neighbors
             .reduce((accumulator: string[], neighbor) => {
               if (!visited.includes(neighbor)) accumulator.push(neighbor)
 
@@ -99,7 +110,7 @@ const traversable = ({
   },
 })
 
-const forEacher = (state: State): { forEach: ForEach } => ({
+const forEachable = (state: State): { forEach: ForEach } => ({
   forEach: (callback) => {
     const traverser = traversable(state).traverser()
 
@@ -126,7 +137,7 @@ const getters = ({
   },
 })
 
-const nodeAdder = (state: State): { addNode: AddNode } => ({
+const nodeAddable = (state: State): { addNode: AddNode } => ({
   addNode: (node) => {
     // check if node already exists
     if (state.adjacencyList[node])
@@ -144,7 +155,7 @@ const nodeAdder = (state: State): { addNode: AddNode } => ({
   },
 })
 
-const edgeAdder = (state: State): { addEdge: AddEdge } => {
+const edgeAddable = (state: State): { addEdge: AddEdge } => {
   const addEdge = (state: State, node: string, edge: string): State => {
     // check if node already exists
     if (!state.adjacencyList[node])
@@ -180,10 +191,17 @@ const edgeAdder = (state: State): { addEdge: AddEdge } => {
     fromNode: string,
     toNode: string
   ): Graph => {
-    if (hasCycle(graph))
-      throw TypeError(
-        `Can not add edge ${fromNode}${toNode} because it creates a Cycle & this graph was created as a Directed Acyclical graph`
-      )
+    // a directed acyclical graph should throw an error when
+    // traversed with forEach() if a cycle is found
+    try {
+      graph.forEach((_) => {})
+    } catch (err) {
+      if (err instanceof CycleError)
+        throw TypeError(
+          `Can not add edge ${fromNode}${toNode} because it creates a Cycle & this graph was created as a Directed Acyclical graph`
+        )
+      else throw err
+    }
 
     return graph
   }
@@ -212,6 +230,9 @@ const create = (
   acyclical: boolean = false,
   root: string | null = null
 ): Graph => {
+  if (!directed && acyclical)
+    throw TypeError('A directed graph can not be acyclical')
+
   const state: State = {
     adjacencyList,
     directed,
@@ -220,12 +241,6 @@ const create = (
   }
 
   return GraphBuilder(state)
-}
-
-const hasCycle = (graph: Graph): boolean => {
-  graph
-
-  return false
 }
 
 export default { create }

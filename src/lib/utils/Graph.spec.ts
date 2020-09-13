@@ -1,7 +1,7 @@
 import 'mocha'
 import { expect } from 'chai'
 
-import graph, { Graph, Traverser } from './Graph'
+import graph, { Graph } from './Graph'
 
 describe('lib/utils/Graph', () => {
   it('initializes with an empty adjacency list', () => {
@@ -121,7 +121,7 @@ describe('lib/utils/Graph', () => {
     })
 
     describe('next()', () => {
-      let traverser: Traverser<string>
+      let traverser: { next: () => string | null }
 
       before(() => {
         traverser = graph
@@ -243,35 +243,35 @@ describe('lib/utils/Graph', () => {
         })
       })
 
-      // it('but can be be required to enforce that it is acyclical', () => {
-      //   expect((_: any) =>
-      //     graph
-      //       .create({}, false, true)
-      //       .addNode('A')
-      //       .addNode('B')
-      //       .addEdge('A', 'B')
-      //       .addEdge('B', 'A')
-      //   ).to.throw(
-      //     TypeError,
-      //     /.*can not add Edge BA.*creates a cycle.*acyclical/i
-      //   )
-      // })
+      it('but can be be required to enforce that it is acyclical', () => {
+        expect((_: any) => {
+          graph
+            .create({}, true, true)
+            .addNode('A')
+            .addNode('B')
+            .addEdge('A', 'B')
+            .addEdge('B', 'A')
+        }).to.throw(
+          TypeError,
+          /.*can not add Edge BA.*creates a cycle.*acyclical/i
+        )
+      })
 
-      // it('enforces acyclicality across paths with a length of 3+ nodes', () => {
-      //   expect((_: any) =>
-      //     graph
-      //       .create({}, false, true)
-      //       .addNode('A')
-      //       .addNode('B')
-      //       .addNode('C')
-      //       .addEdge('A', 'B')
-      //       .addEdge('B', 'C')
-      //       .addEdge('C', 'A')
-      //   ).to.throw(
-      //     TypeError,
-      //     /.*can not add Edge BA.*creates a cycle.*acyclical/i
-      //   )
-      // })
+      it('enforces acyclicality across paths with a length of 3+ nodes', () => {
+        expect((_: any) => {
+          graph
+            .create({}, true, true)
+            .addNode('A')
+            .addNode('B')
+            .addNode('C')
+            .addEdge('A', 'B')
+            .addEdge('B', 'C')
+            .addEdge('C', 'A')
+        }).to.throw(
+          TypeError,
+          /.*can not add Edge CA.*creates a cycle.*acyclical/i
+        )
+      })
     })
   })
 })
