@@ -1,7 +1,7 @@
 import 'mocha'
 import { expect } from 'chai'
 
-import graph, { Graph, Iterator } from './Graph'
+import graph, { Graph, Traverser } from './Graph'
 
 describe('lib/utils/Graph', () => {
   it('initializes with an empty adjacency list', () => {
@@ -9,12 +9,12 @@ describe('lib/utils/Graph', () => {
   })
 
   it('can be given an existing adjacency list to start with', () => {
-    expect(graph.create({ aVertex: [] }).adjacencyList).to.deep.equal({
-      aVertex: [],
+    expect(graph.create({ aNode: [] }).adjacencyList).to.deep.equal({
+      aNode: [],
     })
   })
 
-  describe('addVertex()', () => {
+  describe('addNode()', () => {
     let oldGraph: Graph
     let newGraph: Graph
 
@@ -22,8 +22,8 @@ describe('lib/utils/Graph', () => {
       oldGraph = graph.create()
     })
 
-    it('adding a vertex returns a new graph with the new vertex', () => {
-      newGraph = oldGraph.addVertex('A')
+    it('adding a node returns a new graph with the new node', () => {
+      newGraph = oldGraph.addNode('A')
 
       expect(newGraph.adjacencyList['A']).to.exist
     })
@@ -33,10 +33,10 @@ describe('lib/utils/Graph', () => {
       expect(oldGraph.adjacencyList['A']).to.not.exist
     })
 
-    it("won't add a vertex if it already exists", () => {
-      expect((_: any) => newGraph.addVertex('A')).to.throw(
+    it("won't add a node if it already exists", () => {
+      expect((_: any) => newGraph.addNode('A')).to.throw(
         TypeError,
-        /vertex.*a.*already exists/i
+        /node.*a.*already exists/i
       )
     })
   })
@@ -67,23 +67,23 @@ describe('lib/utils/Graph', () => {
       expect(newGraph.adjacencyList['A']).to.not.deep.equal(['B', 'B'])
     })
 
-    it("it won't add an edge to a vertex that doesn't exist yet", () => {
+    it("it won't add an edge to a node that doesn't exist yet", () => {
       expect((_: any) => newGraph.addEdge('C', 'A')).to.throw(
         TypeError,
-        /vertex.*c.*does not exist/i
+        /node.*c.*does not exist/i
       )
     })
 
-    it("and it won't add an edge if it doesn't have a corresponding vertex", () => {
+    it("and it won't add an edge if it doesn't have a corresponding node", () => {
       expect((_: any) => newGraph.addEdge('A', 'C')).to.throw(
         TypeError,
-        /vertex.*c.*does not exist/i
+        /node.*c.*does not exist/i
       )
     })
   })
 
-  describe('iterator()', () => {
-    it('returns an Iterator made from the graph', () => {
+  describe('traverser()', () => {
+    it('returns an Traverser made from the graph', () => {
       const aGraph = graph.create(
         {
           A: ['B', 'C', 'E'],
@@ -98,10 +98,10 @@ describe('lib/utils/Graph', () => {
         'A'
       )
 
-      expect(aGraph.iterator()).to.exist
+      expect(aGraph.traverser()).to.exist
     })
 
-    it('throws an error if the graph does not have a root vertext defined', () => {
+    it('throws an error if the graph does not have a root nodet defined', () => {
       const aGraph = graph.create(
         {
           A: ['B', 'C', 'E'],
@@ -114,17 +114,17 @@ describe('lib/utils/Graph', () => {
         true
       )
 
-      expect(() => aGraph.iterator()).to.throw(
+      expect(() => aGraph.traverser()).to.throw(
         TypeError,
-        /.*cannot iterate.*without.*root/i
+        /.*cannot traverse.*without.*root/i
       )
     })
 
     describe('next()', () => {
-      let iterator: Iterator<string>
+      let traverser: Traverser<string>
 
       before(() => {
-        iterator = graph
+        traverser = graph
           .create(
             {
               A: ['B', 'C', 'E'],
@@ -138,41 +138,65 @@ describe('lib/utils/Graph', () => {
             false,
             'A'
           )
-          .iterator()
+          .traverser()
       })
 
-      it('returns the next item in the iterator ', () => {
-        expect(iterator.next()).to.equal('A')
+      it('returns the next item in the traverser ', () => {
+        expect(traverser.next()).to.equal('A')
       })
 
-      it('side-effects the iterator so that calling next again returns the item after the one returned last time', () => {
-        expect(iterator.next()).to.equal('B')
+      it('side-effects the traverser so that calling next again returns the item after the one returned last time', () => {
+        expect(traverser.next()).to.equal('B')
       })
 
-      it('uses a depth-first traversal algorithm for determining vertex order', () => {
-        let iterated: Array<string | null> = []
+      it('uses a depth-first traversal algorithm for determining node order', () => {
+        let traversed: Array<string | null> = []
 
-        iterated.push(iterator.next())
-        iterated.push(iterator.next())
-        iterated.push(iterator.next())
-        iterated.push(iterator.next())
+        traversed.push(traverser.next())
+        traversed.push(traverser.next())
+        traversed.push(traverser.next())
+        traversed.push(traverser.next())
 
-        expect(iterated).to.deep.equal(['C', 'D', 'F', 'E'])
+        expect(traversed).to.deep.equal(['C', 'D', 'F', 'E'])
       })
 
-      it('returns null if there are no items left in the iterator', () => {
-        expect(iterator.next()).to.be.null
+      it('returns null if there are no items left in the traverser', () => {
+        expect(traverser.next()).to.be.null
+      })
+
+      it('can traverse over cyclical graphs without repeating a node', () => {
+        traverser = graph
+          .create(
+            {
+              A: ['B'],
+              B: ['C'],
+              C: ['A'],
+            },
+            true,
+            false,
+            'A'
+          )
+          .traverser()
+
+        let traversed: Array<string | null> = []
+
+        traversed.push(traverser.next())
+        traversed.push(traverser.next())
+        traversed.push(traverser.next())
+        traversed.push(traverser.next())
+
+        expect(traversed).to.deep.equal(['A', 'B', 'C', null])
       })
     })
   })
 
   describe('forEach()', () => {
-    it('iterates over every node in the graph, executing the provided callback', () => {
+    it('traverses over every node in the graph, executing the provided callback', () => {
       const oldGraph = graph
         .create()
-        .addVertex('A')
-        .addVertex('B')
-        .addVertex('C')
+        .addNode('A')
+        .addNode('B')
+        .addNode('C')
         .addEdge('A', 'B')
         .addEdge('A', 'C')
         .addEdge('B', 'C')
@@ -187,7 +211,7 @@ describe('lib/utils/Graph', () => {
 
   describe('undirected vs directed', () => {
     it('is undirected by default', () => {
-      const ab = graph.create().addVertex('A').addVertex('B').addEdge('A', 'B')
+      const ab = graph.create().addNode('A').addNode('B').addEdge('A', 'B')
 
       expect(ab.adjacencyList['A']).to.contain('B')
       expect(ab.adjacencyList['B']).to.contain('A')
@@ -196,8 +220,8 @@ describe('lib/utils/Graph', () => {
     it('but it can be directed, if specified at creation', () => {
       const ab = graph
         .create({}, true)
-        .addVertex('A')
-        .addVertex('B')
+        .addNode('A')
+        .addNode('B')
         .addEdge('A', 'B')
 
       expect(ab.adjacencyList['A']).to.contain('B')
@@ -209,8 +233,8 @@ describe('lib/utils/Graph', () => {
         expect(
           graph
             .create()
-            .addVertex('A')
-            .addVertex('B')
+            .addNode('A')
+            .addNode('B')
             .addEdge('A', 'B')
             .addEdge('B', 'A').adjacencyList
         ).to.deep.equal({
@@ -223,8 +247,8 @@ describe('lib/utils/Graph', () => {
       //   expect((_: any) =>
       //     graph
       //       .create({}, false, true)
-      //       .addVertex('A')
-      //       .addVertex('B')
+      //       .addNode('A')
+      //       .addNode('B')
       //       .addEdge('A', 'B')
       //       .addEdge('B', 'A')
       //   ).to.throw(
@@ -237,9 +261,9 @@ describe('lib/utils/Graph', () => {
       //   expect((_: any) =>
       //     graph
       //       .create({}, false, true)
-      //       .addVertex('A')
-      //       .addVertex('B')
-      //       .addVertex('C')
+      //       .addNode('A')
+      //       .addNode('B')
+      //       .addNode('C')
       //       .addEdge('A', 'B')
       //       .addEdge('B', 'C')
       //       .addEdge('C', 'A')

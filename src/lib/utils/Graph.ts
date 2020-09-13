@@ -1,5 +1,5 @@
 interface AdjacencyList {
-  [vertex: string]: Array<string>
+  [node: string]: Array<string>
 }
 
 interface State {
@@ -9,51 +9,51 @@ interface State {
   readonly acyclical: boolean
 }
 
-interface AddVertex {
-  (vertex: string): Graph
+interface AddNode {
+  (node: string): Graph
 }
 
 interface AddEdge {
-  (vertex: string, edge: string): Graph
+  (node: string, edge: string): Graph
+}
+
+export interface Traverser<T> {
+  next: () => T | null
 }
 
 interface ForEach {
-  (callback: (vertex: string) => void): Graph
+  (callback: (node: string) => void): Graph
 }
 
 export interface Graph {
   readonly adjacencyList: AdjacencyList
-  addVertex: AddVertex
+  addNode: AddNode
   addEdge: AddEdge
+  traverser: () => Traverser<string>
   forEach: ForEach
-  iterator: () => Iterator<string>
 }
 
-const graph = (state: State): Graph =>
+const GraphBuilder = (state: State): Graph =>
   Object.assign(
     {},
     getters(state),
-    vertexAdder(state),
+    nodeAdder(state),
     edgeAdder(state),
     forEacher(state),
-    iterable(state)
+    traversable(state)
   )
 
-export interface Iterator<T> {
-  next: () => T | null
-}
-
-const iterable = ({
+const traversable = ({
   adjacencyList,
   root,
-}: State): { iterator: () => Iterator<string> } => ({
-  iterator: () => {
+}: State): { traverser: () => Traverser<string> } => ({
+  traverser: () => {
     const visited: string[] = []
     const stack: string[] = []
 
     if (!root)
       throw TypeError(
-        'Cannot iterate over graph without having a root; either your graph has no vertices, or has them, but has no root defined.'
+        'Cannot traverse over graph without having a root; either your graph has no nodes, or it has no root defined (despite having nodes).'
       )
 
     stack.push(root)
@@ -101,20 +101,20 @@ const iterable = ({
 
 const forEacher = (state: State): { forEach: ForEach } => ({
   forEach: (callback) => {
-    const iterator = iterable(state).iterator()
+    const traverser = traversable(state).traverser()
 
-    let current = iterator.next()
+    let current = traverser.next()
 
     const recur = () => {
       while (current) {
         callback(current)
-        current = iterator.next()
+        current = traverser.next()
       }
     }
 
     recur()
 
-    return graph(state)
+    return GraphBuilder(state)
   },
 })
 
@@ -126,41 +126,41 @@ const getters = ({
   },
 })
 
-const vertexAdder = (state: State): { addVertex: AddVertex } => ({
-  addVertex: (vertex) => {
-    // check if vertex already exists
-    if (state.adjacencyList[vertex])
+const nodeAdder = (state: State): { addNode: AddNode } => ({
+  addNode: (node) => {
+    // check if node already exists
+    if (state.adjacencyList[node])
       throw TypeError(
-        `A Vertex, \`${vertex}\`, already exists; the same vertex can not be added again.`
+        `A Node, \`${node}\`, already exists; the same node can not be added again.`
       )
 
-    // if this is the first vertex, make it the root
-    if (Object.keys(state.adjacencyList).length === 0) state.root = vertex
+    // if this is the first node, make it the root
+    if (Object.keys(state.adjacencyList).length === 0) state.root = node
 
     const newList = { ...state.adjacencyList }
-    newList[vertex] = []
+    newList[node] = []
 
-    return graph({ ...state, adjacencyList: newList })
+    return GraphBuilder({ ...state, adjacencyList: newList })
   },
 })
 
 const edgeAdder = (state: State): { addEdge: AddEdge } => {
-  const addEdge = (state: State, vertex: string, edge: string): State => {
-    // check if vertex already exists
-    if (!state.adjacencyList[vertex])
+  const addEdge = (state: State, node: string, edge: string): State => {
+    // check if node already exists
+    if (!state.adjacencyList[node])
       throw TypeError(
-        `A Vertex, \`${vertex}\`, does not exist yet; a Vertex must exist before an Edge can be added to it.`
+        `A Node, \`${node}\`, does not exist yet; a Node must exist before an Edge can be added to it.`
       )
 
-    // check if edge already exists as a vertex
+    // check if edge already exists as a node
     if (!state.adjacencyList[edge])
       throw TypeError(
-        `A Vertex, \`${edge}\`, does not exist; a new Edge must match an existing Vertex.`
+        `A Node, \`${edge}\`, does not exist; a new Edge must match an existing Node.`
       )
 
     // spread the list of neighbors to shallow clone it
     // to avoid side affecting the given state
-    const edges = [...state.adjacencyList[vertex]]
+    const edges = [...state.adjacencyList[node]]
 
     // check if the edge already exists before adding it
     edges.includes(edge) ? null : edges.push(edge)
@@ -168,7 +168,7 @@ const edgeAdder = (state: State): { addEdge: AddEdge } => {
     // spread the adjacency list to shallow clone it
     const newList = { ...state.adjacencyList }
     // then replace the old list of neighbors with the new one
-    newList[vertex] = edges
+    newList[node] = edges
     // this avoids unnecessarily cloning all neighbors lists
     // when they aren't changing
 
@@ -177,28 +177,28 @@ const edgeAdder = (state: State): { addEdge: AddEdge } => {
 
   const enforceAcyclicality = (
     graph: Graph,
-    fromVertex: string,
-    toVertex: string
+    fromNode: string,
+    toNode: string
   ): Graph => {
     if (hasCycle(graph))
       throw TypeError(
-        `Can not add edge ${fromVertex}${toVertex} because it creates a Cycle & this graph was created as a Directed Acyclical graph`
+        `Can not add edge ${fromNode}${toNode} because it creates a Cycle & this graph was created as a Directed Acyclical graph`
       )
 
     return graph
   }
 
-  const addDirected: AddEdge = (fromVertex, toVertex) => {
-    const newGraph = graph(addEdge(state, fromVertex, toVertex))
+  const addDirected: AddEdge = (fromNode, toNode) => {
+    const newGraph = GraphBuilder(addEdge(state, fromNode, toNode))
 
     return state.acyclical
-      ? enforceAcyclicality(newGraph, fromVertex, toVertex)
+      ? enforceAcyclicality(newGraph, fromNode, toNode)
       : newGraph
   }
 
-  const addUndirected: AddEdge = (vertexA, vertexB) => {
-    const newState = addEdge(state, vertexA, vertexB)
-    return graph(addEdge(newState, vertexB, vertexA))
+  const addUndirected: AddEdge = (nodeA, nodeB) => {
+    const newState = addEdge(state, nodeA, nodeB)
+    return GraphBuilder(addEdge(newState, nodeB, nodeA))
   }
 
   return {
@@ -219,7 +219,7 @@ const create = (
     root,
   }
 
-  return graph(state)
+  return GraphBuilder(state)
 }
 
 const hasCycle = (graph: Graph): boolean => {
