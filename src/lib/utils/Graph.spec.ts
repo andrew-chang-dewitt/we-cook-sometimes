@@ -14,6 +14,78 @@ describe('lib/utils/Graph', () => {
     })
   })
 
+  describe('undirected vs directed', () => {
+    it('is undirected by default', () => {
+      const ab = graph.create().addNode('A').addNode('B').addEdge('A', 'B')
+
+      expect(ab.adjacencyList['A']).to.contain('B')
+      expect(ab.adjacencyList['B']).to.contain('A')
+    })
+
+    it('but it can be directed, if specified at creation', () => {
+      const ab = graph
+        .create({}, true)
+        .addNode('A')
+        .addNode('B')
+        .addEdge('A', 'B')
+
+      expect(ab.adjacencyList['A']).to.contain('B')
+      expect(ab.adjacencyList['B']).to.not.contain('A')
+    })
+
+    describe('directed', () => {
+      it('is allowed to be cyclical by default', () => {
+        expect(
+          graph
+            .create()
+            .addNode('A')
+            .addNode('B')
+            .addEdge('A', 'B')
+            .addEdge('B', 'A').adjacencyList
+        ).to.deep.equal({
+          A: ['B'],
+          B: ['A'],
+        })
+      })
+
+      it('but can be be required to enforce that it is acyclical', () => {
+        expect((_: any) => {
+          graph
+            .create({}, true, true)
+            .addNode('A')
+            .addNode('B')
+            .addEdge('A', 'B')
+            .addEdge('B', 'A')
+        }).to.throw(
+          TypeError,
+          /.*can not add Edge BA.*creates a cycle.*acyclical/i
+        )
+      })
+
+      it('enforces acyclicality across paths with a length of 3+ nodes', () => {
+        expect((_: any) => {
+          graph
+            .create({}, true, true)
+            .addNode('A')
+            .addNode('B')
+            .addNode('C')
+            .addEdge('A', 'B')
+            .addEdge('B', 'C')
+            .addEdge('C', 'A')
+        }).to.throw(
+          TypeError,
+          /.*can not add Edge CA.*creates a cycle.*acyclical/i
+        )
+      })
+
+      it("won't let you try to make an undirected graph be acyclical", () => {
+        expect((_: any) => {
+          graph.create({}, false, true)
+        }).to.throw(TypeError, /.*undirected.*can not be acyclical/i)
+      })
+    })
+  })
+
   describe('addNode()', () => {
     let oldGraph: Graph
     let newGraph: Graph
@@ -206,72 +278,6 @@ describe('lib/utils/Graph', () => {
       oldGraph.forEach((node) => visited.push(node))
 
       expect(visited).to.include.members(['A', 'B', 'C'])
-    })
-  })
-
-  describe('undirected vs directed', () => {
-    it('is undirected by default', () => {
-      const ab = graph.create().addNode('A').addNode('B').addEdge('A', 'B')
-
-      expect(ab.adjacencyList['A']).to.contain('B')
-      expect(ab.adjacencyList['B']).to.contain('A')
-    })
-
-    it('but it can be directed, if specified at creation', () => {
-      const ab = graph
-        .create({}, true)
-        .addNode('A')
-        .addNode('B')
-        .addEdge('A', 'B')
-
-      expect(ab.adjacencyList['A']).to.contain('B')
-      expect(ab.adjacencyList['B']).to.not.contain('A')
-    })
-
-    describe('directed', () => {
-      it('is allowed to be cyclical by default', () => {
-        expect(
-          graph
-            .create()
-            .addNode('A')
-            .addNode('B')
-            .addEdge('A', 'B')
-            .addEdge('B', 'A').adjacencyList
-        ).to.deep.equal({
-          A: ['B'],
-          B: ['A'],
-        })
-      })
-
-      it('but can be be required to enforce that it is acyclical', () => {
-        expect((_: any) => {
-          graph
-            .create({}, true, true)
-            .addNode('A')
-            .addNode('B')
-            .addEdge('A', 'B')
-            .addEdge('B', 'A')
-        }).to.throw(
-          TypeError,
-          /.*can not add Edge BA.*creates a cycle.*acyclical/i
-        )
-      })
-
-      it('enforces acyclicality across paths with a length of 3+ nodes', () => {
-        expect((_: any) => {
-          graph
-            .create({}, true, true)
-            .addNode('A')
-            .addNode('B')
-            .addNode('C')
-            .addEdge('A', 'B')
-            .addEdge('B', 'C')
-            .addEdge('C', 'A')
-        }).to.throw(
-          TypeError,
-          /.*can not add Edge CA.*creates a cycle.*acyclical/i
-        )
-      })
     })
   })
 })

@@ -29,14 +29,20 @@ interface ForEach {
 
 export interface Graph {
   readonly adjacencyList: AdjacencyList
+  readonly nodes: Array<string>
   addNode: AddNode
   addEdge: AddEdge
   traverser: Traverser<string>
   forEach: ForEach
 }
 
-const GraphBuilder = (state: State): Graph =>
-  Object.assign(
+class CycleError extends Error {}
+
+const GraphBuilder = (state: State): Graph => {
+  if (!state.directed && state.acyclical)
+    throw TypeError('An undirected graph can not be acyclical')
+
+  return Object.assign(
     {},
     getters(state),
     nodeAddable(state),
@@ -44,8 +50,22 @@ const GraphBuilder = (state: State): Graph =>
     forEachable(state),
     traversable(state)
   )
+}
 
-class CycleError extends Error {}
+const getters = ({
+  adjacencyList,
+}: State): {
+  adjacencyList: AdjacencyList
+  nodes: Array<string>
+} => ({
+  get adjacencyList() {
+    return adjacencyList
+  },
+
+  get nodes() {
+    return Object.keys(adjacencyList)
+  },
+})
 
 const traversable = ({
   adjacencyList,
@@ -85,12 +105,6 @@ const traversable = ({
             )
           }
 
-          if (neighbors.every((neighbor) => visited.includes(neighbor))) {
-            stack.pop()
-
-            return recur()
-          }
-
           const remaining = neighbors
             .reduce((accumulator: string[], neighbor) => {
               if (!visited.includes(neighbor)) accumulator.push(neighbor)
@@ -98,6 +112,12 @@ const traversable = ({
               return accumulator
             }, [])
             .sort()
+
+          if (remaining.length <= 0) {
+            stack.pop()
+
+            return recur()
+          }
 
           stack.push(remaining[0])
 
@@ -126,14 +146,6 @@ const forEachable = (state: State): { forEach: ForEach } => ({
     recur()
 
     return GraphBuilder(state)
-  },
-})
-
-const getters = ({
-  adjacencyList,
-}: State): { adjacencyList: AdjacencyList } => ({
-  get adjacencyList() {
-    return adjacencyList
   },
 })
 
@@ -196,11 +208,15 @@ const edgeAddable = (state: State): { addEdge: AddEdge } => {
     try {
       graph.forEach((_) => {})
     } catch (err) {
+      /* istanbul ignore else */
       if (err instanceof CycleError)
         throw TypeError(
           `Can not add edge ${fromNode}${toNode} because it creates a Cycle & this graph was created as a Directed Acyclical graph`
         )
-      else throw err
+      // having code coverage ignore this line because it isn't a
+      // behavior that's designed around; instead this line is required
+      // to prevent silencing other errors
+      /* istanbul ignore next */ else throw err
     }
 
     return graph
@@ -229,18 +245,12 @@ const create = (
   directed: boolean = false,
   acyclical: boolean = false,
   root: string | null = null
-): Graph => {
-  if (!directed && acyclical)
-    throw TypeError('A directed graph can not be acyclical')
-
-  const state: State = {
+): Graph =>
+  GraphBuilder({
     adjacencyList,
     directed,
     acyclical,
     root,
-  }
-
-  return GraphBuilder(state)
-}
+  })
 
 export default { create }
