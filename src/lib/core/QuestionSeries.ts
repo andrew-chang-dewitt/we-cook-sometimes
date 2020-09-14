@@ -1,4 +1,8 @@
-import Graph, { Graph as GraphType } from '../utils/Graph'
+import Graph, {
+  Graph as GraphType,
+  CycleError,
+  Traverser,
+} from '../utils/Graph'
 import { Question } from '../data/questions'
 
 interface QuestionsByID {
@@ -18,35 +22,90 @@ const hashById = (questions: Question[]): QuestionsByID => {
 interface State {
   readonly allById: QuestionsByID
   readonly graph: GraphType
+  readonly current: Question | null
+  iterator: Traverser<string>
 }
 
-export interface QuestionSeries extends State {}
+export interface QuestionSeries {
+  readonly allById: QuestionsByID
+  readonly graph: GraphType // FIXME: remove this from interface
+  readonly current: Question | null
+  next: Next
+}
 
-const getters = ({ allById, graph }: State): QuestionSeries => ({
+interface Next {
+  (): QuestionSeries
+}
+
+const QuestionSeriesBuilder = (state: State): QuestionSeries =>
+  Object.assign({}, getters(state), nextable(state))
+
+const getters = (state: State): State => ({
+  ...state,
+
   get allById() {
-    return allById
+    return state.allById
   },
+
+  get current() {
+    return state.current
+  },
+
   get graph() {
-    return graph
+    return state.graph
+  },
+})
+
+const nextable = (state: State): { next: Next } => ({
+  next: () => {
+    const nextId = state.iterator.next()
+    const nextQuestion = nextId !== null ? state.allById[nextId] : nextId
+
+    return QuestionSeriesBuilder({ ...state, current: nextQuestion })
   },
 })
 
 const create = (questions: Question[]): QuestionSeries => {
   const allById = hashById(questions)
-  const graph = Graph.create()
+  let graph = Graph.create({}, true, true)
 
-  const sorted = [...questions]
-    .sort((a, b) => (a.possibleNexts.length = b.possibleNexts.length))
-    .reverse()
-
-  sorted.forEach((question) => {
-    graph.addVertex(question.id)
-  })
-  sorted.forEach((question) =>
-    question.possibleNexts.forEach((next) => graph.addEdge(question.id, next))
+  const sorted = [...questions].sort(
+    // sort from longest possible next questions array to shortest
+    (a, b) => b.possibleNexts.length - a.possibleNexts.length
   )
 
-  return Object.assign({}, getters({ allById, graph }))
+  graph = sorted.reduce((nodeAccumulator, question) => {
+    if (!nodeAccumulator.adjacencyList.hasOwnProperty(question.id))
+      nodeAccumulator = nodeAccumulator.addNode(question.id)
+
+    if (question.possibleNexts.length > 0) {
+      return question.possibleNexts.reduce((edgeAccumulator, next) => {
+        try {
+          return edgeAccumulator.addEdge(question.id, next)
+        } catch (err) {
+          /* istanbul ignore else */
+          if (err instanceof CycleError) return edgeAccumulator
+          /* istanbul ignore next */ else throw err
+        }
+      }, nodeAccumulator)
+    } else return nodeAccumulator
+  }, graph)
+
+  const iterator = graph.traverser()
+  const next = iterator.next()
+  let current: Question | null
+  /* istanbul ignore else */
+  if (next !== null) current = allById[next]
+  else current = null
+
+  const state: State = {
+    allById,
+    graph,
+    iterator,
+    current,
+  }
+
+  return QuestionSeriesBuilder(state)
 }
 
 export default {

@@ -18,9 +18,7 @@ interface AddEdge {
 }
 
 export interface Traverser<T> {
-  (): {
-    next: () => T | null
-  }
+  next: () => T | null
 }
 
 interface ForEach {
@@ -32,11 +30,11 @@ export interface Graph {
   readonly nodes: Array<string>
   addNode: AddNode
   addEdge: AddEdge
-  traverser: Traverser<string>
+  traverser: () => Traverser<string>
   forEach: ForEach
 }
 
-class CycleError extends Error {}
+export class CycleError extends Error {}
 
 const GraphBuilder = (state: State): Graph => {
   if (!state.directed && state.acyclical)
@@ -71,7 +69,7 @@ const traversable = ({
   adjacencyList,
   root,
   acyclical,
-}: State): { traverser: Traverser<string> } => ({
+}: State): { traverser: () => Traverser<string> } => ({
   traverser: () => {
     const visited: string[] = []
     const stack: string[] = []
@@ -169,27 +167,26 @@ const nodeAddable = (state: State): { addNode: AddNode } => ({
 
 const edgeAddable = (state: State): { addEdge: AddEdge } => {
   const addEdge = (state: State, node: string, edge: string): State => {
+    let adjList = state.adjacencyList
     // check if node already exists
-    if (!state.adjacencyList[node])
+    if (!adjList[node])
       throw TypeError(
         `A Node, \`${node}\`, does not exist yet; a Node must exist before an Edge can be added to it.`
       )
 
-    // check if edge already exists as a node
-    if (!state.adjacencyList[edge])
-      throw TypeError(
-        `A Node, \`${edge}\`, does not exist; a new Edge must match an existing Node.`
-      )
+    // if edge doesn't exist as a node yet, add it, then reassign adjacency list
+    // to the one from the updated graph
+    if (!adjList[edge]) adjList = nodeAddable(state).addNode(edge).adjacencyList
 
     // spread the list of neighbors to shallow clone it
     // to avoid side affecting the given state
-    const edges = [...state.adjacencyList[node]]
+    const edges = [...adjList[node]]
 
     // check if the edge already exists before adding it
     edges.includes(edge) ? null : edges.push(edge)
 
     // spread the adjacency list to shallow clone it
-    const newList = { ...state.adjacencyList }
+    const newList = { ...adjList }
     // then replace the old list of neighbors with the new one
     newList[node] = edges
     // this avoids unnecessarily cloning all neighbors lists
@@ -210,7 +207,7 @@ const edgeAddable = (state: State): { addEdge: AddEdge } => {
     } catch (err) {
       /* istanbul ignore else */
       if (err instanceof CycleError)
-        throw TypeError(
+        throw new CycleError(
           `Can not add edge ${fromNode}${toNode} because it creates a Cycle & this graph was created as a Directed Acyclical graph`
         )
       // having code coverage ignore this line because it isn't a

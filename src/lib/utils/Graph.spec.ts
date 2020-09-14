@@ -1,7 +1,7 @@
 import 'mocha'
 import { expect } from 'chai'
 
-import graph, { Graph } from './Graph'
+import graph, { Graph, CycleError } from './Graph'
 
 describe('lib/utils/Graph', () => {
   it('initializes with an empty adjacency list', () => {
@@ -57,7 +57,7 @@ describe('lib/utils/Graph', () => {
             .addEdge('A', 'B')
             .addEdge('B', 'A')
         }).to.throw(
-          TypeError,
+          CycleError,
           /.*can not add Edge BA.*creates a cycle.*acyclical/i
         )
       })
@@ -73,7 +73,7 @@ describe('lib/utils/Graph', () => {
             .addEdge('B', 'C')
             .addEdge('C', 'A')
         }).to.throw(
-          TypeError,
+          CycleError,
           /.*can not add Edge CA.*creates a cycle.*acyclical/i
         )
       })
@@ -134,9 +134,9 @@ describe('lib/utils/Graph', () => {
     })
 
     it("but it won't add an edge again if it already exists", () => {
-      newGraph = newGraph.addEdge('A', 'B')
+      const newNewGraph = newGraph.addEdge('A', 'B')
 
-      expect(newGraph.adjacencyList['A']).to.not.deep.equal(['B', 'B'])
+      expect(newNewGraph.adjacencyList['A']).to.not.deep.equal(['B', 'B'])
     })
 
     it("it won't add an edge to a node that doesn't exist yet", () => {
@@ -146,11 +146,11 @@ describe('lib/utils/Graph', () => {
       )
     })
 
-    it("and it won't add an edge if it doesn't have a corresponding node", () => {
-      expect((_: any) => newGraph.addEdge('A', 'C')).to.throw(
-        TypeError,
-        /node.*c.*does not exist/i
-      )
+    it("if the edge doesn't already exist as a node, it will be created", () => {
+      const newNewGraph = newGraph.addEdge('A', 'C')
+
+      expect(newNewGraph.adjacencyList.C).to.exist
+      expect(newNewGraph.adjacencyList.A).to.deep.equal(['B', 'C'])
     })
   })
 
