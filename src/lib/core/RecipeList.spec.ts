@@ -8,18 +8,17 @@ import RecipeList from './RecipeList'
 const Factories = {
   Fetch: {
     Recipe: {
-      create: (): fetch.Recipe => ({
-        id: 'recipeId',
-        name: 'recipeName',
-        tags: [
-          fetchFactories.API.Tag.createWithData({
-            id: 'tagId',
-            name: 'tag',
-          }),
-        ],
-        coverImage: Promise.resolve(('image' as any) as fetch.Image),
-        idList: 'listId',
-      }),
+      create: (): fetch.Recipe =>
+        ({
+          id: 'recipeId',
+          name: 'recipeName',
+          tags: [
+            fetchFactories.API.Tag.createWithData({
+              id: 'tagId',
+              name: 'tag',
+            }),
+          ],
+        } as fetch.Recipe),
 
       createWithProperties: (
         properties: { key: string; value: any }[]

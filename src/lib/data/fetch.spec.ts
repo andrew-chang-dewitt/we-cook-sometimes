@@ -191,6 +191,7 @@ describe('lib/data/fetch', () => {
     ])
     const card3 = Factories.API.Recipe.createWithProperties([
       { key: 'id', value: 'recipe3' },
+      { key: 'idAttachmentCover', value: null },
       {
         key: 'labels',
         value: [
@@ -207,21 +208,6 @@ describe('lib/data/fetch', () => {
           res(ctx.json([card1, card2, card3]))
         )
       )
-      server.use(
-        rest.get(`${root}/card/recipe1/attachments/img`, (_, res, ctx) =>
-          res(ctx.json(Factories.API.Image.createWithId('imgId')))
-        )
-      )
-      server.use(
-        rest.get(`${root}/card/recipe2/attachments/img`, (_, res, ctx) =>
-          res(ctx.json(Factories.API.Image.createWithId('imgId')))
-        )
-      )
-      server.use(
-        rest.get(`${root}/card/recipe3/attachments/img`, (_, res, ctx) =>
-          res(ctx.json(Factories.API.Image.createWithId('imgId')))
-        )
-      )
     })
 
     it('returns an array of recipes', async () => {
@@ -232,27 +218,12 @@ describe('lib/data/fetch', () => {
       expect(result[2].id).to.equal('recipe3')
     })
 
-    it('can specify a minimum height and/or width for the cover images, to be handled by image()', async () => {
-      const result = await fetch.recipes({ height: 10, width: 10 })
-
-      expect((await result[0].coverImage)?.url).to.equal('url10')
-    })
-
-    it("doesn't resolve cover images for cards without a cover", async () => {
-      const nullCoverCard = {
-        ...card1,
-        idAttachmentCover: null,
-      }
-
-      server.use(
-        rest.get(root + board + '/cards', (_, res, ctx) =>
-          res(ctx.json([nullCoverCard]))
-        )
-      )
-
+    it('each recipe has a cover image ID that can be null', async () => {
       const result = await fetch.recipes()
 
-      expect(result[0].coverImage).to.be.null
+      expect(result[0].idAttachmentCover).to.equal('img')
+      expect(result[1].idAttachmentCover).to.equal('img')
+      expect(result[2].idAttachmentCover).to.be.null
     })
   })
 
