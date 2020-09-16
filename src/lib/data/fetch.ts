@@ -139,7 +139,7 @@ export interface Recipe {
   id: string
   name: string
   tags: Array<Tag>
-  coverImage: Promise<Image> | null
+  idAttachmentCover: string | null
   idList: string
   // adding dynamic property to allow for dynamic assignment in
   // test factories
@@ -154,31 +154,17 @@ export interface RecipesByLabelId {
   [index: string]: Array<string>
 }
 
-const recipes = (
-  minDimensions: MinDimensions | null = null
-): Promise<Recipe[]> => {
-  const resolveImage = (
-    recipe: RecipeAPI,
-    minDimensions: MinDimensions | null
-  ): Recipe => {
-    const resolved =
-      recipe.idAttachmentCover !== null
-        ? image(recipe.id, recipe.idAttachmentCover, minDimensions)
-        : null
-
-    return {
-      id: recipe.id,
-      name: recipe.name,
-      tags: recipe.labels,
-      idList: recipe.idList,
-      coverImage: resolved,
-    }
-  }
-
+const recipes = (): Promise<Recipe[]> => {
   return trello<RecipeAPI[]>(
     board + '/cards?fields=id,name,idList,labels,idAttachmentCover'
   ).then((recipes) =>
-    recipes.map((recipe) => resolveImage(recipe, minDimensions))
+    recipes.map((recipe) => ({
+      id: recipe.id,
+      name: recipe.name,
+      idAttachmentCover: recipe.idAttachmentCover,
+      idList: recipe.idList,
+      tags: recipe.labels,
+    }))
   )
 }
 
