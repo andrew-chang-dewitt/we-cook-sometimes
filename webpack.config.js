@@ -1,4 +1,5 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = (env) => {
@@ -12,11 +13,12 @@ module.exports = (env) => {
 
     devServer: {
       contentBase: './src/',
-      compress: true,
+      hot: true,
+      public: 'devtest.andrew-chang-dewitt.dev',
     },
 
     resolve: {
-      extensions: ['.ts', '.tsx', '.sass', '.css'],
+      extensions: ['.ts', '.tsx', '.js', '.sass', '.css'],
     },
 
     plugins: [
@@ -24,6 +26,7 @@ module.exports = (env) => {
         filename: isProd ? '[name].[contenthash].css' : '[name].css',
         chunkFilename: isProd ? '[id].[contenthash].css' : '[id].css',
       }),
+      new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
       new HtmlWebpackPlugin({
         title: 'We Cook Sometimes - Recipes',
         template: './src/index.html',
@@ -36,7 +39,7 @@ module.exports = (env) => {
         {
           test: /\.ts(x?)$/,
           exclude: /node_modules/,
-          use: [{ loader: 'ts-loader' }],
+          use: ['ts-loader'],
         },
 
         {
