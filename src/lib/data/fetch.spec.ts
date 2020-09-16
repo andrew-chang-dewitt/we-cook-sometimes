@@ -235,7 +235,24 @@ describe('lib/data/fetch', () => {
     it('can specify a minimum height and/or width for the cover images, to be handled by image()', async () => {
       const result = await fetch.recipes({ height: 10, width: 10 })
 
-      expect((await result[0].coverImage).url).to.equal('url10')
+      expect((await result[0].coverImage)?.url).to.equal('url10')
+    })
+
+    it("doesn't resolve cover images for cards without a cover", async () => {
+      const nullCoverCard = {
+        ...card1,
+        idAttachmentCover: null,
+      }
+
+      server.use(
+        rest.get(root + board + '/cards', (_, res, ctx) =>
+          res(ctx.json([nullCoverCard]))
+        )
+      )
+
+      const result = await fetch.recipes()
+
+      expect(result[0].coverImage).to.be.null
     })
   })
 

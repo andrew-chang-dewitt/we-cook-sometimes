@@ -139,7 +139,7 @@ export interface Recipe {
   id: string
   name: string
   tags: Array<Tag>
-  coverImage: Promise<Image>
+  coverImage: Promise<Image> | null
   idList: string
   // adding dynamic property to allow for dynamic assignment in
   // test factories
@@ -161,7 +161,10 @@ const recipes = (
     recipe: RecipeAPI,
     minDimensions: MinDimensions | null
   ): Recipe => {
-    const resolved = image(recipe.id, recipe.idAttachmentCover, minDimensions)
+    const resolved =
+      recipe.idAttachmentCover !== null
+        ? image(recipe.id, recipe.idAttachmentCover, minDimensions)
+        : null
 
     return {
       id: recipe.id,
