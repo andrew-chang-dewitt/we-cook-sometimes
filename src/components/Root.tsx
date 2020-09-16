@@ -24,7 +24,7 @@ const Root = () => {
   React.useEffect(() => {
     fetch.recipes().then((res) =>
       setState({
-        recipes: RecipeList.create(res).eliminateByTags([publishedTagId]),
+        recipes: RecipeList.create(res).filterByTag(publishedTagId),
       })
     )
   }, [])
@@ -32,7 +32,7 @@ const Root = () => {
   return (
     <>
       <h1 className={styles.title}>What about this?</h1>
-      <div>{JSON.stringify(state)}</div>
+      <div>{JSON.stringify(state.recipes.remaining)}</div>
     </>
   )
 }
