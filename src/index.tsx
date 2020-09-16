@@ -1,6 +1,6 @@
-import * as React from 'react'
-import * as ReactDOM from 'react-dom'
+import React from 'react'
+import ReactDOM from 'react-dom'
 
-import { Hello } from './components/Hello'
+import Root from './components/Root'
 
-ReactDOM.render(<Hello />, document.getElementById('example'))
+ReactDOM.render(<Root />, document.getElementById('app-root'))
