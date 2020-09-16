@@ -8,21 +8,26 @@ import RecipeList, {
 
 import styles from './Root.module.sass'
 
+const publishedTagId = '5f55960c17f08e1fde18785e'
+
 const Root = () => {
   const { state, setState } = useStateHistory({
     recipes: {} as RecipeListType,
   })
 
-  // FIXME: getting rate limited when the images are getting resolved
-  // from their attachment cover id =>
-  // instead fetch.recipes() needs modified to only return the cover id,
-  // then the image will be fetched by the recipe card/preview component
-  // later; maybe this can be wrapped in Lazy/Suspend too at that time.
-  fetch.recipes().then((res) =>
-    setState({
-      recipes: RecipeList.create(res),
-    })
-  )
+  // calling setState later allows for component to load while
+  // waiting for promise returned by fetch.recipes() to resolve
+  // with data
+  // wrapping all of it in useEffect keeps it from being called
+  // infinitely as the component is reloaded because setState
+  // was called
+  React.useEffect(() => {
+    fetch.recipes().then((res) =>
+      setState({
+        recipes: RecipeList.create(res).eliminateByTags([publishedTagId]),
+      })
+    )
+  }, [])
 
   return (
     <>
