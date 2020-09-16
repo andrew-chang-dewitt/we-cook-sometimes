@@ -1,40 +1,33 @@
 import React from 'react'
 
 import useStateHistory from '../utils/useStateHistory'
+import fetch from '../lib/data/fetch'
+import RecipeList, {
+  RecipeList as RecipeListType,
+} from '../lib/core/RecipeList'
 
 import styles from './Root.module.sass'
 
-interface Counter {
-  value: number
-  increase: Increase
-}
-
-interface Increase {
-  (): Counter
-}
-
-const increasable = (state: { value: number }): { increase: Increase } => ({
-  increase: () =>
-    Count({
-      ...state,
-      value: state.value + 1,
-    }),
-})
-
-const Count = (state: { value: number }): Counter =>
-  Object.assign(state, increasable(state))
-
 const Root = () => {
-  const { state: count, setState: setCount, undo } = useStateHistory(
-    Count({ value: 0 })
+  const { state, setState } = useStateHistory({
+    recipes: {} as RecipeListType,
+  })
+
+  // FIXME: getting rate limited when the images are getting resolved
+  // from their attachment cover id =>
+  // instead fetch.recipes() needs modified to only return the cover id,
+  // then the image will be fetched by the recipe card/preview component
+  // later; maybe this can be wrapped in Lazy/Suspend too at that time.
+  fetch.recipes().then((res) =>
+    setState({
+      recipes: RecipeList.create(res),
+    })
   )
 
   return (
     <>
       <h1 className={styles.title}>What about this?</h1>
-      <div>This is count: {count.value}</div>
-      <button onClick={() => setCount(count.increase())}>+1</button>
-      <button onClick={() => undo()}>undo</button>
+      <div>{JSON.stringify(state)}</div>
     </>
   )
 }
