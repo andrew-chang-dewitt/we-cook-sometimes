@@ -18,15 +18,20 @@ const Root = () => {
   // calling setState later allows for component to load while
   // waiting for promise returned by fetch.recipes() to resolve
   // with data
-  // wrapping all of it in useEffect keeps it from being called
-  // infinitely as the component is reloaded because setState
-  // was called
+  // wrapping all of it in useEffect keeps it from taring an
+  // infinite loop as the component is reloaded because
+  // setState was called
   React.useEffect(() => {
-    fetch.recipes().then((res) =>
-      setState({
-        recipes: RecipeList.create(res).filterByTag(publishedTagId),
+    fetch
+      .recipes()
+      .then((res) =>
+        setState({
+          recipes: RecipeList.create(res.unwrap()).filterByTag(publishedTagId),
+        })
+      )
+      .catch((e) => {
+        throw e
       })
-    )
   }, [])
 
   return (
