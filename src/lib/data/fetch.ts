@@ -1,41 +1,52 @@
-export interface Tag {
-  id: string
-  idBoard: string
-  name: string
-  color: string
-}
+import { ok, err, mergeResults, Result } from '../../utils/Result'
+import { Response } from 'node-fetch'
 
 const board = '/board/5820f9c22043447d3f4fa857'
 
-const trello = <T>(endpoint: string): Promise<T> => {
+export class FetchError extends Error {}
+
+const trello = <T>(endpoint: string): Promise<Result<T, FetchError>> => {
   const root = 'https://api.trello.com/1'
 
   // guard against fetch being undefined for server-side calls
   let fetch
-
   // we don't need to test that fetch is correctly polyfilled
   /* istanbul ignore next */
   if (!fetch) {
     fetch = require('node-fetch')
   }
 
-  return fetch(root + endpoint).then((res: any) => res.json())
+  return fetch(root + endpoint)
+    .then((res: Response) => {
+      if (!res.ok) throw new FetchError(`${res.status} ${res.statusText}`)
+      return res
+    })
+    .then((res: Response) => res.json().then((json: T) => ok(json)))
+    .catch((e: Error) => err(new FetchError(e.message)))
 }
 
-const tags = (): Promise<Tag[]> => trello<Tag[]>(board + '/labels')
+export type Tag = {
+  id: string
+  idBoard: string
+  name: string
+  color: string
+}
 
-interface MinDimensions {
+const tags = (): Promise<Result<Tag[], FetchError>> =>
+  trello<Tag[]>(board + '/labels')
+
+type MinDimensions = {
   height?: number
   width?: number
 }
 
-interface Preview {
+type Preview = {
   url: string
   height: number
   width: number
 }
 
-export interface Image {
+export type Image = {
   id: string
   edgeColor: string
   url: string
@@ -81,47 +92,50 @@ const findBestFit = (res: ImageAPI, minDimensions: MinDimensions): number => {
   return index
 }
 
+const processImage = (img: ImageAPI, minDimensions?: MinDimensions): Image =>
+  minDimensions
+    ? {
+        url: img.previews[findBestFit(img, minDimensions)].url,
+        id: img.id,
+        edgeColor: img.edgeColor,
+        name: img.name,
+      }
+    : {
+        url: img.url,
+        id: img.id,
+        edgeColor: img.edgeColor,
+        name: img.name,
+      }
+
 const image = (
   cardId: string,
   imageId: string,
-  minDimensions: MinDimensions | null = null
-): Promise<Image> => {
+  minDimensions?: MinDimensions
+): Promise<Result<Image, FetchError>> => {
   if (minDimensions) {
     if (!minDimensions.height && !minDimensions.width) {
-      return Promise.reject(
-        TypeError(
-          `at least one property on minDimensions must be provided: ${JSON.stringify(
-            minDimensions
-          )}`
+      return Promise.resolve(
+        err(
+          new FetchError(
+            `at least one property on minDimensions must be provided: ${JSON.stringify(
+              minDimensions
+            )}`
+          )
         )
       )
     }
   }
 
-  const api = trello<ImageAPI>(
+  return trello<ImageAPI>(
     `/card/${cardId}/attachments/${imageId}?fields=id,name,url,previews`
+  ).then(
+    (res) =>
+      // type assertion needed here to identify the type returned by apply
+      res.apply((img) => processImage(img, minDimensions)) as Result<
+        Image,
+        FetchError
+      >
   )
-
-  if (minDimensions)
-    return api.then((res) => {
-      const index = findBestFit(res, minDimensions)
-
-      return {
-        url: res.previews[index].url,
-        id: res.id,
-        edgeColor: res.edgeColor,
-        name: res.name,
-      }
-    })
-  else
-    return api.then((res) => {
-      return {
-        url: res.url,
-        id: res.id,
-        edgeColor: res.edgeColor,
-        name: res.name,
-      }
-    })
 }
 
 export interface RecipeAPI {
@@ -154,18 +168,19 @@ export interface RecipesByLabelId {
   [index: string]: Array<string>
 }
 
-const recipes = (): Promise<Recipe[]> => {
+const recipes = (): Promise<Result<Recipe[], FetchError>> => {
+  const processRecipes = (recipes: RecipeAPI[]): Recipe[] =>
+    recipes.map(({ id, name, idAttachmentCover, idList, labels }) => ({
+      id,
+      name,
+      idAttachmentCover,
+      idList,
+      tags: labels,
+    }))
+
   return trello<RecipeAPI[]>(
     board + '/cards?fields=id,name,idList,labels,idAttachmentCover'
-  ).then((recipes) =>
-    recipes.map((recipe) => ({
-      id: recipe.id,
-      name: recipe.name,
-      idAttachmentCover: recipe.idAttachmentCover,
-      idList: recipe.idList,
-      tags: recipe.labels,
-    }))
-  )
+  ).then((res) => res.apply(processRecipes) as Result<Recipe[], FetchError>)
 }
 
 export interface RecipeAPIDetails {
@@ -179,43 +194,26 @@ export interface RecipeDetails extends RecipeAPIDetails {
 
 const details = async (
   id: string,
-  minDimensions: MinDimensions | null = null
-): Promise<RecipeDetails> => {
-  const card = await trello<RecipeAPIDetails>(`/card/${id}?fields=id,desc`)
-  const imagesAPI = trello<ImageAPI[]>(
+  minDimensions?: MinDimensions
+): Promise<Result<RecipeDetails, FetchError>> => {
+  const processImages = (images: ImageAPI[]): Image[] =>
+    images.map((img) => processImage(img, minDimensions))
+
+  const compileRecipeDetails = (
+    { id, desc }: RecipeAPIDetails,
+    images: Image[]
+  ): RecipeDetails => ({
+    id,
+    desc,
+    images,
+  })
+
+  const details = await trello<RecipeAPIDetails>(`/card/${id}?fields=id,desc`)
+  const images = await trello<ImageAPI[]>(
     `/card/${id}/attachments?fields=id,name,url,previews`
-  )
+  ).then((res) => res.apply(processImages) as Result<Image[], FetchError>)
 
-  let images: Image[]
-
-  if (minDimensions)
-    images = await imagesAPI.then((results) =>
-      results.map((res) => {
-        const index = findBestFit(res, minDimensions)
-
-        return {
-          url: res.previews[index].url,
-          id: res.id,
-          edgeColor: res.edgeColor,
-          name: res.name,
-        }
-      })
-    )
-  else
-    images = await imagesAPI.then((results) =>
-      results.map((res) => ({
-        url: res.url,
-        id: res.id,
-        edgeColor: res.edgeColor,
-        name: res.name,
-      }))
-    )
-
-  return {
-    images: images,
-    id: card.id,
-    desc: card.desc,
-  }
+  return mergeResults(details, images, compileRecipeDetails)
 }
 
 export default {
