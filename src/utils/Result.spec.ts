@@ -1,11 +1,11 @@
 import 'mocha'
 import { expect } from 'chai'
 
-import { ok, err, tryCatch } from './Result'
+import { Result, ok, err, tryCatch, mergeResults } from './Result'
 
 describe('src/utils/Result', () => {
   describe('creation functions', () => {
-    it('ok() represent something that succeded', () => {
+    it('ok() represents something that succeded', () => {
       expect(ok(1)).to.exist
     })
 
@@ -127,6 +127,81 @@ describe('src/utils/Result', () => {
             ).to.equal(1)
           })
         })
+      })
+    })
+
+    describe('apply()', () => {
+      it('transforms an Ok Result, but can return a different wrapped type', () => {
+        expect(
+          ok(1)
+            .apply((_) => 'changed')
+            .unwrap()
+        ).to.equal('changed')
+      })
+
+      it('but it leaves an Err Result unchanged', () => {
+        expect(
+          err(new Error('not this'))
+            .apply((x) => (x as number) + 1)
+            .unwrap((e) => e.message)
+        ).to.equal('not this')
+      })
+
+      it('can transform complex Objects in addition to Primatives', () => {
+        interface A {
+          a: string
+          b: number
+        }
+
+        interface B {
+          a: string
+        }
+
+        const a: A = {
+          a: 'a',
+          b: 2,
+        }
+
+        const res: Result<B, Error> = ok(a).apply((a) => ({
+          a: a.a,
+        })) as Result<B, Error>
+
+        expect(res.unwrap()).to.deep.equal({ a: 'a' })
+      })
+    })
+  })
+
+  describe('Result helper functions', () => {
+    describe('mergeResults()', () => {
+      type A = { a: number }
+      type B = { b: string }
+      type C = { a: number; b: string }
+
+      const mergeFn = (valueA: A, valueB: B): C => ({
+        a: valueA.a,
+        b: valueB.b,
+      })
+
+      it('merges the Ok values of two results using a given merge function', () => {
+        const a: Result<A, Error> = ok({ a: 1 })
+        const b: Result<B, Error> = ok({ b: 'one' })
+
+        expect(mergeResults(a, b, mergeFn).unwrap()).to.deep.equal({
+          a: 1,
+          b: 'one',
+        })
+      })
+
+      // FIXME: should test if A errors as well
+      // FIXME: should test what happens if both A & B error
+      it('retains the Error value if either Result has an error', () => {
+        const a: Result<A, Error> = ok({ a: 1 })
+        const b: Result<B, Error> = err(new Error('b errored'))
+
+        expect(() => mergeResults(a, b, mergeFn).unwrap()).to.throw(
+          Error,
+          'b errored'
+        )
       })
     })
   })
