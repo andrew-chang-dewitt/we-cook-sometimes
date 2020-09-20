@@ -32,7 +32,7 @@ export type Tag = {
   color: string
 }
 
-const tags = (): Promise<Result<Tag[], FetchError>> =>
+export const tags = (): Promise<Result<Tag[], FetchError>> =>
   trello<Tag[]>(board + '/labels')
 
 type MinDimensions = {
@@ -107,7 +107,7 @@ const processImage = (img: ImageAPI, minDimensions?: MinDimensions): Image =>
         name: img.name,
       }
 
-const image = (
+export const image = (
   cardId: string,
   imageId: string,
   minDimensions?: MinDimensions
@@ -168,7 +168,7 @@ export interface RecipesByLabelId {
   [index: string]: Array<string>
 }
 
-const recipes = (): Promise<Result<Recipe[], FetchError>> => {
+export const recipes = (): Promise<Result<Recipe[], FetchError>> => {
   const processRecipes = (recipes: RecipeAPI[]): Recipe[] =>
     recipes.map(({ id, name, idAttachmentCover, idList, labels }) => ({
       id,
@@ -192,7 +192,7 @@ export interface RecipeDetails extends RecipeAPIDetails {
   images: Array<Image>
 }
 
-const details = async (
+export const details = async (
   id: string,
   minDimensions?: MinDimensions
 ): Promise<Result<RecipeDetails, FetchError>> => {
