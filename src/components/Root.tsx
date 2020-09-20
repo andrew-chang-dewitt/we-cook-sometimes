@@ -6,6 +6,8 @@ import RecipeList, {
   RecipeList as RecipeListType,
 } from '../lib/core/RecipeList'
 
+import List from './recipes/List'
+
 import styles from './Root.module.sass'
 
 const publishedTagId = '5f55960c17f08e1fde18785e'
@@ -38,6 +40,13 @@ const Root = () => {
     <>
       <h1 className={styles.title}>What about this?</h1>
       <div>{JSON.stringify(state.recipes.remaining)}</div>
+      {state.recipes.remaining ? (
+        <List
+          recipes={state.recipes.remaining.map(
+            (recipe) => state.recipes.allByID[recipe]
+          )}
+        />
+      ) : null}
     </>
   )
 }
