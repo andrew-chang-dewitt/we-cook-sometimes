@@ -65,7 +65,7 @@ module.exports = (env) => {
             // match module.sass files fist
             {
               test: /\.module\.s?[a|c]ss$/i,
-              exclude: /node_modules/,
+              // exclude: /node_modules/,
               sideEffects: true,
               use: [
                 {
@@ -84,13 +84,18 @@ module.exports = (env) => {
                     },
                   },
                 },
+                // fix sass issues w/ url() per
+                // https://github.com/KyleAMathews/typefaces/issues/199#issuecomment-686484472
+                'resolve-url-loader',
                 'sass-loader',
               ],
             },
 
-            // then global sass files next
+            // then global style files next
             {
-              exclude: /node_modules/,
+              // don't exclude node_modules if loading fonts using
+              // typeface-* npm packages
+              // exclude: /node_modules/,
               sideEffects: true,
               use: [
                 {
@@ -101,10 +106,17 @@ module.exports = (env) => {
                   },
                 },
                 'css-loader',
+                'resolve-url-loader',
                 'sass-loader',
               ],
             },
           ],
+        },
+
+        // load font files
+        {
+          test: /\.(woff|woff2|eot|ttf|otf)$/,
+          use: ['file-loader'],
         },
       ],
     },
