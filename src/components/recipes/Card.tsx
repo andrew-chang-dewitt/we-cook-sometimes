@@ -24,9 +24,11 @@ export default ({ recipe }: Props) => {
       <div className={styles.imgContainer}>
         <div className={styles.info}>
           <ul className={styles.tagsList}>
-            {tags.map((tag) => (
-              <Tag tag={tag} key={tag.id} />
-            ))}
+            {tags
+              .filter((tag) => tag.color !== null)
+              .map((tag) => (
+                <Tag tag={tag} key={tag.id} />
+              ))}
           </ul>
         </div>
         {idAttachmentCover !== null ? (

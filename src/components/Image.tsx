@@ -28,6 +28,7 @@ export default ({ cardId, attachmentId, size = null }: Props) => {
       {imgData !== null ? (
         <img
           className={`${styles.img} lazyload`}
+          alt={imgData.name}
           data-src={imgData.url}
           style={{ backgroundColor: imgData.edgeColor }}
         />
