@@ -45,11 +45,6 @@ const Root = () => {
 
   return (
     <>
-<<<<<<< HEAD
-=======
-      <h1 className={styles.title}>What about this?</h1>
-      <div>{JSON.stringify(state.recipes.remaining)}</div>
->>>>>>> list
       {state.recipes.remaining ? (
         <List
           recipes={state.recipes.remaining.map(
