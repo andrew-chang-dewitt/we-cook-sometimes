@@ -107,9 +107,7 @@ describe('lib/data/fetch', () => {
 
   it('encapsulates fetch errors from the Trello API in the Err Result type', async () => {
     server.use(
-      rest.get(root + board + '/cards', (_, res, ctx) =>
-        res(ctx.status(500))
-      )
+      rest.get(root + board + '/cards', (_, res, ctx) => res(ctx.status(500)))
     )
 
     const result = await fetch.recipes()

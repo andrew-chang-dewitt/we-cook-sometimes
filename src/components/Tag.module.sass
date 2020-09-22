@@ -1,0 +1,16 @@
+@use '../styles/colors.variables.sass'
+@use '../styles/fonts.variables.sass'
+
+$space: 0.25rem
+$double-space: calc( #{$space} * 2 )
+
+.tag
+  padding: $space $double-space
+  border-radius: $double-space
+  list-style: none
+  margin: 0 $double-space $space 0
+  color: colors.$light
+  font-size: fonts.$size-small
+
+.tag:last-child
+  margin-right: 0
