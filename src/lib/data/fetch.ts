@@ -127,7 +127,7 @@ export const image = (
   }
 
   return trello<ImageAPI>(
-    `/card/${cardId}/attachments/${imageId}?fields=id,name,url,previews`
+    `/card/${cardId}/attachments/${imageId}?fields=id,name,url,previews,edgeColor`
   ).then(
     (res) =>
       // type assertion needed here to identify the type returned by apply

@@ -22,18 +22,22 @@ export default ({ recipe }: Props) => {
   return (
     <li className={styles.card}>
       <div className={styles.imgContainer}>
+        <div className={styles.info}>
+          <ul className={styles.tagsList}>
+            {tags.map((tag) => (
+              <Tag tag={tag} key={tag.id} />
+            ))}
+          </ul>
+        </div>
         {idAttachmentCover !== null ? (
-          <Image cardId={id} attachmentId={idAttachmentCover} />
+          <Image
+            cardId={id}
+            attachmentId={idAttachmentCover}
+            size={{ width: 320 }}
+          />
         ) : null}
       </div>
-      <div className={styles.infoContainer}>
-        <h3>{name}</h3>
-        <ul className={styles.tagsList}>
-          {tags.map((tag) => (
-            <Tag tag={tag} key={tag.id} />
-          ))}
-        </ul>
-      </div>
+      <h3>{name}</h3>
     </li>
   )
 }

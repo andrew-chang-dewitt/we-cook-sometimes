@@ -3,10 +3,12 @@ import 'lazysizes'
 
 import { image, Image } from '../lib/data/fetch'
 
+import styles from './Image.module.sass'
+
 interface Props {
   cardId: string
   attachmentId: string
-  size?: { height: number; width: number } | null
+  size?: { height?: number; width?: number } | null
 }
 
 export default ({ cardId, attachmentId, size = null }: Props) => {
@@ -24,7 +26,11 @@ export default ({ cardId, attachmentId, size = null }: Props) => {
   return (
     <>
       {imgData !== null ? (
-        <img data-src={imgData.url} className="lazyload" />
+        <img
+          className={`${styles.img} lazyload`}
+          data-src={imgData.url}
+          style={{ backgroundColor: imgData.edgeColor }}
+        />
       ) : null}
     </>
   )
