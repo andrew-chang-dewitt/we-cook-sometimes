@@ -10,12 +10,9 @@ interface Props {
 }
 
 export default ({ recipes }: Props) => (
-  <>
-    <p>List</p>
-    <ul className={styles.cardsList}>
-      {recipes.map((recipe) => (
-        <Card recipe={recipe} key={recipe.id} />
-      ))}
-    </ul>
-  </>
+  <ul className={styles.cardsList}>
+    {recipes.map((recipe) => (
+      <Card recipe={recipe} key={recipe.id} />
+    ))}
+  </ul>
 )
