@@ -1,4 +1,5 @@
 import React from 'react'
+import 'lazysizes'
 
 import { image, Image } from '../lib/data/fetch'
 
@@ -20,5 +21,11 @@ export default ({ cardId, attachmentId, size = null }: Props) => {
   }, [])
 
   // FIXME: add alt text to images somehow, maybe from image name?
-  return <>{imgData !== null ? <img src={imgData.url} /> : null}</>
+  return (
+    <>
+      {imgData !== null ? (
+        <img data-src={imgData.url} className="lazyload" />
+      ) : null}
+    </>
+  )
 }
