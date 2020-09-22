@@ -1,0 +1,22 @@
+@use '../../styles/colors.variables.sass'
+
+$shadow-size: 0.25rem
+$space: 0.5rem
+
+.card
+  // margin: $space
+  max-height: 24rem
+  padding: $space
+  border: transparent 1px
+  border-radius: 0.5rem
+  box-shadow: $shadow-size $shadow-size $shadow-size colors.$lightGrey
+  list-style: none
+
+.card h3
+  margin: 0
+
+.tagsList
+  display: flex
+  flex-wrap: wrap
+  margin: 0
+  padding: 0

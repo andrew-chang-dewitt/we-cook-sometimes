@@ -4,6 +4,8 @@ import { Recipe } from '../../lib/data/fetch'
 import Tag from '../Tag'
 import Image from '../Image'
 
+import styles from './Card.module.sass'
+
 interface Props {
   recipe: Recipe
 }
@@ -18,16 +20,20 @@ export default ({ recipe }: Props) => {
   } = recipe
 
   return (
-    <>
-      <h3>{name}</h3>
-      <ul>
-        {tags.map((tag) => (
-          <Tag tag={tag} />
-        ))}
-      </ul>
-      {idAttachmentCover !== null ? (
-        <Image cardId={id} attachmentId={idAttachmentCover} />
-      ) : null}
-    </>
+    <li className={styles.card}>
+      <div className={styles.imgContainer}>
+        {idAttachmentCover !== null ? (
+          <Image cardId={id} attachmentId={idAttachmentCover} />
+        ) : null}
+      </div>
+      <div className={styles.infoContainer}>
+        <h3>{name}</h3>
+        <ul className={styles.tagsList}>
+          {tags.map((tag) => (
+            <Tag tag={tag} key={tag.id} />
+          ))}
+        </ul>
+      </div>
+    </li>
   )
 }
