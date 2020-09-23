@@ -43,4 +43,13 @@ describe('src/component/recipes/Card', () => {
   it('renders a cover image for the recipe', () => {
     expect(card.find(Image)).to.have.lengthOf(1)
   })
+
+  it('skips the image, if there is no cover Id', () => {
+    const noImage = {
+      ...recipe,
+      idAttachmentCover: null,
+    }
+    card = shallow(<Card recipe={noImage} />)
+    expect(card.find(Image)).to.have.lengthOf(0)
+  })
 })

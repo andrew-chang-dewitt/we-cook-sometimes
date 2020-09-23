@@ -1,7 +1,7 @@
 import React from 'react'
 import 'lazysizes'
 
-import { image, Image } from '../lib/data/fetch'
+import fetch, { Image } from '../lib/data/fetch'
 
 import styles from './Image.module.sass'
 
@@ -14,15 +14,20 @@ interface Props {
 export default ({ cardId, attachmentId, size = null }: Props) => {
   const [imgData, setImgData] = React.useState<Image | null>(null)
 
+  // skipping useEffect in testing; we don't need to know that this
+  // particular fetch call works -- fetch has already been tested
+  // thoroughly
+  /*istanbul ignore next*/
   React.useEffect(() => {
     if (size) {
-      image(cardId, attachmentId, size).then((res) => setImgData(res.unwrap()))
+      fetch
+        .image(cardId, attachmentId, size)
+        .then((res) => setImgData(res.unwrap()))
     } else {
-      image(cardId, attachmentId).then((res) => setImgData(res.unwrap()))
+      fetch.image(cardId, attachmentId).then((res) => setImgData(res.unwrap()))
     }
   }, [])
 
-  // FIXME: add alt text to images somehow, maybe from image name?
   return (
     <>
       {imgData !== null ? (
