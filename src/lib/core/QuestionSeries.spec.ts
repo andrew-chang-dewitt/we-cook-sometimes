@@ -82,7 +82,7 @@ describe('lib/core/QuestionSeries', () => {
     })
   })
 
-  it('silently prevents adding an next question as an edge if it would have formed a cycle', () => {
+  it('silently prevents adding a next question as an edge if it would have formed a cycle', () => {
     const cycle = ({
       id: 'cycle',
       possibleNexts: ['fastSlow'],

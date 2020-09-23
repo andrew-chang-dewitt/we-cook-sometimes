@@ -3,6 +3,7 @@ import Graph, {
   CycleError,
   Traverser,
 } from '../utils/Graph'
+import shuffle from '../../utils/FisherYatesShuffle'
 import { Question } from '../data/questions'
 
 interface QuestionsByID {
@@ -91,7 +92,10 @@ const create = (questions: Question[]): QuestionSeries => {
     } else return nodeAccumulator
   }, graph)
 
-  const iterator = graph.traverser()
+  const shuffler = (arr: Array<string>): Array<string> =>
+    shuffle(arr, Math.random)
+
+  const iterator = graph.traverser(shuffler)
   const next = iterator.next()
   let current: Question | null
   /* istanbul ignore else */
