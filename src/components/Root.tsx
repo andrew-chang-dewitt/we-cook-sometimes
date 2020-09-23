@@ -1,12 +1,18 @@
+// external libs
 import React from 'react'
 
+// internal utilities
 import useStateHistory from '../utils/useStateHistory'
+import shuffle from '../utils/FisherYatesShuffle'
+
+// core logic
 import fetch from '../lib/data/fetch'
 // import fetch, { Tag as TagType } from '../lib/data/fetch'
 import RecipeList, {
   RecipeList as RecipeListType,
 } from '../lib/core/RecipeList'
 
+// other components
 import List from './recipes/List'
 
 // import styles from './Root.module.sass'
@@ -32,7 +38,9 @@ const Root = () => {
       .then((res) =>
         setState({
           ...state,
-          recipes: RecipeList.create(res.unwrap()).filterByTag(publishedTagId),
+          recipes: RecipeList.create(
+            shuffle(res.unwrap(), Math.random)
+          ).filterByTag(publishedTagId),
         })
       )
       .catch((e) => {
