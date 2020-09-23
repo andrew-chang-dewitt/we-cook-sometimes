@@ -173,7 +173,7 @@ describe('lib/utils/Graph', () => {
       expect(aGraph.traverser()).to.exist
     })
 
-    it('throws an error if the graph does not have a root nodet defined', () => {
+    it('throws an error if the graph does not have a root node defined', () => {
       const aGraph = graph.create(
         {
           A: ['B', 'C', 'E'],
@@ -258,6 +258,38 @@ describe('lib/utils/Graph', () => {
         traversed.push(traverser.next())
 
         expect(traversed).to.deep.equal(['A', 'B', 'C', null])
+      })
+
+      it('can control the order in which nodes are visited', () => {
+        const orderFn = (nodes: Array<string>): Array<string> =>
+          nodes.sort().reverse()
+
+        traverser = graph
+          .create(
+            {
+              A: ['B', 'C', 'E'],
+              B: ['C'],
+              C: ['D', 'E'],
+              D: ['F'],
+              E: [],
+              F: [],
+            },
+            true,
+            false,
+            'A'
+          )
+          .traverser(orderFn)
+
+        let traversed: Array<string | null> = []
+
+        traversed.push(traverser.next())
+        traversed.push(traverser.next())
+        traversed.push(traverser.next())
+        traversed.push(traverser.next())
+        traversed.push(traverser.next())
+        traversed.push(traverser.next())
+
+        expect(traversed).to.deep.equal(['A', 'E', 'C', 'D', 'F', 'B'])
       })
     })
   })
