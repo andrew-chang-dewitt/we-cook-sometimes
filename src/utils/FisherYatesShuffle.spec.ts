@@ -20,7 +20,6 @@ describe('src/utils/FisherYatesShuffle', () => {
 
     const rand = (): number => {
       const res = fakeRandomNumbers.next().value
-      console.log('random number:', res)
       return res
     }
 
