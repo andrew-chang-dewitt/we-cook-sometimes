@@ -44,6 +44,7 @@ const Root = () => {
         })
       )
       .catch((e) => {
+        // FIXME: better error handling
         throw e
       })
 

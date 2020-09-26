@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Tag } from '../lib/data/fetch'
+import { Tag } from '../../lib/data/fetch'
 
 import styles from './Tag.module.sass'
 

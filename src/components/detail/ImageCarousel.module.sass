@@ -1,0 +1,20 @@
+@use '../recipes/List.variables.sass'
+
+.container > img,
+.container > video
+  height: List.$card-width
+  width: 100%
+  object-fit: contain
+
+@media all and (min-width: #{ List.$medium-width })
+  .container > img,
+  .container > video
+    height: List.$card-width * 2
+@media all and (min-width: #{ List.$large-width })
+  .container > img,
+  .container > video
+    height: List.$card-width * 3
+@media all and (min-width: #{ List.$huge-width })
+  .container > img,
+  .container > video
+    height: List.$card-width * 4

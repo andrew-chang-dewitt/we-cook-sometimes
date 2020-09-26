@@ -7,7 +7,7 @@ configure({ adapter: new Adapter() })
 
 import React from 'react'
 
-import { Tag as TagType } from '../lib/data/fetch'
+import { Tag as TagType } from '../../lib/data/fetch'
 
 import Tag from './Tag'
 

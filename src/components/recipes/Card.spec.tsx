@@ -8,8 +8,8 @@ configure({ adapter: new Adapter() })
 import React from 'react'
 
 import { Tag as TagData } from '../../lib/data/fetch'
-import Tag from '../Tag'
-import Image from '../Image'
+import TagList from '../tags/List'
+import ImageLoader from '../images/ImageLoader'
 
 import Card from './Card'
 
@@ -37,11 +37,11 @@ describe('src/component/recipes/Card', () => {
   })
 
   it('renders a list of Tags', () => {
-    expect(card.find(Tag)).to.have.lengthOf(3)
+    expect(card.find(TagList)).to.have.lengthOf(1)
   })
 
   it('renders a cover image for the recipe', () => {
-    expect(card.find(Image)).to.have.lengthOf(1)
+    expect(card.find(ImageLoader)).to.have.lengthOf(1)
   })
 
   it('skips the image, if there is no cover Id', () => {

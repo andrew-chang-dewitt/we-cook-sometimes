@@ -1,8 +1,10 @@
 import React from 'react'
 
 import { Recipe } from '../../lib/data/fetch'
-import Tag from '../Tag'
-import Image from '../Image'
+
+import TagsList from '../tags/List'
+import ImageLoader from '../images/ImageLoader'
+import DetailLoader from '../detail/DetailLoader'
 
 import styles from './Card.module.sass'
 
@@ -11,6 +13,8 @@ interface Props {
 }
 
 export default ({ recipe }: Props) => {
+  const [detailsOpen, setDetailsOpen] = React.useState(false)
+
   const {
     id,
     name,
@@ -19,27 +23,35 @@ export default ({ recipe }: Props) => {
     idAttachmentCover,
   } = recipe
 
+  const toggleDetails = (e: React.MouseEvent<HTMLElement>): void => {
+    e.preventDefault()
+    setDetailsOpen(!detailsOpen)
+  }
+
   return (
-    <li className={styles.card}>
-      <div className={styles.imgContainer}>
-        <div className={styles.info}>
-          <ul className={styles.tagsList}>
-            {tags
-              .filter((tag) => tag.color !== null)
-              .map((tag) => (
-                <Tag tag={tag} key={tag.id} />
-              ))}
-          </ul>
+    <li
+      className={
+        detailsOpen ? `${styles.card} ${styles.details}` : `${styles.card}`
+      }
+    >
+      <a href={`/recipe/${id}`} onClick={toggleDetails}>
+        <div className={styles.imgContainer}>
+          <div className={styles.info}>
+            {!detailsOpen ? (
+              <TagsList tags={tags.filter((tag) => tag.color !== null)} />
+            ) : null}
+          </div>
+          {idAttachmentCover !== null ? (
+            <ImageLoader
+              cardId={id}
+              attachmentId={idAttachmentCover}
+              size={{ width: 320 }}
+            />
+          ) : null}
         </div>
-        {idAttachmentCover !== null ? (
-          <Image
-            cardId={id}
-            attachmentId={idAttachmentCover}
-            size={{ width: 320 }}
-          />
-        ) : null}
-      </div>
-      <h3>{name}</h3>
+        {!detailsOpen ? <h3>{name}</h3> : null}
+      </a>
+      {detailsOpen ? <DetailLoader recipe={recipe} /> : null}
     </li>
   )
 }

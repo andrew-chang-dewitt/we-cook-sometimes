@@ -32,8 +32,8 @@ export type Tag = {
   color: string
 }
 
-export const tags = (): Promise<Result<Tag[], FetchError>> =>
-  trello<Tag[]>(board + '/labels')
+export const tags = (): Promise<Result<Array<Tag>, FetchError>> =>
+  trello<Array<Tag>>(board + '/labels')
 
 type MinDimensions = {
   height?: number
@@ -168,8 +168,8 @@ export interface RecipesByLabelId {
   [index: string]: Array<string>
 }
 
-export const recipes = (): Promise<Result<Recipe[], FetchError>> => {
-  const processRecipes = (recipes: RecipeAPI[]): Recipe[] =>
+export const recipes = (): Promise<Result<Array<Recipe>, FetchError>> => {
+  const processRecipes = (recipes: Array<RecipeAPI>): Array<Recipe> =>
     recipes.map(({ id, name, idAttachmentCover, idList, labels }) => ({
       id,
       name,
@@ -178,9 +178,11 @@ export const recipes = (): Promise<Result<Recipe[], FetchError>> => {
       tags: labels,
     }))
 
-  return trello<RecipeAPI[]>(
+  return trello<Array<RecipeAPI>>(
     board + '/cards?fields=id,name,idList,labels,idAttachmentCover'
-  ).then((res) => res.apply(processRecipes) as Result<Recipe[], FetchError>)
+  ).then(
+    (res) => res.apply(processRecipes) as Result<Array<Recipe>, FetchError>
+  )
 }
 
 export interface RecipeAPIDetails {
@@ -189,19 +191,15 @@ export interface RecipeAPIDetails {
 }
 
 export interface RecipeDetails extends RecipeAPIDetails {
-  images: Array<Image>
+  images: Array<ImageAPI>
 }
 
 export const details = async (
-  id: string,
-  minDimensions?: MinDimensions
+  id: string
 ): Promise<Result<RecipeDetails, FetchError>> => {
-  const processImages = (images: ImageAPI[]): Image[] =>
-    images.map((img) => processImage(img, minDimensions))
-
   const compileRecipeDetails = (
     { id, desc }: RecipeAPIDetails,
-    images: Image[]
+    images: Array<ImageAPI>
   ): RecipeDetails => ({
     id,
     desc,
@@ -209,9 +207,9 @@ export const details = async (
   })
 
   const details = await trello<RecipeAPIDetails>(`/card/${id}?fields=id,desc`)
-  const images = await trello<ImageAPI[]>(
-    `/card/${id}/attachments?fields=id,name,url,previews`
-  ).then((res) => res.apply(processImages) as Result<Image[], FetchError>)
+  const images = await trello<Array<ImageAPI>>(
+    `/card/${id}/attachments?fields=id,name,url,previews,edgeColor`
+  )
 
   return mergeResults(details, images, compileRecipeDetails)
 }

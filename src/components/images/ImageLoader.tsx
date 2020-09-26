@@ -1,9 +1,8 @@
 import React from 'react'
 import 'lazysizes'
 
-import fetch, { Image } from '../lib/data/fetch'
-
-import styles from './Image.module.sass'
+import fetch, { Image as ImageType } from '../../lib/data/fetch'
+import Image from './Image'
 
 interface Props {
   cardId: string
@@ -12,7 +11,7 @@ interface Props {
 }
 
 export default ({ cardId, attachmentId, size = null }: Props) => {
-  const [imgData, setImgData] = React.useState<Image | null>(null)
+  const [imgData, setImgData] = React.useState<ImageType | null>(null)
 
   // skipping useEffect in testing; we don't need to know that this
   // particular fetch call works -- fetch has already been tested
@@ -28,16 +27,5 @@ export default ({ cardId, attachmentId, size = null }: Props) => {
     }
   }, [])
 
-  return (
-    <>
-      {imgData !== null ? (
-        <img
-          className={`${styles.img} lazyload`}
-          alt={imgData.name}
-          data-src={imgData.url}
-          style={{ backgroundColor: imgData.edgeColor }}
-        />
-      ) : null}
-    </>
-  )
+  return <>{imgData !== null ? <Image data={imgData} /> : null}</>
 }

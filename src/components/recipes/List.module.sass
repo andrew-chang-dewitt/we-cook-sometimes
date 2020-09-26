@@ -1,8 +1,24 @@
-$space: 1rem
+@use '../../styles/layout.variables.sass'
+@use './List.variables.sass'
 
 .cardsList
+  margin: 0 auto
+  width: List.$card-width + layout.$grid-gap * 2
   display: grid
-  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr))
-  grid-gap: $space
-  margin: 0
-  padding: $space
+  grid-template-columns: repeat(1, List.$card-width)
+  grid-gap: layout.$grid-gap
+  padding: layout.$grid-gap
+@media all and (min-width: #{ List.$medium-width })
+  .cardsList
+    width: List.$medium-width
+    grid-template-columns: repeat(2, List.$card-width)
+    grid-gap: layout.$grid-gap
+    padding: layout.$grid-gap
+@media all and (min-width: #{ List.$large-width })
+  .cardsList
+    width: List.$large-width
+    grid-template-columns: repeat(3, List.$card-width)
+@media all and (min-width: #{ List.$huge-width })
+  .cardsList
+    width: List.$huge-width
+    grid-template-columns: repeat(4, List.$card-width)
