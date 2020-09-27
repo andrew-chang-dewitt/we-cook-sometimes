@@ -10,15 +10,51 @@ interface Props {
   data: Image
 }
 
-export default ({ data }: Props) => (
-  <>
-    <video
-      className={`${styles.video} lazyload`}
-      style={{ backgroundColor: data.edgeColor }}
-      data-src={data.url}
-      preload="metadata"
-      muted
-      controls
-    />
-  </>
-)
+const useAutoPause = (video: React.RefObject<HTMLVideoElement>): void => {
+  React.useEffect(() => {
+    let isPaused = false
+
+    const observer = new IntersectionObserver(
+      (entries: Array<IntersectionObserverEntry>) => {
+        entries.forEach((entry) => {
+          const el = entry.target as HTMLVideoElement
+
+          console.log(entry)
+          console.log(el)
+
+          if (entry.intersectionRatio !== 1 && !isPaused) {
+            el.pause()
+            isPaused = true
+          } else if (isPaused) {
+            el.play()
+            isPaused = false
+          }
+        })
+      },
+      { threshold: 1 }
+    )
+
+    if (video.current) observer.observe(video.current)
+
+    return () => observer.disconnect()
+  }, [video])
+}
+
+export default ({ data }: Props) => {
+  const video = React.useRef<HTMLVideoElement>(null)
+  useAutoPause(video)
+
+  return (
+    <>
+      <video
+        ref={video}
+        className={styles.video}
+        style={{ backgroundColor: data.edgeColor }}
+        src={data.url}
+        muted
+        loop
+        controls
+      />
+    </>
+  )
+}

@@ -18,20 +18,19 @@ describe('src/component/detail/ImageCarousel', () => {
   const attachments = [
     {
       name: 'name1',
-      url: 'url1',
+      url: 'url1.jpeg',
     },
     {
       name: 'name2',
-      url: 'url2',
+      url: 'url2.jpeg',
     },
     {
       name: 'name3',
-      url: 'url3',
+      url: 'url3.jpeg',
     },
   ] as Array<ImageAPI>
 
   const setup = (): void => {
-    console.log(attachments)
     render(<ImageCarousel attachments={attachments} />)
     nextImage = screen.getByRole('button', { name: /next image/i })
     previousImage = screen.getByRole('button', { name: /previous image/i })
@@ -71,5 +70,34 @@ describe('src/component/detail/ImageCarousel', () => {
     setup()
 
     expect(previousImage).to.have.attribute('disabled')
+  })
+
+  it('also displays videos', async () => {
+    const attachments = [
+      {
+        name: 'movie',
+        url: 'url1.mp4',
+      },
+    ] as Array<ImageAPI>
+
+    render(<ImageCarousel attachments={attachments} />)
+
+    expect(await screen.findByAltText('movie')).to.exist
+  })
+
+  it('displays nothing for extensions not included in the whitelist', async () => {
+    const attachments = [
+      {
+        name: "won't find me",
+        url: 'url1.html',
+      },
+    ] as Array<ImageAPI>
+
+    render(<ImageCarousel attachments={attachments} />)
+
+    expect(() => screen.getByAltText(/won't find me/i)).to.throw(
+      Error,
+      /unable to find element/i
+    )
   })
 })

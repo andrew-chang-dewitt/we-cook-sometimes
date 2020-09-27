@@ -6,18 +6,21 @@ import Video from '../images/Video'
 
 import styles from './ImageCarousel.module.sass'
 
+const getExtension = (url: string): string => {
+  const split = url.split('.')
+  return split[split.length - 1]
+}
+
 export const isImage = (item: ImageAPI): boolean => {
   const images = ['jpg', 'JPG', 'jpeg', 'png', 'PNG']
-  const extension = item.url.split('.').pop()
 
-  return extension ? images.includes(extension) : false
+  return images.includes(getExtension(item.url))
 }
 
 export const isVideo = (item: ImageAPI): boolean => {
   const videos = ['mp4', 'MOV']
-  const extension = item.url.split('.').pop()
 
-  return extension ? videos.includes(extension) : false
+  return videos.includes(getExtension(item.url))
 }
 
 const imageOrVideo = (item: ImageAPI) => {
