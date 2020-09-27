@@ -49,7 +49,7 @@ export default ({ recipe }: Props) => {
             />
           ) : null}
         </div>
-        {!detailsOpen ? <h3>{name}</h3> : null}
+        {!detailsOpen ? <h3 className={styles.title}>{name}</h3> : null}
       </a>
       {detailsOpen ? <DetailLoader recipe={recipe} /> : null}
     </li>

@@ -22,9 +22,11 @@ export default ({ details, recipe }: Props) => {
 
   return (
     <div className={styles.detail}>
-      <h2 className={styles.title}>{name}</h2>
-      <TagsList tags={tags} />
-      <Content data={desc} />
+      <div className={styles.readingContent}>
+        <h2 className={styles.title}>{name}</h2>
+        <TagsList tags={tags} />
+        <Content data={desc} />
+      </div>
       <ImageCarousel
         attachments={images.filter((img) => isImage(img) || isVideo(img))}
       />

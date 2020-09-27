@@ -1,6 +1,6 @@
 import 'mocha'
 import { expect } from 'chai'
-import { shallow, configure } from 'enzyme'
+import { shallow, configure, ShallowWrapper } from 'enzyme'
 import Adapter from 'enzyme-adapter-react-16'
 
 configure({ adapter: new Adapter() })
@@ -15,6 +15,8 @@ import Content from './Content'
 import ImageCarousel from './ImageCarousel'
 
 describe('src/component/details/Detail', () => {
+  let detail: ShallowWrapper
+
   const recipe = {
     id: 'id',
     name: 'name',
@@ -22,9 +24,14 @@ describe('src/component/details/Detail', () => {
   } as Recipe
   const details = {
     desc: 'a description',
-    images: ([1, 2, 3] as Array<unknown>) as Array<Image>,
+    images: [{ url: 'a.jpg' }, { url: 'b.mp4' }, { url: 'x.html' }] as Array<
+      Image
+    >,
   } as RecipeDetails
-  const detail = shallow(<Detail recipe={recipe} details={details} />)
+
+  before(() => {
+    detail = shallow(<Detail recipe={recipe} details={details} />)
+  })
 
   it("renders the given recipe's title", () => {
     expect(detail.find('h2').first().text()).to.equal('name')
