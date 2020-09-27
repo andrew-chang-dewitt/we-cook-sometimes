@@ -3,22 +3,22 @@
 
 .cardsList
   margin: 0 auto
-  width: List.$card-width + layout.$grid-gap * 2
+  max-width: List.$card-width * 1.5
   display: grid
-  grid-template-columns: repeat(1, List.$card-width)
+  grid-template-columns: repeat(1, minmax(List.$card-width, List.$card-width * 1.5))
   grid-gap: layout.$grid-gap
   padding: layout.$grid-gap
 @media all and (min-width: #{ List.$medium-width })
   .cardsList
-    width: List.$medium-width
+    max-width: List.$card-width * 2 + layout.$space
     grid-template-columns: repeat(2, List.$card-width)
     grid-gap: layout.$grid-gap
     padding: layout.$grid-gap
 @media all and (min-width: #{ List.$large-width })
   .cardsList
-    width: List.$large-width
+    max-width: List.$card-width * 3 + layout.$space * 2
     grid-template-columns: repeat(3, List.$card-width)
 @media all and (min-width: #{ List.$huge-width })
   .cardsList
-    width: List.$huge-width
+    max-width: List.$card-width * 4 + layout.$space * 3
     grid-template-columns: repeat(4, List.$card-width)

@@ -1,9 +1,7 @@
 @use 'fonts.variables.sass'
 @use 'colors.variables.sass'
-
-// :root
-//   scroll-behavior: smooth
-//
+@use 'layout.variables.sass'
+@use '../components/recipes/List.variables.sass'
 
 body
   margin: 0
@@ -13,9 +11,25 @@ body
   color: colors.$dark
   background-color: colors.$slightly-darker-light
 
-h1, h2, h3, h4, h5, h6, blockquote
+strong
+  font-weight: fonts.$weight-sans-semi-bold
+
+h1, h2, h3
   font-family: fonts.$family-serif
   font-weight: fonts.$weight-serif-normal
+
+blockquote
+  margin-right: 0
+  margin-left: 0
+  padding: layout.$space * 0.75 layout.$space * 1.5 layout.$space * 0.75 layout.$space * 1.5
+  border-left: solid colors.$dark
+  font-style: italic
+@media all and (min-width: #{ List.$medium-width })
+  blockquote
+    padding: layout.$space * 0.75 layout.$space * 2.5 layout.$space * 0.75 layout.$space * 2.5
+
+blockquote > *:first-child
+  margin-top: 0
 
 h1
   font-size: fonts.$size-huge
@@ -35,57 +49,38 @@ h5
 h6
   font-size: fonts.$size-small
 
-// button
-//   background-color: colors.$dark
-//   color: colors.$light
-//   font-weight: fonts.$weight-sans-semi-bold
-//   border: none
-//   cursor: pointer
-//
-// button[type="submit"]
-//   background-color: colors.$action
-//   color: colors.$dark
-//
-// button:hover, button[type="submit"]:hover
-//   background-color: colors.$accent1
-//
-// button[type="submit"]:hover
-//   color: colors.$light
-//
-// *:focus
-//   outline: none
-//
-// button:focus, a:focus, *[role="button"]:focus
-//   box-shadow: 0 0 3px 1px colors.$accent1
-//
-// a, span[role=button]
-//   color: colors.$action-dark
-//   text-decoration: none
-//
-// a:hover, span[role=button]:hover
-//   color: colors.$accent1
-//
-// a:hover
-//   text-decoration: underline
+button
+  background-color: colors.$dark
+  color: colors.$light
+  font-weight: fonts.$weight-sans-semi-bold
+  border: none
+  cursor: pointer
 
-// section
-//   padding-top: 4rem
-//
-// .standardWidth,section
-//   @include layout.standard-width
+button[type="submit"]
+  background-color: colors.$action
+  color: colors.$dark
 
-// .no-wrap
-//   white-space: nowrap
-//
+button:hover, button[type="submit"]:hover
+  background-color: colors.$accent1
+
+button[type="submit"]:hover
+  color: colors.$light
+
+*:focus
+  outline: none
+
+button:focus, a:focus, *[role="button"]:focus
+  box-shadow: 0 0 3px 1px colors.$accent1
+
+a
+  color: colors.$action
+  text-decoration: none
+
+a:hover, span[role=button]:hover
+  color: colors.$accent1
+
+a:hover
+  text-decoration: underline
+
 // .indent p, p.indent
 //   text-indent: layout.$paragraph-indent
-//
-// .subtitle
-//   font-style: italic
-//   margin-bottom: 0.75rem
-//
-// .title + .subtitle
-//   margin-top: -1.75rem
-//
-// .centered, .centered *
-//   text-align: center
