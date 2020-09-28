@@ -8,15 +8,25 @@ import styles from './Image.module.sass'
 
 interface Props {
   data: Image
+  lazy?: boolean
 }
 
-export default ({ data }: Props) => (
+export default ({ data, lazy = true }: Props) => (
   <>
-    <img
-      className={`${styles.img} lazyload`}
-      alt={data.name}
-      data-src={data.url}
-      style={{ backgroundColor: data.edgeColor }}
-    />
+    {lazy ? (
+      <img
+        className={`${styles.img} lazyload`}
+        alt={data.name}
+        data-src={data.url}
+        style={{ backgroundColor: data.edgeColor }}
+      />
+    ) : (
+      <img
+        className={`${styles.img}`}
+        alt={data.name}
+        src={data.url}
+        style={{ backgroundColor: data.edgeColor }}
+      />
+    )}
   </>
 )
