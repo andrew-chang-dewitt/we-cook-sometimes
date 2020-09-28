@@ -10,6 +10,7 @@ import React from 'react'
 import { Tag as TagData } from '../../lib/data/fetch'
 import TagList from '../tags/List'
 import ImageLoader from '../images/ImageLoader'
+import DetailLoader from '../detail/DetailLoader'
 
 import Card from './Card'
 
@@ -51,5 +52,13 @@ describe('src/component/recipes/Card', () => {
     }
     card = shallow(<Card recipe={noImage} />)
     expect(card.find(Image)).to.have.lengthOf(0)
+  })
+
+  it('includes details when a user clicks the card', () => {
+    // include event object w/ prevent default method because it
+    // doesn't seem to be passed automatically by Enzyme
+    card.childAt(0).simulate('click', { preventDefault: () => {} })
+
+    expect(card.find(DetailLoader)).to.have.lengthOf(1)
   })
 })
