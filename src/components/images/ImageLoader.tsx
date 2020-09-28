@@ -1,3 +1,9 @@
+// this whole component is simply a wrapper around the Image component
+// that handles the ugly, imperative, I/O stuff; testing it is more
+// trouble than it's worth since it relies entirely on outside 
+// libraries that are assumed to be thoroughly tested & internal 
+// modules that are thoroughly tested on their own.
+/*istanbul ignore file*/
 import React from 'react'
 import 'lazysizes'
 
