@@ -1,16 +1,47 @@
+@use '../../styles/layout.variables.sass'
 @use '../recipes/List.variables.sass'
+
+.container
+  position: relative
+  height: List.$card-width
+  max-height: 85vh
 
 .container > img,
 .container > video
-  height: List.$card-width
+  height: 100%
   width: 100%
   object-fit: contain
 
+.controls
+  visibility: hidden
+  position: absolute
+  width: calc(100% - #{layout.$space * 2})
+  height: calc(100% - #{layout.$space * 2})
+  margin: layout.$space
+  display: flex
+  justify-content: space-between
+  align-items: center
+
+.container:hover .controls
+  visibility: visible
+  opacity: 0.7
+
+.controls button
+  height: 6rem
+  width: 6rem
+  border-radius: 3rem
+
+.controls button:disabled
+  visibility: hidden
+
+.controls button > svg
+  height: 100%
+  width: 100%
+
+
 @media all and (min-width: #{ List.$medium-width })
-  .container > img,
-  .container > video
+  .container
     height: List.$card-width * 2
 @media all and (min-width: #{ List.$large-width })
-  .container > img,
-  .container > video
+  .container
     height: List.$card-width * 3
