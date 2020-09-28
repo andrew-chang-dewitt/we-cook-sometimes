@@ -3,7 +3,7 @@ import React from 'react'
 
 // internal utilities
 //
-// importing useIO hook as object to allow for it to be
+// importing auto pause hook as object to allow for it to be
 // stubbed in tests
 import * as hook from '../../utils/useAutoPause'
 
@@ -55,10 +55,6 @@ export default ({ attachments }: Props) => {
   const [isPlaying, setPlaying] = React.useState(false)
   // get access to actual video DOM elements
   const video = React.useRef<HTMLVideoElement>(null)
-  // & set up an IntersectionObserver to track the ref
-  // const videoObserver = hook.useIntersectionObserver<HTMLVideoElement>(video, {
-  //   threshold: 1,
-  // })
 
   /*
    * onClick handlers
@@ -91,6 +87,8 @@ export default ({ attachments }: Props) => {
     }
   }
 
+  // handles automatically pausing & playing the video
+  // based on visibility
   hook.useAutoPause(video, play, pause)
 
   // // wait for the Intersection Observer on the video element to
