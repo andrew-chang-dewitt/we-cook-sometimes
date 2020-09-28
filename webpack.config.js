@@ -2,6 +2,7 @@ const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyPlugin = require('copy-webpack-plugin')
 
 module.exports = (env) => {
   const isProd = env ? env.production : false
@@ -40,6 +41,14 @@ module.exports = (env) => {
         title: 'We Cook Sometimes - Recipes',
         template: './src/index.html',
         filename: 'index.html',
+      }),
+      new CopyPlugin({
+        patterns: [
+          {
+            from: './src/static/icons.svg',
+            to: 'static',
+          },
+        ],
       }),
     ],
 

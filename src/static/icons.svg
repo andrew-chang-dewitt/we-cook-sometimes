@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol viewBox="0 0 24 24" id="chevron-down">
+    <polyline points="6 10 12 16 18 10"/>
+  </symbol>
+  <symbol viewBox="0 0 24 24" id="chevron-right">
+    <polyline points="10 6 16 12 10 18 10 18"/>
+  </symbol>
+  <symbol viewBox="0 0 24 24" id="chevron-left">
+    <polyline points="14 18 8 12 14 6 14 6"/>
+  </symbol>
+  <symbol viewBox="0 0 24 24" id="play">
+    <path d="M20 12L5 21V3z"/>
+  </symbol>
+  <symbol viewBox="0 0 24 24" id="pause">
+    <rect width="4" height="16" x="5" y="4"/>
+    <rect width="4" height="16" x="15" y="4"/>
+  </symbol>
+</svg>
