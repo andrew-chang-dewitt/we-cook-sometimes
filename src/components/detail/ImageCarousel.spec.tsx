@@ -145,7 +145,24 @@ describe('src/component/detail/ImageCarousel', () => {
     )
   })
 
+  it('filters out attachments marked as [hidden] in their name trello', () => {
+    const attachments = [
+      {
+        name: '[hidden] not here',
+        url: 'url1.jpg',
+      },
+    ] as Array<ImageAPI>
+
+    render(<ImageCarousel attachments={attachments} />)
+
+    expect(() => screen.getByAltText(/not here/i)).to.throw(
+      Error,
+      /unable to find an element/i
+    )
+  })
+
   describe('video', () => {
+    // helper function for writing DOM Testing Library queries
     const queryBuilder = (name: RegExp, query?: string) => {
       switch (query) {
         case 'find':
@@ -174,16 +191,15 @@ describe('src/component/detail/ImageCarousel', () => {
     }
 
     before(() => {
+      // JSDOM doesn't include play or pause methods on HTML Video
+      // Elements, stubbing them out here & assigning to spy-able
+      // stubs to know when they've been told to play or pause
+      //
+      // VIM may complain & say there is no property `HTMLMediaElement`
+      // on window, but the code runs in test & the error is not thrown
+      // by tsserver; not sure where it comes from at this time
       playStub = sinon.stub().returns(Promise.resolve())
-      pauseStub = sinon.stub().callsFake(() => {
-        // try {
-        //   throw Error('in pause try')
-        // } catch (e) {
-        //   console.log('pause called', e)
-        // }
-
-        return Promise.resolve()
-      })
+      pauseStub = sinon.stub().returns(Promise.resolve())
       window.HTMLMediaElement.prototype.play = playStub
       window.HTMLMediaElement.prototype.pause = pauseStub
     })
@@ -192,6 +208,7 @@ describe('src/component/detail/ImageCarousel', () => {
       pauseStub.resetHistory()
     })
     after(() => {
+      // restore prototypes to original definitions
       delete window.HTMLMediaElement.prototype.play
       delete window.HTMLMediaElement.prototype.pause
     })
