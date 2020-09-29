@@ -5,6 +5,8 @@ import { Recipe } from '../../lib/data/fetch'
 import TagsList from '../tags/List'
 import ImageLoader from '../images/ImageLoader'
 import DetailLoader from '../detail/DetailLoader'
+import More from '../icons/More'
+import Less from '../icons/Close'
 
 import styles from './Card.module.sass'
 
@@ -38,8 +40,20 @@ export default ({ recipe }: Props) => {
         <div className={styles.imgContainer}>
           <div className={styles.info}>
             {!detailsOpen ? (
-              <TagsList tags={tags.filter((tag) => tag.color !== null)} />
-            ) : null}
+              <>
+                <div>
+                  <TagsList tags={tags.filter((tag) => tag.color !== null)} />
+                </div>
+                <More />
+              </>
+            ) : (
+              <>
+                <div></div>
+                <div>
+                  <Less />
+                </div>
+              </>
+            )}
           </div>
           {idAttachmentCover !== null ? (
             <ImageLoader

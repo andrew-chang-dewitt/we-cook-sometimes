@@ -4,6 +4,8 @@
 
 $shadow-size: 0.1rem
 $space: 0.5rem
+$svg-height: 4rem
+$svg-adjustment: -0.5rem
 
 .card
   overflow: hidden
@@ -43,6 +45,15 @@ $space: 0.5rem
   // top: 0
   // left: 0
   padding: $space
+  width: calc(100% - (#{$space} * 2 ))
+  display: flex
+  justify-content: space-between
+  align-content: flex-start
+
+.info svg
+  height: $svg-height
+  width: $svg-height
+  margin: $svg-adjustment (3 * $svg-adjustment) 0 0
 
 @media all and (min-width: #{ List.$medium-width })
   .card.details
