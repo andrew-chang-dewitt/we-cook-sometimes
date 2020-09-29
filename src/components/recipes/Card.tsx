@@ -1,22 +1,27 @@
+// external libraries
 import React from 'react'
+import { Link, useLocation } from 'react-router-dom'
 
+// internal utilities
 import { Recipe } from '../../lib/data/fetch'
 
+// other components
 import TagsList from '../tags/List'
 import ImageLoader from '../images/ImageLoader'
 import DetailLoader from '../detail/DetailLoader'
 import More from '../icons/More'
 import Less from '../icons/Close'
 
+// CSS-modules
 import styles from './Card.module.sass'
 
 interface Props {
   recipe: Recipe
 }
 
-export default ({ recipe }: Props) => {
-  const [detailsOpen, setDetailsOpen] = React.useState(false)
+const useQueryParams = () => new URLSearchParams(useLocation().search)
 
+export default ({ recipe }: Props) => {
   const {
     id,
     name,
@@ -25,10 +30,20 @@ export default ({ recipe }: Props) => {
     idAttachmentCover,
   } = recipe
 
-  const toggleDetails = (e: React.MouseEvent<HTMLElement>): void => {
-    e.preventDefault()
-    setDetailsOpen(!detailsOpen)
+  const [detailsOpen, setDetailsOpen] = React.useState(false)
+  const query = useQueryParams()
+
+  const openDetails = (): void => {
+    setDetailsOpen(true)
   }
+
+  const closeDetails = (): void => {
+    setDetailsOpen(false)
+  }
+
+  React.useEffect(() => {
+    if (query.get('open') === id) openDetails()
+  }, [])
 
   return (
     <li
@@ -36,7 +51,10 @@ export default ({ recipe }: Props) => {
         detailsOpen ? `${styles.card} ${styles.details}` : `${styles.card}`
       }
     >
-      <a href={`/recipe/${id}`} onClick={toggleDetails}>
+      <Link
+        to={detailsOpen ? '' : `?open=${id}`}
+        onClick={detailsOpen ? closeDetails : openDetails}
+      >
         <div className={styles.imgContainer}>
           <div className={styles.info}>
             {!detailsOpen ? (
@@ -64,7 +82,7 @@ export default ({ recipe }: Props) => {
           ) : null}
         </div>
         {!detailsOpen ? <h3 className={styles.title}>{name}</h3> : null}
-      </a>
+      </Link>
       {detailsOpen ? <DetailLoader recipe={recipe} /> : null}
     </li>
   )

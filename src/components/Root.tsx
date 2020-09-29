@@ -1,5 +1,6 @@
 // external libs
 import React from 'react'
+import { BrowserRouter as Router } from 'react-router-dom'
 
 // internal utilities
 import useStateHistory from '../utils/useStateHistory'
@@ -53,7 +54,7 @@ const Root = () => {
   }, [])
 
   return (
-    <>
+    <Router>
       {state.recipes.remaining ? (
         <List
           recipes={state.recipes.remaining.map(
@@ -61,7 +62,7 @@ const Root = () => {
           )}
         />
       ) : null}
-    </>
+    </Router>
   )
 }
 
