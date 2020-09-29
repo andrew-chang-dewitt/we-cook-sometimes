@@ -1,6 +1,6 @@
 // external libs
 import React from 'react'
-import { BrowserRouter as Router } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 // internal utilities
 import useStateHistory from '../utils/useStateHistory'
@@ -18,9 +18,14 @@ import List from './recipes/List'
 
 // import styles from './Root.module.sass'
 
+const useQueryParams = (location: { search: string }) =>
+  new URLSearchParams(location.search)
+
 const publishedTagId = '5f55960c17f08e1fde18785e'
 
 const Root = () => {
+  const location = useLocation()
+  const query = useQueryParams(location)
   const { state, setState } = useStateHistory({
     recipes: {} as RecipeListType,
     // tags: {} as TagType[],
@@ -54,15 +59,16 @@ const Root = () => {
   }, [])
 
   return (
-    <Router>
+    <>
       {state.recipes.remaining ? (
         <List
           recipes={state.recipes.remaining.map(
             (recipe) => state.recipes.allByID[recipe]
           )}
+          openId={query.get('open')}
         />
       ) : null}
-    </Router>
+    </>
   )
 }
 

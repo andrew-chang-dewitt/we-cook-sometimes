@@ -19,6 +19,8 @@ describe('src/component/recipes/List', () => {
       ('recipe' as any) as Recipe,
       ('recipe' as any) as Recipe,
     ]
-    expect(shallow(<List recipes={recipes} />).find(Card)).to.have.lengthOf(3)
+    expect(
+      shallow(<List recipes={recipes} openId={null} />).find(Card)
+    ).to.have.lengthOf(3)
   })
 })

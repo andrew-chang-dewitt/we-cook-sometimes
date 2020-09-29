@@ -1,6 +1,6 @@
 // external libraries
 import React from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 // internal utilities
 import { Recipe } from '../../lib/data/fetch'
@@ -17,11 +17,10 @@ import styles from './Card.module.sass'
 
 interface Props {
   recipe: Recipe
+  detailsOpen: boolean
 }
 
-const useQueryParams = () => new URLSearchParams(useLocation().search)
-
-export default ({ recipe }: Props) => {
+export default ({ recipe, detailsOpen }: Props) => {
   const {
     id,
     name,
@@ -30,31 +29,13 @@ export default ({ recipe }: Props) => {
     idAttachmentCover,
   } = recipe
 
-  const [detailsOpen, setDetailsOpen] = React.useState(false)
-  const query = useQueryParams()
-
-  const openDetails = (): void => {
-    setDetailsOpen(true)
-  }
-
-  const closeDetails = (): void => {
-    setDetailsOpen(false)
-  }
-
-  React.useEffect(() => {
-    if (query.get('open') === id) openDetails()
-  }, [])
-
   return (
     <li
       className={
         detailsOpen ? `${styles.card} ${styles.details}` : `${styles.card}`
       }
     >
-      <Link
-        to={detailsOpen ? '' : `?open=${id}`}
-        onClick={detailsOpen ? closeDetails : openDetails}
-      >
+      <Link to={detailsOpen ? '' : `?open=${id}`}>
         <div className={styles.imgContainer}>
           <div className={styles.info}>
             {!detailsOpen ? (
@@ -81,6 +62,9 @@ export default ({ recipe }: Props) => {
             />
           ) : null}
         </div>
+
+        {/* Open details using a Router Switch maybe? */}
+        {/* can definitely do it off a prop though */}
         {!detailsOpen ? <h3 className={styles.title}>{name}</h3> : null}
       </Link>
       {detailsOpen ? <DetailLoader recipe={recipe} /> : null}

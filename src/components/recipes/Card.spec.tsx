@@ -32,7 +32,7 @@ describe('src/component/recipes/Card', () => {
   let card: ShallowWrapper<any, any>
 
   before(() => {
-    card = shallow(<Card recipe={recipe} />)
+    card = shallow(<Card recipe={recipe} detailsOpen={false} />)
   })
 
   it('renders the recipe title', () => {
@@ -52,7 +52,7 @@ describe('src/component/recipes/Card', () => {
       ...recipe,
       idAttachmentCover: null,
     }
-    card = shallow(<Card recipe={noImage} />)
+    card = shallow(<Card recipe={noImage} detailsOpen={false} />)
     expect(card.find(Image)).to.have.lengthOf(0)
   })
 
@@ -60,15 +60,17 @@ describe('src/component/recipes/Card', () => {
     expect(card.find(More)).to.have.lengthOf(1)
   })
 
-  it('includes details when a user clicks the card', () => {
-    // include event object w/ prevent default method because it
-    // doesn't seem to be passed automatically by Enzyme
-    card.childAt(0).simulate('click', { preventDefault: () => {} })
+  describe('open details', () => {
+    before(() => {
+      card = shallow(<Card recipe={recipe} detailsOpen={true} />)
+    })
 
-    expect(card.find(DetailLoader)).to.have.lengthOf(1)
-  })
+    it('includes details when the detailsOpen prop is true', () => {
+      expect(card.find(DetailLoader)).to.have.lengthOf(1)
+    })
 
-  it('and it displays an x icon indicating the details can be closed', () => {
-    expect(card.find(Close)).to.have.lengthOf(1)
+    it('and it displays an x icon indicating the details can be closed', () => {
+      expect(card.find(Close)).to.have.lengthOf(1)
+    })
   })
 })
