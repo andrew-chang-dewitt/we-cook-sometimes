@@ -29,14 +29,35 @@ export default ({ recipe, detailsOpen }: Props) => {
     idAttachmentCover,
   } = recipe
 
+  // if a card is open, scroll it into view by getting a ref
+  // on the parent element & calling it's scrollIntoView()
+  // method in a useEffect to wait for component mounting
+  const ref = React.useRef<HTMLLIElement>(null)
+
+  // unable to test this behavior without writing really brittle
+  // tests in enzyme that mock useEffect & spying on
+  // HTMLElement.prototype.scrollIntoView, or modeling the entire
+  // tree with react-testing-library & being forced to mock
+  // location behavior, which proved to require really brittle
+  // tests as well, skipping this useEffect instead
+  /* istanbul ignore next */
+  React.useEffect(() => {
+    detailsOpen && ref.current ? ref.current.scrollIntoView() : null
+  }, [detailsOpen, ref.current])
+
   return (
     <li
       className={
         detailsOpen ? `${styles.card} ${styles.details}` : `${styles.card}`
       }
+      ref={ref}
     >
       <Link to={detailsOpen ? '' : `?open=${id}`}>
-        <div className={styles.imgContainer}>
+        <div
+          className={`${styles.imgContainer} ${
+            idAttachmentCover ? styles.hasImage : ''
+          }`}
+        >
           <div className={styles.info}>
             {!detailsOpen ? (
               <>
