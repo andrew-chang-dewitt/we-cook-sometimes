@@ -4,6 +4,6 @@ import styles from './PlayPause.module.sass'
 
 export default () => (
   <svg className={styles.svgIcon}>
-    <use xlinkHref="static/icons.svg#play" />
+    <use xlinkHref="/static/icons.svg#play" />
   </svg>
 )
