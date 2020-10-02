@@ -4,7 +4,7 @@ import unified from 'unified'
 import parse from 'remark-parse'
 import markdownToReact from 'remark-react'
 
-import Link from './Link'
+import ContentLink from './ContentLink'
 
 import styles from './Content.module.sass'
 
@@ -25,7 +25,7 @@ export default ({ data }: Props) => (
         // semantics) & changing the size in CSS
         .use(markdownToReact, {
           remarkReactComponents: {
-            a: Link,
+            a: ContentLink,
           },
         })
         .processSync(data).result as HTMLDivElement
