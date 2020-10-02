@@ -20,6 +20,7 @@ describe('src/component/recipes/Card', () => {
   const recipe = {
     id: 'a recipe',
     name: 'A Recipe',
+    url: 'a url',
     tags: [
       ('1' as any) as TagData,
       ('2' as any) as TagData,
