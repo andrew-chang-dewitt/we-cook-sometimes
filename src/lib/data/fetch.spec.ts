@@ -60,6 +60,7 @@ export const Factories = {
       create: (): RecipeAPI => ({
         id: 'id',
         name: 'one',
+        url: 'https://a-link',
         idAttachmentCover: 'img',
         idList: 'list',
         labels: [

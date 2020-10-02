@@ -141,6 +141,7 @@ export const image = (
 export interface RecipeAPI {
   id: string
   name: string
+  url: string
   labels: Array<Tag>
   idAttachmentCover: string
   idList: string
@@ -152,6 +153,7 @@ export interface RecipeAPI {
 export interface Recipe {
   id: string
   name: string
+  url: string
   tags: Array<Tag>
   idAttachmentCover: string | null
   idList: string
@@ -170,16 +172,17 @@ export interface RecipesByLabelId {
 
 export const recipes = (): Promise<Result<Array<Recipe>, FetchError>> => {
   const processRecipes = (recipes: Array<RecipeAPI>): Array<Recipe> =>
-    recipes.map(({ id, name, idAttachmentCover, idList, labels }) => ({
+    recipes.map(({ id, name, url, idAttachmentCover, idList, labels }) => ({
       id,
       name,
+      url,
       idAttachmentCover,
       idList,
       tags: labels,
     }))
 
   return trello<Array<RecipeAPI>>(
-    board + '/cards?fields=id,name,idList,labels,idAttachmentCover'
+    board + '/cards?fields=id,name,url,idList,labels,idAttachmentCover'
   ).then(
     (res) => res.apply(processRecipes) as Result<Array<Recipe>, FetchError>
   )

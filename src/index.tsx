@@ -1,6 +1,5 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { BrowserRouter as Router } from 'react-router-dom'
 
 // load fonts
 import 'typeface-vollkorn'
@@ -13,9 +12,4 @@ import './styles/global.sass'
 import Root from './components/Root'
 
 // and render it wrapped in a Router instance
-ReactDOM.render(
-  <Router>
-    <Root />
-  </Router>,
-  document.getElementById('app-root')
-)
+ReactDOM.render(<Root />, document.getElementById('app-root'))

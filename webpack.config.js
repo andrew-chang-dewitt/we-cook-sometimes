@@ -10,13 +10,18 @@ module.exports = (env) => {
   return {
     mode: isProd ? 'production' : 'development',
 
+    entry: path.resolve(__dirname, 'src/index.tsx'),
+
     // enable sourcemaps for debugging
     devtool: 'source-map',
 
     devServer: {
-      contentBase: './src/',
+      contentBase: path.resolve(__dirname, 'src/'),
       hot: true,
       public: 'devtest.andrew-chang-dewitt.dev',
+      historyApiFallback: {
+        index: '/index.html',
+      },
     },
 
     resolve: {
@@ -29,6 +34,7 @@ module.exports = (env) => {
       filename: '[name].[hash].bundle.js',
       chunkFilename: '[name].[hash].bundle.js',
       path: path.resolve(__dirname, 'dist'),
+      publicPath: '/',
     },
 
     plugins: [
@@ -39,7 +45,7 @@ module.exports = (env) => {
       new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
       new HtmlWebpackPlugin({
         title: 'We Cook Sometimes - Recipes',
-        template: './src/index.html',
+        template: path.resolve(__dirname, 'src/index.html'),
         filename: 'index.html',
       }),
       new CopyPlugin({
