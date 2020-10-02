@@ -19,10 +19,6 @@ interface Props {
 export default ({ cardId, attachmentId, size = null }: Props) => {
   const [imgData, setImgData] = React.useState<ImageType | null>(null)
 
-  // skipping useEffect in testing; we don't need to know that this
-  // particular fetch call works -- fetch has already been tested
-  // thoroughly
-  /*istanbul ignore next*/
   React.useEffect(() => {
     if (size) {
       fetch
