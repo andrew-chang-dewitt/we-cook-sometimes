@@ -20,6 +20,7 @@ import LookupContext, {
 } from '../utils/LookupContext'
 
 // other components
+import Header from './header/Header'
 import List from './recipes/List'
 import RecipePage from './recipes/RecipePage'
 
@@ -53,7 +54,7 @@ const Root = () => {
         const byUrl: RecipeLookup = {}
 
         Object.values(recipeList.allByID).forEach(
-          (recipe) => (byUrl[recipe.url] = recipe.id)
+          (recipe) => (byUrl[recipe.shortLink] = recipe.id)
         )
         setLookupTables({
           recipeByUrl: byUrl,
@@ -80,6 +81,7 @@ const Root = () => {
   return (
     <LookupContext.Provider value={lookupTables}>
       <Router>
+        <Header />
         <Switch>
           <Route exact path="/">
             {state.recipes.loaded ? (

@@ -14,8 +14,13 @@ interface Props {
 export default ({ href, children }: Props) => {
   // load lookup tables to check for recipes
   const lookups = React.useContext(LookupContext)
+  const getShortLink = (url: string) => url.split('/')[4]
   // if a URL exists on recipe by URL lookup table, it's a recipe
-  const isRecipe = (url: string) => lookups.recipeByUrl.hasOwnProperty(url)
+  const isRecipe = (url: string) => {
+    // Trello card links can change if the name changes, but the
+    // second to last level of the URL will still be the same
+    return lookups.recipeByUrl.hasOwnProperty(getShortLink(url))
+  }
   // if a recipe has a tag matching the published ID, it is published
   const isPublished = (id: string) =>
     lookups.recipeByID[id].tags.some((tag) => tag.id === publishedTagId)
@@ -29,7 +34,7 @@ export default ({ href, children }: Props) => {
     )
 
   // otherwise, get the matching recipe ID
-  const recipeID = lookups.recipeByUrl[href]
+  const recipeID = lookups.recipeByUrl[getShortLink(href)]
   // and replace given Trello link with an internal link to the recipe
   return (
     <Link
