@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg xmlns="http://www.w3.org/2000/svg">
+  <symbol viewBox="0 0 24 24" id="arrow-left">
+    <path d="M9 6l-6 6 6 6"/>
+    <path d="M21 12H4"/>
+    <path stroke-linecap="round" d="M3 12h1"/>
+  </symbol>
   <symbol viewBox="0 0 24 24" id="chevron-down">
     <polyline points="6 10 12 16 18 10"/>
   </symbol>
