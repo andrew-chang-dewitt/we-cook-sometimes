@@ -21,13 +21,13 @@ const isErr = <T, E extends Error>(
 ): result is Err<E> => result._tag === 'err'
 
 interface ErrorHandler<T, E extends Error> {
-  (e: E): T | void
+  (e: E): T
 }
 
 const unwrap = <T, E extends Error>(
   result: ResultType<T, E>,
   errHandler?: ErrorHandler<T, E>
-): T | void => {
+): T => {
   if (isOk(result)) return result.ok
   if (errHandler !== undefined) return errHandler(result.err)
   else throw result.err
@@ -79,7 +79,7 @@ const apply = <T, E extends Error>(
 }
 
 export interface Result<T, E extends Error> {
-  unwrap: (errorHandler?: (e: E) => T | void) => T | void
+  unwrap: (errorHandler?: ErrorHandler<T, E>) => T
   map: (onOk: MapOkFn<T>, onErr: MapErrFn<E>) => Result<T, E>
   mapOk: (fn: MapOkFn<T>) => Result<T, E>
   mapErr: (fn: MapErrFn<E>) => Result<T, E>

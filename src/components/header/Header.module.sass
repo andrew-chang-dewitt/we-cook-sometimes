@@ -1,0 +1,45 @@
+@use '../../styles/colors.variables.sass'
+@use '../../styles/fonts.variables.sass'
+@use '../../styles/layout.variables.sass'
+
+$header-height: 2.2rem
+
+.container
+  z-index: 1
+  height: $header-height
+  position: sticky
+  top: 0
+  background-color: colors.$accent1
+  display: flex
+  justify-content: space-between
+  align-items: center
+
+.branding > a
+  height: $header-height
+  line-height: $header-height
+  white-space: nowrap
+  font-family: fonts.$family-serif
+  font-size: fonts.$size-regular * 1.25
+  color: colors.$light
+.branding > a:hover
+  color: colors.$light
+  text-decoration: none
+
+.container .backButton,
+.container .menuButton
+  height: 100%
+  width: 4rem
+
+.container button,
+.container svg
+  height: 100%
+  width: 100%
+
+.container button
+  background-color: transparent
+
+@media all and (min-width: #{ layout.$screen-small })
+  .branding > a
+    font-size: fonts.$size-medium
+  .container
+    height: $header-height * 1.25

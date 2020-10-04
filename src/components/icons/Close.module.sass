@@ -1,0 +1,27 @@
+@use '../../styles/colors.variables.sass'
+
+$right-position: 1.5rem
+$stroke-width: 3
+$stroke-linecap: round
+$stroke-linejoin: miter
+
+@mixin svgIcon
+  stroke-linecap: $stroke-linecap
+  stroke-linejoin: $stroke-linejoin
+  fill: none
+
+.bottom
+  position: absolute
+  right: $right-position
+  stroke: colors.$dark
+  stroke-width: $stroke-width
+  @include svgIcon
+
+.top
+  position: absolute
+  right: $right-position
+  stroke: colors.$light
+  stroke-width: $stroke-width / 2
+  @include svgIcon
+.top:hover
+  stroke: colors.$Gold

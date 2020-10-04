@@ -14,7 +14,7 @@ export const Factories = {
     Image: {
       create: (): ImageAPI => ({
         id: '1',
-        name: 'name',
+        name: '[published]name',
         edgeColor: 'color',
         url: 'url',
         previews: [
@@ -60,6 +60,7 @@ export const Factories = {
       create: (): RecipeAPI => ({
         id: 'id',
         name: 'one',
+        shortLink: 'https://a-link',
         idAttachmentCover: 'img',
         idList: 'list',
         labels: [
@@ -107,9 +108,7 @@ describe('lib/data/fetch', () => {
 
   it('encapsulates fetch errors from the Trello API in the Err Result type', async () => {
     server.use(
-      rest.get(root + board + '/cards', (_, res, ctx) =>
-        res(ctx.status(500))
-      )
+      rest.get(root + board + '/cards', (_, res, ctx) => res(ctx.status(500)))
     )
 
     const result = await fetch.recipes()
@@ -139,6 +138,24 @@ describe('lib/data/fetch', () => {
       })
     })
 
+    it("returns a FetchError if it isn't marked as [published]", () => {
+      const img = {
+        ...imgObj,
+        name: 'not published',
+      }
+
+      server.use(
+        rest.get(root + '/card/1/attachments/1', (_, res, ctx) =>
+          res(ctx.json(img))
+        )
+      )
+
+      expect(async () => await fetch.image('1', '1')).to.throw(
+        FetchError,
+        /not published/i
+      )
+    })
+
     it('can return the smallest scaled image that is still >= the optionally given dimensions', async () => {
       const result = (
         await fetch.image('1', '1', { height: 9, width: 9 })
@@ -148,9 +165,11 @@ describe('lib/data/fetch', () => {
     })
 
     it('only requires a min height or a width to be specified', async () => {
-      const result = (await fetch.image('1', '1', { height: 100 })).unwrap()
+      const height = (await fetch.image('1', '1', { height: 100 })).unwrap()
+      const width = (await fetch.image('1', '1', { width: 100 })).unwrap()
 
-      expect(result ? result.url : null).to.equal('url100')
+      expect(height ? height.url : null).to.equal('url100')
+      expect(width ? width.url : null).to.equal('url100')
     })
 
     it('but at least one must be given, despite being optional on the MinDimensions interface', async () => {
@@ -320,40 +339,6 @@ describe('lib/data/fetch', () => {
       expect(result.desc).to.equal('description')
       expect(result.images[0].id).to.equal('img1')
       expect(result.images[1].id).to.equal('img2')
-    })
-
-    it('can return the smallest scaled images that are still >= the optionally given dimensions', async () => {
-      const result = (
-        await fetch.details('1', { height: 10, width: 10 })
-      ).unwrap() as any
-
-      expect(result.images[0].url).to.equal('url1-10')
-      expect(result.images[1].url).to.equal('url2-10')
-    })
-
-    it('only requires a min height or a width to be specified', async () => {
-      const result = (await fetch.details('1', { width: 100 })).unwrap() as any
-
-      expect(result.images[0].url).to.equal('url1-100')
-      expect(result.images[1].url).to.equal('url2-100')
-    })
-
-    it('must be >= both, if two dimensions are given', async () => {
-      const result = (
-        await fetch.details('1', { height: 1, width: 100 })
-      ).unwrap() as any
-
-      expect(result.images[0].url).to.equal('url1-100')
-      expect(result.images[1].url).to.equal('url2-100')
-    })
-
-    it("returns the largest available, if there isn't one any bigger", async () => {
-      const result = (
-        await fetch.details('1', { height: 101, width: 101 })
-      ).unwrap() as any
-
-      expect(result.images[0].url).to.equal('url1-100')
-      expect(result.images[1].url).to.equal('url2-100')
     })
   })
 })

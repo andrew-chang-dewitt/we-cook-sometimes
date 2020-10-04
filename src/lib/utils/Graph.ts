@@ -17,6 +17,10 @@ interface AddEdge {
   (node: string, edge: string): Graph
 }
 
+interface OrderFn<T> {
+  (unordered: Array<T>): Array<T>
+}
+
 export interface Traverser<T> {
   next: () => T | null
 }
@@ -30,7 +34,7 @@ export interface Graph {
   readonly nodes: Array<string>
   addNode: AddNode
   addEdge: AddEdge
-  traverser: () => Traverser<string>
+  traverser: (orderFn?: OrderFn<string>) => Traverser<string>
   forEach: ForEach
 }
 
@@ -69,8 +73,8 @@ const traversable = ({
   adjacencyList,
   root,
   acyclical,
-}: State): { traverser: () => Traverser<string> } => ({
-  traverser: () => {
+}: State): { traverser: (orderFn?: OrderFn<string>) => Traverser<string> } => ({
+  traverser: (orderFn) => {
     const visited: string[] = []
     const stack: string[] = []
 
@@ -103,13 +107,17 @@ const traversable = ({
             )
           }
 
-          const remaining = neighbors
-            .reduce((accumulator: string[], neighbor) => {
+          let remaining = neighbors.reduce(
+            (accumulator: string[], neighbor) => {
               if (!visited.includes(neighbor)) accumulator.push(neighbor)
 
               return accumulator
-            }, [])
-            .sort()
+            },
+            []
+          )
+
+          if (orderFn !== undefined) remaining = orderFn(remaining)
+          else remaining = remaining.sort()
 
           if (remaining.length <= 0) {
             stack.pop()

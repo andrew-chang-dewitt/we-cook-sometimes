@@ -1,5 +1,8 @@
+const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyPlugin = require('copy-webpack-plugin')
 
 module.exports = (env) => {
   const isProd = env ? env.production : false
@@ -7,16 +10,31 @@ module.exports = (env) => {
   return {
     mode: isProd ? 'production' : 'development',
 
+    entry: path.resolve(__dirname, 'src/index.tsx'),
+
     // enable sourcemaps for debugging
     devtool: 'source-map',
 
     devServer: {
-      contentBase: './src/',
-      compress: true,
+      contentBase: path.resolve(__dirname, 'src/'),
+      hot: true,
+      public: 'devtest.andrew-chang-dewitt.dev',
+      historyApiFallback: {
+        index: '/index.html',
+      },
     },
 
     resolve: {
-      extensions: ['.ts', '.tsx', '.sass', '.css'],
+      extensions: ['.ts', '.tsx', '.js', '.sass', '.css'],
+    },
+
+    // entry: { index: '.src/index.tsx' },
+
+    output: {
+      filename: '[name].[hash].bundle.js',
+      chunkFilename: '[name].[hash].bundle.js',
+      path: path.resolve(__dirname, 'dist'),
+      publicPath: '/',
     },
 
     plugins: [
@@ -24,10 +42,19 @@ module.exports = (env) => {
         filename: isProd ? '[name].[contenthash].css' : '[name].css',
         chunkFilename: isProd ? '[id].[contenthash].css' : '[id].css',
       }),
+      new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
       new HtmlWebpackPlugin({
         title: 'We Cook Sometimes - Recipes',
-        template: './src/index.html',
+        template: path.resolve(__dirname, 'src/index.html'),
         filename: 'index.html',
+      }),
+      new CopyPlugin({
+        patterns: [
+          {
+            from: './src/static/icons.svg',
+            to: 'static',
+          },
+        ],
       }),
     ],
 
@@ -36,7 +63,7 @@ module.exports = (env) => {
         {
           test: /\.ts(x?)$/,
           exclude: /node_modules/,
-          use: [{ loader: 'ts-loader' }],
+          use: ['ts-loader'],
         },
 
         {
@@ -53,7 +80,7 @@ module.exports = (env) => {
             // match module.sass files fist
             {
               test: /\.module\.s?[a|c]ss$/i,
-              exclude: /node_modules/,
+              // exclude: /node_modules/,
               sideEffects: true,
               use: [
                 {
@@ -72,13 +99,18 @@ module.exports = (env) => {
                     },
                   },
                 },
+                // fix sass issues w/ url() per
+                // https://github.com/KyleAMathews/typefaces/issues/199#issuecomment-686484472
+                'resolve-url-loader',
                 'sass-loader',
               ],
             },
 
-            // then global sass files next
+            // then global style files next
             {
-              exclude: /node_modules/,
+              // don't exclude node_modules if loading fonts using
+              // typeface-* npm packages
+              // exclude: /node_modules/,
               sideEffects: true,
               use: [
                 {
@@ -89,10 +121,17 @@ module.exports = (env) => {
                   },
                 },
                 'css-loader',
+                'resolve-url-loader',
                 'sass-loader',
               ],
             },
           ],
+        },
+
+        // load font files
+        {
+          test: /\.(woff|woff2|eot|ttf|otf)$/,
+          use: ['file-loader'],
         },
       ],
     },

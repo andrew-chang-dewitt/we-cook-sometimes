@@ -36,11 +36,16 @@ interface Eliminator {
   (tagIds: string[]): RecipeList
 }
 
-export interface RecipeList extends ExternalState {
-  eliminateByTags: Eliminator
+interface Filter {
+  (tagId: string): RecipeList
 }
 
-const getter = ({ allByID, remaining }: ExternalState): ExternalState => {
+export interface RecipeList extends ExternalState {
+  eliminateByTags: Eliminator
+  filterByTag: Filter
+}
+
+const getable = ({ allByID, remaining }: ExternalState): ExternalState => {
   return {
     get allByID() {
       return allByID
@@ -51,7 +56,7 @@ const getter = ({ allByID, remaining }: ExternalState): ExternalState => {
   }
 }
 
-const eliminator = (state: State): { eliminateByTags: Eliminator } => {
+const eliminatable = (state: State): { eliminateByTags: Eliminator } => {
   const { allByTags, remaining } = state
 
   return {
@@ -74,8 +79,20 @@ const eliminator = (state: State): { eliminateByTags: Eliminator } => {
   }
 }
 
+const filterable = (state: State): { filterByTag: Filter } => {
+  const { allByTags } = state
+
+  return {
+    filterByTag: (tag) =>
+      createFromExisting({
+        ...state,
+        remaining: allByTags[tag],
+      }),
+  }
+}
+
 const createFromExisting = (state: State): RecipeList =>
-  Object.assign({}, getter(state), eliminator(state))
+  Object.assign({}, getable(state), eliminatable(state), filterable(state))
 
 const create = (data: fetch.Recipe[]): RecipeList => {
   // build lookup tables
