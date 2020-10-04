@@ -21,11 +21,6 @@ import Play from '../icons/Play'
 // CSS-modules
 import styles from './ImageCarousel.module.sass'
 
-// attachments beginning with the string [hidden] should be
-// filtered out of the array
-const applyFilter = (items: Array<ImageAPI>): Array<ImageAPI> =>
-  items.filter((item) => item.name.split(']')[0] !== '[hidden')
-
 // get a file extension from a given string
 const getExtension = (url: string): string => {
   const split = url.split('.')
@@ -50,9 +45,6 @@ interface Props {
 }
 
 export default ({ attachments }: Props) => {
-  // filter out attachments that shouldn't be rendered
-  attachments = applyFilter(attachments)
-
   // early return to guard against there being no attachments
   if (attachments.length === 0) return <></>
 
@@ -98,13 +90,6 @@ export default ({ attachments }: Props) => {
   // handles automatically pausing & playing the video
   // based on visibility
   hook.useAutoPause(video, play, pause)
-
-  // // wait for the Intersection Observer on the video element to
-  // // update it's isIntersecting property
-  // // play if it's visible, & pause if it's not fully visible
-  // React.useEffect(() => {
-  //   videoObserver.isIntersecting ? play() : pause()
-  // }, [videoObserver.isIntersecting])
 
   // retain playing state when the current image is changed;
   // if a video was playing when next or previous was clicked,

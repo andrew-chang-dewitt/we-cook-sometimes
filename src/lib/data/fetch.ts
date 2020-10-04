@@ -1,4 +1,4 @@
-import { ok, err, mergeResults, Result } from '../../utils/Result'
+import { ok, err, mergeResults, tryCatch, Result } from '../../utils/Result'
 import { Response } from 'node-fetch'
 
 const board = '/board/5820f9c22043447d3f4fa857'
@@ -107,6 +107,21 @@ const processImage = (img: ImageAPI, minDimensions?: MinDimensions): Image =>
         name: img.name,
       }
 
+const checkPublished = (item: ImageAPI): ImageAPI => {
+  const split = item.name.split(']')
+  const first = split[0]
+
+  if (first === '[published')
+    return {
+      ...item,
+      name: item.name.split(']').splice(0, 1).join(''),
+    }
+
+  throw new FetchError(
+    'The requested image is not marked as published & is unavailable.'
+  )
+}
+
 export const image = (
   cardId: string,
   imageId: string,
@@ -128,20 +143,28 @@ export const image = (
 
   return trello<ImageAPI>(
     `/card/${cardId}/attachments/${imageId}?fields=id,name,url,previews,edgeColor`
-  ).then(
-    (res) =>
-      // type assertion needed here to identify the type returned by apply
-      res.apply((img) => processImage(img, minDimensions)) as Result<
-        Image,
-        FetchError
-      >
   )
+    .then((res) =>
+      tryCatch(
+        () => checkPublished(res.unwrap()),
+        (err: unknown) =>
+          err instanceof Error ? err : new Error('unknown error')
+      )
+    )
+    .then(
+      (res) =>
+        // type assertion needed here to identify the type returned by apply
+        res.apply((img) => processImage(img, minDimensions)) as Result<
+          Image,
+          FetchError
+        >
+    )
 }
 
 export interface RecipeAPI {
   id: string
   name: string
-  url: string
+  shortLink: string
   labels: Array<Tag>
   idAttachmentCover: string
   idList: string
@@ -153,7 +176,7 @@ export interface RecipeAPI {
 export interface Recipe {
   id: string
   name: string
-  url: string
+  shortLink: string
   tags: Array<Tag>
   idAttachmentCover: string | null
   idList: string
@@ -172,17 +195,19 @@ export interface RecipesByLabelId {
 
 export const recipes = (): Promise<Result<Array<Recipe>, FetchError>> => {
   const processRecipes = (recipes: Array<RecipeAPI>): Array<Recipe> =>
-    recipes.map(({ id, name, url, idAttachmentCover, idList, labels }) => ({
-      id,
-      name,
-      url,
-      idAttachmentCover,
-      idList,
-      tags: labels,
-    }))
+    recipes.map(
+      ({ id, name, shortLink, idAttachmentCover, idList, labels }) => ({
+        id,
+        name,
+        shortLink,
+        idAttachmentCover,
+        idList,
+        tags: labels,
+      })
+    )
 
   return trello<Array<RecipeAPI>>(
-    board + '/cards?fields=id,name,url,idList,labels,idAttachmentCover'
+    board + '/cards?fields=id,name,shortLink,idList,labels,idAttachmentCover'
   ).then(
     (res) => res.apply(processRecipes) as Result<Array<Recipe>, FetchError>
   )
@@ -212,6 +237,23 @@ export const details = async (
   const details = await trello<RecipeAPIDetails>(`/card/${id}?fields=id,desc`)
   const images = await trello<Array<ImageAPI>>(
     `/card/${id}/attachments?fields=id,name,url,previews,edgeColor`
+  ).then(
+    (res) =>
+      res.apply((images) =>
+        images
+          .reduce((published, img) => {
+            published.push(
+              tryCatch(
+                () => checkPublished(img),
+                (err: unknown) =>
+                  err instanceof Error ? err : new Error('unknown error')
+              ).unwrap((_) => (null as unknown) as ImageAPI)
+            )
+
+            return published
+          }, [] as Array<ImageAPI>)
+          .filter((img) => img !== null)
+      ) as Result<Array<ImageAPI>, FetchError>
   )
 
   return mergeResults(details, images, compileRecipeDetails)

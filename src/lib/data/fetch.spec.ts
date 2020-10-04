@@ -14,7 +14,7 @@ export const Factories = {
     Image: {
       create: (): ImageAPI => ({
         id: '1',
-        name: 'name',
+        name: '[published]name',
         edgeColor: 'color',
         url: 'url',
         previews: [
@@ -60,7 +60,7 @@ export const Factories = {
       create: (): RecipeAPI => ({
         id: 'id',
         name: 'one',
-        url: 'https://a-link',
+        shortLink: 'https://a-link',
         idAttachmentCover: 'img',
         idList: 'list',
         labels: [
@@ -136,6 +136,24 @@ describe('lib/data/fetch', () => {
         name: imgObj.name,
         edgeColor: imgObj.edgeColor,
       })
+    })
+
+    it("returns a FetchError if it isn't marked as [published]", () => {
+      const img = {
+        ...imgObj,
+        name: 'not published',
+      }
+
+      server.use(
+        rest.get(root + '/card/1/attachments/1', (_, res, ctx) =>
+          res(ctx.json(img))
+        )
+      )
+
+      expect(async () => await fetch.image('1', '1')).to.throw(
+        FetchError,
+        /not published/i
+      )
     })
 
     it('can return the smallest scaled image that is still >= the optionally given dimensions', async () => {

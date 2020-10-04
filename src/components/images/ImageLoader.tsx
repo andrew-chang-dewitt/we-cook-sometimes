@@ -1,14 +1,16 @@
 // this whole component is simply a wrapper around the Image component
 // that handles the ugly, imperative, I/O stuff; testing it is more
-// trouble than it's worth since it relies entirely on outside 
-// libraries that are assumed to be thoroughly tested & internal 
+// trouble than it's worth since it relies entirely on outside
+// libraries that are assumed to be thoroughly tested & internal
 // modules that are thoroughly tested on their own.
 /*istanbul ignore file*/
 import React from 'react'
 import 'lazysizes'
 
-import fetch, { Image as ImageType } from '../../lib/data/fetch'
+import fetch, { Image as ImageType, FetchError } from '../../lib/data/fetch'
 import Image from './Image'
+
+const fetchErrorHandler = (_: FetchError) => (null as unknown) as ImageType
 
 interface Props {
   cardId: string
@@ -23,9 +25,11 @@ export default ({ cardId, attachmentId, size = null }: Props) => {
     if (size) {
       fetch
         .image(cardId, attachmentId, size)
-        .then((res) => setImgData(res.unwrap()))
+        .then((res) => setImgData(res.unwrap(fetchErrorHandler)))
     } else {
-      fetch.image(cardId, attachmentId).then((res) => setImgData(res.unwrap()))
+      fetch
+        .image(cardId, attachmentId)
+        .then((res) => setImgData(res.unwrap(fetchErrorHandler)))
     }
   }, [])
 
