@@ -42,7 +42,15 @@ export default ({ recipe, detailsOpen }: Props) => {
   // tests as well, skipping this useEffect instead
   /* istanbul ignore next */
   React.useEffect(() => {
-    detailsOpen && ref.current ? ref.current.scrollIntoView() : null
+    if (detailsOpen && ref.current) {
+      const yOffset = -48
+      const y =
+        ref.current.getBoundingClientRect().top + window.pageYOffset + yOffset
+      window.scrollTo({ top: y })
+    }
+    // detailsOpen && ref.current
+    //   ? ref.current.scrollIntoView({ block: 'start' })
+    //   : null
   }, [detailsOpen, ref.current])
 
   return (
@@ -64,6 +72,7 @@ export default ({ recipe, detailsOpen }: Props) => {
                 <div>
                   <TagsList tags={tags.filter((tag) => tag.color !== null)} />
                 </div>
+
                 <More />
               </>
             ) : (
@@ -75,6 +84,7 @@ export default ({ recipe, detailsOpen }: Props) => {
               </>
             )}
           </div>
+
           {idAttachmentCover !== null ? (
             <ImageLoader
               cardId={id}
@@ -88,6 +98,7 @@ export default ({ recipe, detailsOpen }: Props) => {
         {/* can definitely do it off a prop though */}
         {!detailsOpen ? <h3 className={styles.title}>{name}</h3> : null}
       </Link>
+
       {detailsOpen ? <DetailLoader recipe={recipe} /> : null}
     </li>
   )
