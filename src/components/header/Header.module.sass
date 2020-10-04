@@ -1,0 +1,19 @@
+@use '../../styles/colors.variables.sass'
+@use '../../styles/fonts.variables.sass'
+
+.container
+  z-index: 1
+  height: 2.75rem
+  position: sticky
+  top: 0
+  background-color: colors.$accent1
+  display: flex
+  justify-content: space-between
+
+.branding > a
+  font-family: fonts.$family-serif
+  font-size: fonts.$size-medium
+  color: colors.$light
+.branding > a:hover
+  color: colors.$light
+  text-decoration: none
