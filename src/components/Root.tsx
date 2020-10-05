@@ -7,7 +7,7 @@ import useStateHistory from '../utils/useStateHistory'
 import shuffle from '../utils/FisherYatesShuffle'
 
 // core logic
-import fetch from '../lib/data/fetch'
+import fetch, { publishedTagId } from '../lib/data/fetch'
 // import fetch, { Tag as TagType } from '../lib/data/fetch'
 import RecipeList, {
   RecipeList as RecipeListType,
