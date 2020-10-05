@@ -6,8 +6,9 @@ import React from 'react'
 import { MemoryRouter } from 'react-router-dom'
 
 // internal dependencies
-import { Recipe } from '../../lib/data/fetch'
+import { Recipe, Tag } from '../../lib/data/fetch'
 import LookupContext from '../../utils/LookupContext'
+import { publishedTagId } from '../Root'
 
 // component under test
 import ContentLink from './ContentLink'
@@ -16,10 +17,11 @@ describe('component/detail/ContentLink', () => {
   const recipesByID = {
     'recipe-id': {
       name: 'Recipe Name',
+      tags: [{ id: publishedTagId } as Tag],
     } as Recipe,
   }
   const recipesByUrl = {
-    'https://trello.com/some-recipe': 'recipe-id',
+    shortLink: 'recipe-id',
   }
   const context = {
     recipeByID: recipesByID,
@@ -49,7 +51,7 @@ describe('component/detail/ContentLink', () => {
   })
 
   it('links to other Recipes will direct to their page on this site', async () => {
-    setup('https://trello.com/some-recipe', "This won't display")
+    setup('https://trello.com/c/shortLink/some-recipe', "This won't display")
 
     expect(
       (await screen.findByText(/Recipe Name/i)).getAttribute('href')

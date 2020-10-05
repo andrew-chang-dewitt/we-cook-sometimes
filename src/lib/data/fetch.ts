@@ -111,11 +111,14 @@ const checkPublished = (item: ImageAPI): ImageAPI => {
   const split = item.name.split(']')
   const first = split[0]
 
-  if (first === '[published')
+  if (first === '[published') {
+    split.splice(0, 1)
+
     return {
       ...item,
-      name: item.name.split(']').splice(0, 1).join(''),
+      name: split.join(''),
     }
+  }
 
   throw new FetchError(
     'The requested image is not marked as published & is unavailable.'

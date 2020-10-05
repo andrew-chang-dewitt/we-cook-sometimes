@@ -145,22 +145,6 @@ describe('src/component/detail/ImageCarousel', () => {
     )
   })
 
-  it('filters out attachments marked as [hidden] in their name trello', () => {
-    const attachments = [
-      {
-        name: '[hidden] not here',
-        url: 'url1.jpg',
-      },
-    ] as Array<ImageAPI>
-
-    render(<ImageCarousel attachments={attachments} />)
-
-    expect(() => screen.getByAltText(/not here/i)).to.throw(
-      Error,
-      /unable to find an element/i
-    )
-  })
-
   describe('video', () => {
     // helper function for writing DOM Testing Library queries
     const queryBuilder = (name: RegExp, query?: string) => {

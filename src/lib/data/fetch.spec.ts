@@ -118,6 +118,7 @@ describe('lib/data/fetch', () => {
 
   describe('image()', () => {
     const imgObj = Factories.API.Image.create()
+    imgObj.name = '[published]a name'
 
     beforeEach(() => {
       server.use(
@@ -133,12 +134,12 @@ describe('lib/data/fetch', () => {
       expect(result.unwrap()).to.deep.equal({
         url: 'url',
         id: imgObj.id,
-        name: imgObj.name,
+        name: 'a name',
         edgeColor: imgObj.edgeColor,
       })
     })
 
-    it("returns a FetchError if it isn't marked as [published]", () => {
+    it("returns Result-wrapped FetchError if isn't marked [published]", async () => {
       const img = {
         ...imgObj,
         name: 'not published',
@@ -150,10 +151,9 @@ describe('lib/data/fetch', () => {
         )
       )
 
-      expect(async () => await fetch.image('1', '1')).to.throw(
-        FetchError,
-        /not published/i
-      )
+      const result = await fetch.image('1', '1')
+
+      expect(result.unwrap).to.throw(FetchError, /not.*published/i)
     })
 
     it('can return the smallest scaled image that is still >= the optionally given dimensions', async () => {

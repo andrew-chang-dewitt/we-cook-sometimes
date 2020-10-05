@@ -1,5 +1,5 @@
 import React from 'react'
-import { useLocation } from 'react-router-dom'
+import Router from 'react-router-dom'
 
 import { Recipe } from '../../lib/data/fetch'
 import Card from './Card'
@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default ({ recipes }: Props) => {
-  const location = useLocation()
+  const location = Router.useLocation()
   const query = useQueryParams(location)
 
   return (
