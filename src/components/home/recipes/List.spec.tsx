@@ -13,7 +13,7 @@ configure({ adapter: new Adapter() })
 
 import React from 'react'
 
-import { Recipe } from '../../lib/data/fetch'
+import { Recipe } from '../../../lib/data/fetch'
 import Card from './Card'
 
 import List from './List'

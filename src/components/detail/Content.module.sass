@@ -1,6 +1,5 @@
 @use '../../styles/fonts.variables.sass'
 @use '../../styles/layout.variables.sass'
-@use '../recipes/List.variables.sass'
 
 .content
   padding-bottom: layout.$space * 2
@@ -28,6 +27,6 @@
 .content ol > li
   padding-bottom: 0.5rem
 
-@media all and (min-width: #{ List.$medium-width })
+@media all and (min-width: #{ layout.$screen-medium })
   .content
     padding-bottom: layout.$space * 4
