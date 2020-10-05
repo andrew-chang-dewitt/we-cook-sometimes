@@ -1,6 +1,15 @@
-import * as React from 'react'
-import * as ReactDOM from 'react-dom'
+import React from 'react'
+import ReactDOM from 'react-dom'
 
-import { Hello } from './components/Hello'
+// load fonts
+import 'typeface-vollkorn'
+import 'typeface-montserrat'
 
-ReactDOM.render(<Hello />, document.getElementById('example'))
+// load global styles
+import './styles/global.sass'
+
+// load root component
+import Root from './components/Root'
+
+// and render it wrapped in a Router instance
+ReactDOM.render(<Root />, document.getElementById('app-root'))

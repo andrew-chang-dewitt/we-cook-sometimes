@@ -1,0 +1,71 @@
+@use '../../styles/colors.variables.sass'
+@use '../../styles/layout.variables.sass'
+@use './List.variables.sass'
+
+$shadow-size: 0.1rem
+$space: 0.5rem
+$svg-height: 4rem
+$svg-adjustment: -0.5rem
+
+.card
+  overflow: hidden
+  border: transparent 1px
+  border-radius: 0.5rem
+  box-shadow: $shadow-size $shadow-size ( $shadow-size * 3 ) colors.$medium-dark
+  background-color: colors.$light
+  list-style: none
+
+.card > a
+  width: 100%
+  height: 100%
+  display: flex
+  flex-direction: column
+  justify-content: space-between
+  color: colors.$dark
+  text-decoration: none
+
+.card.details > a
+  width: auto
+  height: auto
+
+.card .title
+  margin: 0 $space $space $space
+  min-height: 3rem
+
+.imgContainer
+  position: relative
+  min-height: 2.5rem
+
+.imgContainer.hasImage
+  height: 16rem
+
+.imgContainer img
+  width: 100%
+  height: 100%
+
+.imgContainer .info
+  position: absolute
+  // top: 0
+  // left: 0
+  padding: $space
+  width: calc(100% - (#{$space} * 2 ))
+  display: flex
+  justify-content: space-between
+  align-content: flex-start
+
+.info svg
+  height: $svg-height
+  width: $svg-height
+  margin: $svg-adjustment (3 * $svg-adjustment) 0 0
+
+@media all and (min-width: #{ List.$medium-width })
+  .card.details
+    grid-column: span 2
+  .card.details .imgContainer.hasImage
+    height: 32rem
+@media all and (min-width: #{ List.$large-width })
+  .card.details
+    grid-column: span 3
+@media all and (min-width: #{ List.$huge-width })
+  .card.details
+    grid-column: span 4

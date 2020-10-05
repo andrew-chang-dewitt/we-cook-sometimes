@@ -1,0 +1,33 @@
+@use '../../styles/fonts.variables.sass'
+@use '../../styles/layout.variables.sass'
+@use '../recipes/List.variables.sass'
+
+.content
+  padding-bottom: layout.$space * 2
+
+.content h1
+  font-size: fonts.$size-medium
+.content h2
+  font-size: fonts.$size-regular-medium
+.content h3
+  font-size: fonts.$size-regular
+.content h4
+  font-size: fonts.$size-small
+.content h5
+  font-size: fonts.$size-tiny
+.content h3,
+.content h4,
+.content h5
+  font-family: fonts.$family-sans
+  font-weight: fonts.$weight-sans-semi-bold
+
+.content ul,
+.content ol
+  padding-left: 1.5rem
+.content ul > li,
+.content ol > li
+  padding-bottom: 0.5rem
+
+@media all and (min-width: #{ List.$medium-width })
+  .content
+    padding-bottom: layout.$space * 4
