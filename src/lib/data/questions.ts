@@ -10,7 +10,7 @@ export interface Question {
   possibleNexts: Array<string> // Array<Question.id>
 }
 
-const questions: Array<Question> = [
+export default [
   {
     id: 'fastSlow',
     text: 'Do you want something...',
@@ -75,6 +75,4 @@ const questions: Array<Question> = [
     ],
     possibleNexts: ['drinkSnackMeal'],
   },
-]
-
-export default questions
+] as Array<Question>
