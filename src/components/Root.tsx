@@ -26,8 +26,6 @@ import RecipePage from './recipes/RecipePage'
 
 // import styles from './Root.module.sass'
 
-export const publishedTagId = '5f55960c17f08e1fde18785e'
-
 const Root = () => {
   const [lookupTables, setLookupTables] = React.useState<LookupTables>({
     recipeByUrl: {},

@@ -1,7 +1,8 @@
-import { ok, err, mergeResults, tryCatch, Result } from '../../utils/Result'
+import { ok, err, mergeResults, Result } from '../../utils/Result'
 import { Response } from 'node-fetch'
 
 const board = '/board/5820f9c22043447d3f4fa857'
+export const publishedTagId = '5f55960c17f08e1fde18785e'
 
 export class FetchError extends Error {}
 
@@ -107,21 +108,23 @@ const processImage = (img: ImageAPI, minDimensions?: MinDimensions): Image =>
         name: img.name,
       }
 
-const checkPublished = (item: ImageAPI): ImageAPI => {
+const checkPublished = (item: ImageAPI): Result<ImageAPI, FetchError> => {
   const split = item.name.split(']')
   const first = split[0]
 
   if (first === '[published') {
     split.splice(0, 1)
 
-    return {
+    return ok({
       ...item,
       name: split.join(''),
-    }
+    })
   }
 
-  throw new FetchError(
-    'The requested image is not marked as published & is unavailable.'
+  return err(
+    new FetchError(
+      'The requested image is not marked as published & is unavailable.'
+    )
   )
 }
 
@@ -147,13 +150,7 @@ export const image = (
   return trello<ImageAPI>(
     `/card/${cardId}/attachments/${imageId}?fields=id,name,url,previews,edgeColor`
   )
-    .then((res) =>
-      tryCatch(
-        () => checkPublished(res.unwrap()),
-        (err: unknown) =>
-          err instanceof Error ? err : new Error('unknown error')
-      )
-    )
+    .then((res) => checkPublished(res.unwrap()))
     .then(
       (res) =>
         // type assertion needed here to identify the type returned by apply
@@ -246,11 +243,7 @@ export const details = async (
         images
           .reduce((published, img) => {
             published.push(
-              tryCatch(
-                () => checkPublished(img),
-                (err: unknown) =>
-                  err instanceof Error ? err : new Error('unknown error')
-              ).unwrap((_) => (null as unknown) as ImageAPI)
+              checkPublished(img).unwrap((_) => (null as unknown) as ImageAPI)
             )
 
             return published

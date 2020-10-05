@@ -3,6 +3,9 @@ import { expect } from 'chai'
 import sinon, { SinonStub } from 'sinon'
 import { shallow, configure, ShallowWrapper } from 'enzyme'
 import Adapter from 'enzyme-adapter-react-16'
+// despite importing useLocation from 'react-router-dom'
+// it needs imported from 'react-router' here for some reason
+// to allow it to be stubbed by sinon
 import Router from 'react-router'
 import { Location } from 'history'
 

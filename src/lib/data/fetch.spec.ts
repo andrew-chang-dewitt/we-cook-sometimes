@@ -156,6 +156,22 @@ describe('lib/data/fetch', () => {
       expect(result.unwrap).to.throw(FetchError, /not.*published/i)
     })
 
+    // it('identifies unknown errors thrown while checking image', async () => {
+    //   const img = {
+    //     id: 'missing information',
+    //   } as ImageAPI
+
+    //   server.use(
+    //     rest.get(root + '/card/1/attachments/1', (_, res, ctx) =>
+    //       res(ctx.json(img))
+    //     )
+    //   )
+
+    //   const result = await fetch.image('1', '1')
+
+    //   expect(result.unwrap).to.throw(FetchError, /unknown error/i)
+    // })
+
     it('can return the smallest scaled image that is still >= the optionally given dimensions', async () => {
       const result = (
         await fetch.image('1', '1', { height: 9, width: 9 })
@@ -273,52 +289,8 @@ describe('lib/data/fetch', () => {
       desc: 'description',
     }
     const images = [
-      Factories.API.Image.createWithProperties([
-        { key: 'id', value: 'img1' },
-        {
-          key: 'previews',
-          value: [
-            {
-              url: 'url1-1',
-              height: 1,
-              width: 1,
-            },
-            {
-              url: 'url1-10',
-              height: 10,
-              width: 10,
-            },
-            {
-              url: 'url1-100',
-              height: 100,
-              width: 100,
-            },
-          ],
-        },
-      ]),
-      Factories.API.Image.createWithProperties([
-        { key: 'id', value: 'img2' },
-        {
-          key: 'previews',
-          value: [
-            {
-              url: 'url2-1',
-              height: 1,
-              width: 1,
-            },
-            {
-              url: 'url2-10',
-              height: 10,
-              width: 10,
-            },
-            {
-              url: 'url2-100',
-              height: 100,
-              width: 100,
-            },
-          ],
-        },
-      ]),
+      Factories.API.Image.createWithProperties([{ key: 'id', value: 'img1' }]),
+      Factories.API.Image.createWithProperties([{ key: 'id', value: 'img2' }]),
     ]
 
     beforeEach(() => {
@@ -339,6 +311,24 @@ describe('lib/data/fetch', () => {
       expect(result.desc).to.equal('description')
       expect(result.images[0].id).to.equal('img1')
       expect(result.images[1].id).to.equal('img2')
+    })
+
+    it("filters out images that aren't marked published", async () => {
+      const images = [
+        Factories.API.Image.createWithProperties([
+          { key: 'name', value: 'unpublished' },
+        ]),
+      ]
+
+      server.use(
+        rest.get(root + '/card/1/attachments', (_, res, ctx) =>
+          res(ctx.json(images))
+        )
+      )
+
+      const result = (await fetch.details('1')).unwrap() as any
+
+      expect(result.images).to.have.lengthOf(0)
     })
   })
 })
