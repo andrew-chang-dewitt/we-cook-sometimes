@@ -29,7 +29,6 @@ interface State {
 
 export interface QuestionSeries {
   readonly allById: QuestionsByID
-  readonly graph: GraphType // FIXME: remove this from interface
   readonly current: Question | null
   next: Next
 }
@@ -50,10 +49,6 @@ const getters = (state: State): State => ({
 
   get current() {
     return state.current
-  },
-
-  get graph() {
-    return state.graph
   },
 })
 

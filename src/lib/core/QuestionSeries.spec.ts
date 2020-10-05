@@ -4,7 +4,6 @@ import { expect } from 'chai'
 import QuestionSeries, {
   QuestionSeries as QuestionSeriesType,
 } from './QuestionSeries'
-import { Question } from '../data/questions'
 
 const questions = [
   {
@@ -74,26 +73,10 @@ const questions = [
 ]
 
 describe('lib/core/QuestionSeries', () => {
-  it('builds a directed acyclic Graph of questions', () => {
-    expect(QuestionSeries.create(questions).graph.adjacencyList).to.deep.equal({
-      fastSlow: ['party', 'drinkSnackMeal'],
-      party: ['drinkSnackMeal'],
-      drinkSnackMeal: [],
-    })
-  })
-
-  it('silently prevents adding a next question as an edge if it would have formed a cycle', () => {
-    const cycle = ({
-      id: 'cycle',
-      possibleNexts: ['fastSlow'],
-    } as any) as Question
-    let qs = questions
-    qs[2].possibleNexts.push('cycle')
-    qs.push(cycle)
-
-    expect(
-      QuestionSeries.create(qs).graph.adjacencyList['cycle']
-    ).to.deep.equal([])
+  it('knows what the current question is', () => {
+    expect(QuestionSeries.create(questions).current?.text).to.equal(
+      'Do you want something...'
+    )
   })
 
   describe('next()', () => {
