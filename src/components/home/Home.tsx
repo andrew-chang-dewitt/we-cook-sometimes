@@ -1,15 +1,15 @@
 import React from 'react'
 
 // core logic
-import { publishedTagId} from '../../lib/data/fetch'
+import { publishedTagId } from '../../lib/data/fetch'
 import {
   Question as QuestionType,
   Choice as ChoiceType,
+  Inclusionary,
+  isExclusionary,
 } from '../../lib/data/questions'
 import QuestionSeries from '../../lib/core/QuestionSeries'
-import {
-  RecipeList as RecipeListType,
-} from '../../lib/core/RecipeList'
+import { RecipeList as RecipeListType } from '../../lib/core/RecipeList'
 
 // internal utilities
 import useStateHistory from '../../utils/useStateHistory'
@@ -28,11 +28,28 @@ export default ({ recipes, questions }: Props) => {
     recipes: recipes.filterByTag(publishedTagId),
     questions: QuestionSeries.create(questions),
   })
+
   const answerQuestion = (answer: ChoiceType) => {
-    setState({
-      recipes: state.recipes.eliminateByTags(answer.tagsEliminated),
-      questions: state.questions.next(),
-    })
+    const filterByTags = (
+      list: RecipeListType,
+      answer: Inclusionary
+    ): RecipeListType => {
+      answer.tagsRequired.forEach((tag: string) => {
+        list = list.filterByTag(tag)
+      })
+
+      return list
+    }
+
+    isExclusionary(answer)
+      ? setState({
+          recipes: state.recipes.eliminateByTags(answer.tagsEliminated),
+          questions: state.questions.next(),
+        })
+      : setState({
+          recipes: filterByTags(state.recipes, answer),
+          questions: state.questions.next(),
+        })
   }
 
   return (
