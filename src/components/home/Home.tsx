@@ -52,17 +52,21 @@ export default ({ recipes, questions }: Props) => {
         })
   }
 
+  const resetQuestions = (): void => {
+    while (!onOldest) {
+      undo()
+    }
+  }
+
   return (
     <>
-      {state.questions.current ? (
-        <Question
-          question={state.questions.current}
-          submitAnswer={answerQuestion}
-        />
-      ) : (
-        <p>...no more questions</p>
-      )}
-      {onOldest ? null : <button onClick={undo}>Previous Question</button>}
+      <Question
+        question={state.questions.current}
+        submitAnswer={answerQuestion}
+        previous={undo}
+        previousExists={!onOldest}
+        reset={resetQuestions}
+      />
       <List
         recipes={state.recipes.remaining.map(
           (recipe) => state.recipes.allByID[recipe]
