@@ -26,7 +26,7 @@ export interface Traverser<T> {
 }
 
 interface ForEach {
-  (callback: (node: string) => void): Graph
+  (callback: (node: string) => void, orderFn?: OrderFn<string>): Graph
 }
 
 export interface Graph {
@@ -36,6 +36,7 @@ export interface Graph {
   addEdge: AddEdge
   traverser: (orderFn?: OrderFn<string>) => Traverser<string>
   forEach: ForEach
+  flatten: (orderFn?: OrderFn<string>) => Array<string>
 }
 
 export class CycleError extends Error {}
@@ -50,7 +51,8 @@ const GraphBuilder = (state: State): Graph => {
     nodeAddable(state),
     edgeAddable(state),
     forEachable(state),
-    traversable(state)
+    traversable(state),
+    flattenable(state)
   )
 }
 
@@ -137,8 +139,8 @@ const traversable = ({
 })
 
 const forEachable = (state: State): { forEach: ForEach } => ({
-  forEach: (callback) => {
-    const traverser = traversable(state).traverser()
+  forEach: (callback, orderFn?) => {
+    const traverser = traversable(state).traverser(orderFn)
 
     let current = traverser.next()
 
@@ -152,6 +154,21 @@ const forEachable = (state: State): { forEach: ForEach } => ({
     recur()
 
     return GraphBuilder(state)
+  },
+})
+
+const flattenable = (
+  state: State
+): { flatten: (orderFn?: OrderFn<string>) => Array<string> } => ({
+  flatten: (orderFn?) => {
+    const result: Array<string> = []
+    const addToResult = (node: string) => {
+      result.push(node)
+    }
+
+    forEachable(state).forEach(addToResult, orderFn)
+
+    return result
   },
 })
 
