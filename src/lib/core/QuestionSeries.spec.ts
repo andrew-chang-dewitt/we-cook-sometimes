@@ -1,6 +1,7 @@
 import 'mocha'
 import { expect } from 'chai'
 
+import { exclusionary, inclusionary } from '../data/questions'
 import QuestionSeries, {
   QuestionSeries as QuestionSeriesType,
 } from './QuestionSeries'
@@ -10,18 +11,12 @@ const questions = [
     id: 'fastSlow',
     text: 'Do you want something...',
     choices: [
-      {
-        text: 'Fast',
-        tagsEliminated: [
-          '5820fc8584e677fd36379283', // long-prep
-          '5cab4ba748fca31b2ec6529d', // long-cook
-        ],
-      },
-
-      {
-        text: 'Slow',
-        tagsEliminated: ['5820fc2b2eb2fd6a055b4010'], // fast
-      },
+      inclusionary('Fast', [
+        '5820fc2b2eb2fd6a055b4010', // fast
+      ]),
+      exclusionary('Slow', [
+        '5820fc2b2eb2fd6a055b4010', // fast
+      ]),
     ],
     possibleNexts: ['party', 'drinkSnackMeal'],
   },
@@ -30,27 +25,15 @@ const questions = [
     id: 'drinkSnackMeal',
     text: 'Are you feeling...',
     choices: [
-      {
-        text: 'Thirsty',
-        tagsEliminated: [
-          '5820f9c22043447d3f4fa85f', // snack
-          '5820f9c22043447d3f4fa85e', // entree
-        ],
-      },
-      {
-        text: 'Snacky',
-        tagsEliminated: [
-          '5a4fcea4c1682b628ae07675', // drink
-          '5820f9c22043447d3f4fa85e', // entree
-        ],
-      },
-      {
-        text: 'Hungry',
-        tagsEliminated: [
-          '5a4fcea4c1682b628ae07675', // drink
-          '5820f9c22043447d3f4fa85f', // snack
-        ],
-      },
+      inclusionary('Thirsty', [
+        '5a4fcea4c1682b628ae07675', // drink
+      ]),
+      inclusionary('Snacky', [
+        '5820f9c22043447d3f4fa85f', // snack
+      ]),
+      inclusionary('Hungry', [
+        '5820f9c22043447d3f4fa85e', // entree
+      ]),
     ],
     possibleNexts: [],
   },
@@ -59,14 +42,12 @@ const questions = [
     id: 'party',
     text: 'Party party party?',
     choices: [
-      {
-        text: 'Party',
-        tagsEliminated: [],
-      },
-      {
-        text: 'No Party',
-        tagsEliminated: ['5b523e941fefa9b7b80066a2'],
-      },
+      inclusionary('Party', [
+        '5b523e941fefa9b7b80066a2', // party
+      ]),
+      exclusionary('No party', [
+        '5b523e941fefa9b7b80066a2', // party
+      ]),
     ],
     possibleNexts: ['drinkSnackMeal'],
   },
@@ -90,6 +71,7 @@ describe('lib/core/QuestionSeries', () => {
     it('returns QuestionSeries with an updated current value', () => {
       newSeries = originalSeries.next()
 
+      expect(newSeries.current).to.not.be.null
       expect(newSeries.current).to.not.deep.equal(originalSeries.current)
     })
 

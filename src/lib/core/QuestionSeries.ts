@@ -1,8 +1,4 @@
-import Graph, {
-  Graph as GraphType,
-  CycleError,
-  Traverser,
-} from '../utils/Graph'
+import Graph, { CycleError } from '../utils/Graph'
 import shuffle from '../../utils/FisherYatesShuffle'
 import { Question } from '../data/questions'
 
@@ -22,9 +18,9 @@ const hashById = (questions: Question[]): QuestionsByID => {
 
 interface State {
   readonly allById: QuestionsByID
-  readonly graph: GraphType
   readonly current: Question | null
-  iterator: Traverser<string>
+  readonly index: number
+  readonly order: Array<string>
 }
 
 export interface QuestionSeries {
@@ -54,10 +50,17 @@ const getters = (state: State): State => ({
 
 const nextable = (state: State): { next: Next } => ({
   next: () => {
-    const nextId = state.iterator.next()
-    const nextQuestion = nextId !== null ? state.allById[nextId] : nextId
+    const nextIndex = state.index + 1
+    const nextQuestion =
+      nextIndex <= state.order.length - 1
+        ? state.allById[state.order[nextIndex]]
+        : null
 
-    return QuestionSeriesBuilder({ ...state, current: nextQuestion })
+    return QuestionSeriesBuilder({
+      ...state,
+      index: nextIndex,
+      current: nextQuestion,
+    })
   },
 })
 
@@ -90,18 +93,15 @@ const create = (questions: Question[]): QuestionSeries => {
   const shuffler = (arr: Array<string>): Array<string> =>
     shuffle(arr, Math.random)
 
-  const iterator = graph.traverser(shuffler)
-  const next = iterator.next()
-  let current: Question | null
-  /* istanbul ignore else */
-  if (next !== null) current = allById[next]
-  else current = null
+  const order = graph.flatten(shuffler)
+  const index = 0
+  const current = allById[order[index]]
 
   const state: State = {
     allById,
-    graph,
-    iterator,
+    index,
     current,
+    order,
   }
 
   return QuestionSeriesBuilder(state)
