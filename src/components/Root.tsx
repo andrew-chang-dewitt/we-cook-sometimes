@@ -13,7 +13,11 @@ import RecipeList, {
 } from '../lib/core/RecipeList'
 
 // other components
-import LookupContext, { LookupTables, RecipeLookup, RecipeByID } from '../utils/LookupContext'
+import LookupContext, {
+  LookupTables,
+  RecipeLookup,
+  RecipeByID,
+} from '../utils/LookupContext'
 import Header from './header/Header'
 import Home from './home/Home'
 import RecipePage from './RecipePage'
@@ -36,9 +40,9 @@ export default () => {
     loaded: false,
   })
 
-  const [ lookupTables, setLookupTables ] = React.useState<LookupTables>({
+  const [lookupTables, setLookupTables] = React.useState<LookupTables>({
     recipeByUrl: {} as RecipeLookup,
-    recipeByID: {} as RecipeByID
+    recipeByID: {} as RecipeByID,
   })
 
   // calling setState later allows for component to load while
@@ -56,7 +60,7 @@ export default () => {
 
         setLookupTables({
           recipeByUrl: buildByUrlTable(recipeList),
-          recipeByID: recipeList.allByID
+          recipeByID: recipeList.allByID,
         })
 
         setRecipes({
@@ -72,22 +76,22 @@ export default () => {
 
   return (
     <LookupContext.Provider value={lookupTables}>
-    <Router>
-      <Header />
-      <Switch>
-        <Route exact path="/">
-          {recipes.loaded ? (
-            <Home recipes={recipes.data} questions={questions} />
-          ) : (
-            'loading...'
-          )}
-        </Route>
+      <Router>
+        <Header />
+        <Switch>
+          <Route exact path="/">
+            {recipes.loaded ? (
+              <Home recipes={recipes.data} questions={questions} />
+            ) : (
+              'loading...'
+            )}
+          </Route>
 
-        <Route path="/recipe/:recipeID">
-          {recipes.loaded ? <RecipePage /> : 'loading...'}
-        </Route>
-      </Switch>
-    </Router>
+          <Route path="/recipe/:recipeID">
+            {recipes.loaded ? <RecipePage /> : 'loading...'}
+          </Route>
+        </Switch>
+      </Router>
     </LookupContext.Provider>
   )
 }

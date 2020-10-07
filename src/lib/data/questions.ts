@@ -12,13 +12,19 @@ export type Inclusionary = {
 
 export type Choice = Exclusionary | Inclusionary
 
-export const exclusionary = (text: string, tags: Array<string>): Exclusionary => ({
+export const exclusionary = (
+  text: string,
+  tags: Array<string>
+): Exclusionary => ({
   _tag: 'exclusionary',
   text,
   tagsEliminated: tags,
 })
 
-export const inclusionary = (text: string, tags: Array<string>): Inclusionary => ({
+export const inclusionary = (
+  text: string,
+  tags: Array<string>
+): Inclusionary => ({
   _tag: 'inclusionary',
   text,
   tagsRequired: tags,
