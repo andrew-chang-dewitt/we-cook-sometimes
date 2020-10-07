@@ -1,4 +1,4 @@
-import Graph, { CycleError } from '../utils/Graph'
+import Graph from '../utils/Graph'
 import shuffle from '../../utils/FisherYatesShuffle'
 import { Question } from '../data/questions'
 
@@ -66,7 +66,7 @@ const nextable = (state: State): { next: Next } => ({
 
 const create = (questions: Question[]): QuestionSeries => {
   const allById = hashById(questions)
-  let graph = Graph.create({}, true, true)
+  let graph = Graph.create({}, true)
 
   const sorted = [...questions].sort(
     // sort from longest possible next questions array to shortest
@@ -79,13 +79,7 @@ const create = (questions: Question[]): QuestionSeries => {
 
     if (question.possibleNexts.length > 0) {
       return question.possibleNexts.reduce((edgeAccumulator, next) => {
-        try {
-          return edgeAccumulator.addEdge(question.id, next)
-        } catch (err) {
-          /* istanbul ignore else */
-          if (err instanceof CycleError) return edgeAccumulator
-          /* istanbul ignore next */ else throw err
-        }
+        return edgeAccumulator.addEdge(question.id, next)
       }, nodeAccumulator)
     } else return nodeAccumulator
   }, graph)
