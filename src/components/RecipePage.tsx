@@ -3,11 +3,11 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 
 // internal dependencies
-import LookupContext from '../../utils/LookupContext'
+import LookupContext from '../utils/LookupContext'
 
 // other components
-import DetailLoader from '../detail/DetailLoader'
-import ImageLoader from '../images/ImageLoader'
+import DetailLoader from './detail/DetailLoader'
+import ImageLoader from './images/ImageLoader'
 
 // CSS-modules
 import styles from './RecipePage.module.sass'

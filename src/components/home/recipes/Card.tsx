@@ -3,14 +3,14 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 // internal utilities
-import { Recipe } from '../../lib/data/fetch'
+import { Recipe } from '../../../lib/data/fetch'
 
 // other components
-import TagsList from '../tags/List'
-import ImageLoader from '../images/ImageLoader'
-import DetailLoader from '../detail/DetailLoader'
-import More from '../icons/More'
-import Less from '../icons/Close'
+import TagsList from '../../tags/List'
+import ImageLoader from '../../images/ImageLoader'
+import DetailLoader from '../../detail/DetailLoader'
+import More from '../../icons/More'
+import Less from '../../icons/Close'
 
 // CSS-modules
 import styles from './Card.module.sass'

@@ -1,0 +1,79 @@
+@use '../../../styles/colors.variables.sass'
+@use '../../../styles/fonts.variables.sass'
+@use '../../../styles/layout.variables.sass'
+@use '../recipes/List.variables.sass'
+
+$button-padding: layout.$space / 2
+$button-font-size: fonts.$size-regular
+
+@mixin button-shape($scale: 1)
+  padding: $button-padding * $scale
+  border-radius: ( $button-padding * $scale * 2 + $button-font-size * $scale ) / 2
+  font-size: $button-font-size * $scale
+
+.container
+  width: List.$card-width
+  margin: layout.$space auto 0 auto
+@media all and (min-width: #{ List.$medium-width })
+  .container
+    width: List.$card-width * 2 + layout.$space
+
+.container > *
+  margin-top: layout.$space
+.container > *:last-child
+  margin-bottom: layout.$space
+
+.question
+  margin: 0
+  width: 100%
+  text-align: center
+
+.container ul
+  margin: 0
+  margin-top: layout.$space
+  padding: 0
+  display: flex
+  justify-content: center
+
+.container button
+  @include button-shape
+
+.container button:hover,
+.container button:focus
+  background-color: colors.$accent1
+  color: colors.$light
+
+.questionNavigation
+  display: flex
+  justify-content: space-between
+
+.questionNavigation button
+  @include button-shape(0.65)
+  border: 2px solid colors.$accent1
+  background: transparent
+  color: colors.$accent1
+
+.submittedAnswers
+  display: flex
+  align-items: baseline
+
+.submittedAnswers > *
+  margin: 0
+
+.submittedAnswers > p
+  margin-right: layout.$space / 2
+
+.submittedAnswers > ul
+  margin-top: 0
+  justify-content: flex-start
+  flex-wrap: wrap
+
+.submittedAnswers > ul > li
+  @include button-shape(0.65)
+  margin-right: layout.$space / 2
+  border: 2px solid colors.$dark
+  background: transparent
+  color: colors.$dark
+  list-style: none
+.submittedAnswers > ul > li:last-child
+  margin-right: 0

@@ -3,37 +3,46 @@ import React from 'react'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 
 // internal utilities
-import useStateHistory from '../utils/useStateHistory'
 import shuffle from '../utils/FisherYatesShuffle'
 
 // core logic
-import fetch, { publishedTagId } from '../lib/data/fetch'
-// import fetch, { Tag as TagType } from '../lib/data/fetch'
+import fetch from '../lib/data/fetch'
+import questions from '../lib/data/questions'
 import RecipeList, {
   RecipeList as RecipeListType,
 } from '../lib/core/RecipeList'
 
-// internal utilities
+// other components
 import LookupContext, {
   LookupTables,
   RecipeLookup,
+  RecipeByID,
 } from '../utils/LookupContext'
-
-// other components
 import Header from './header/Header'
-import List from './recipes/List'
-import RecipePage from './recipes/RecipePage'
+import Home from './home/Home'
+import RecipePage from './RecipePage'
 
 // import styles from './Root.module.sass'
 
-const Root = () => {
-  const [lookupTables, setLookupTables] = React.useState<LookupTables>({
-    recipeByUrl: {},
-    recipeByID: {},
+const buildByUrlTable = (recipeList: RecipeListType): RecipeLookup => {
+  const byUrl: RecipeLookup = {}
+
+  Object.values(recipeList.allByID).forEach(
+    (recipe) => (byUrl[recipe.shortLink] = recipe.id)
+  )
+
+  return byUrl
+}
+
+export default () => {
+  const [recipes, setRecipes] = React.useState({
+    data: {} as RecipeListType,
+    loaded: false,
   })
-  const { state, setState } = useStateHistory({
-    recipes: { data: {} as RecipeListType, loaded: false },
-    // tags: {} as TagType[],
+
+  const [lookupTables, setLookupTables] = React.useState<LookupTables>({
+    recipeByUrl: {} as RecipeLookup,
+    recipeByID: {} as RecipeByID,
   })
 
   // calling setState later allows for component to load while
@@ -49,31 +58,20 @@ const Root = () => {
       .then((res) => {
         const recipeList = RecipeList.create(shuffle(res.unwrap(), Math.random))
 
-        const byUrl: RecipeLookup = {}
-
-        Object.values(recipeList.allByID).forEach(
-          (recipe) => (byUrl[recipe.shortLink] = recipe.id)
-        )
         setLookupTables({
-          recipeByUrl: byUrl,
+          recipeByUrl: buildByUrlTable(recipeList),
           recipeByID: recipeList.allByID,
         })
 
-        setState({
-          ...state,
-          recipes: {
-            loaded: true,
-            data: recipeList.filterByTag(publishedTagId),
-          },
+        setRecipes({
+          data: recipeList,
+          loaded: true,
         })
       })
       .catch((e) => {
         // FIXME: better error handling
         throw e
       })
-
-    // // Fetch Tags from Trello API
-    // fetch.tags().then((res) => setState({ ...state, tags: res.unwrap() }))
   }, [])
 
   return (
@@ -82,24 +80,18 @@ const Root = () => {
         <Header />
         <Switch>
           <Route exact path="/">
-            {state.recipes.loaded ? (
-              <List
-                recipes={state.recipes.data.remaining.map(
-                  (recipe) => state.recipes.data.allByID[recipe]
-                )}
-              />
+            {recipes.loaded ? (
+              <Home recipes={recipes.data} questions={questions} />
             ) : (
               'loading...'
             )}
           </Route>
 
           <Route path="/recipe/:recipeID">
-            {state.recipes.loaded ? <RecipePage /> : null}
+            {recipes.loaded ? <RecipePage /> : 'loading...'}
           </Route>
         </Switch>
       </Router>
     </LookupContext.Provider>
   )
 }
-
-export default Root

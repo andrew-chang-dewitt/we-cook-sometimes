@@ -79,17 +79,17 @@ const eliminatable = (state: State): { eliminateByTags: Eliminator } => {
   }
 }
 
-const filterable = (state: State): { filterByTag: Filter } => {
-  const { allByTags } = state
+const filterable = (state: State): { filterByTag: Filter } => ({
+  filterByTag: (tag) =>
+    createFromExisting({
+      ...state,
+      remaining: state.remaining.filter((recipe) => {
+        const tags = state.allByID[recipe].tags.map((tag) => tag.id)
 
-  return {
-    filterByTag: (tag) =>
-      createFromExisting({
-        ...state,
-        remaining: allByTags[tag],
+        return tags.includes(tag)
       }),
-  }
-}
+    }),
+})
 
 const createFromExisting = (state: State): RecipeList =>
   Object.assign({}, getable(state), eliminatable(state), filterable(state))
