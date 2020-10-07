@@ -27,6 +27,7 @@ export default ({ recipes, questions }: Props) => {
   const { state, setState, undo, onOldest } = useStateHistory({
     recipes: recipes.filterByTag(publishedTagId),
     questions: QuestionSeries.create(questions),
+    answers: [] as Array<string>,
   })
 
   const answerQuestion = (answer: ChoiceType) => {
@@ -41,14 +42,19 @@ export default ({ recipes, questions }: Props) => {
       return list
     }
 
+    const newAnswers = [...state.answers]
+    newAnswers.push(answer.text)
+
     isExclusionary(answer)
       ? setState({
           recipes: state.recipes.eliminateByTags(answer.tagsEliminated),
           questions: state.questions.next(),
+          answers: newAnswers,
         })
       : setState({
           recipes: filterByTags(state.recipes, answer),
           questions: state.questions.next(),
+          answers: newAnswers,
         })
   }
 
@@ -62,6 +68,7 @@ export default ({ recipes, questions }: Props) => {
     <>
       <Question
         question={state.questions.current}
+        submittedAnswers={state.answers}
         submitAnswer={answerQuestion}
         previous={undo}
         previousExists={!onOldest}

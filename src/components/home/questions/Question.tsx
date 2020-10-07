@@ -8,6 +8,7 @@ import styles from './Question.module.sass'
 
 interface Props {
   question: Question | null
+  submittedAnswers: Array<string>
   submitAnswer: (answer: ChoiceType) => void
   previous: () => void
   previousExists: boolean
@@ -16,6 +17,7 @@ interface Props {
 
 export default ({
   question,
+  submittedAnswers,
   submitAnswer,
   previous,
   previousExists,
@@ -46,5 +48,16 @@ export default ({
         </>
       ) : null}
     </div>
+    <hr />
+    {submittedAnswers.length > 0 ? (
+      <div className={styles.submittedAnswers}>
+        <p>Filtering by:</p>
+        <ul>
+          {submittedAnswers.map((answer) => (
+            <li key={answer}>{answer}</li>
+          ))}
+        </ul>
+      </div>
+    ) : null}
   </div>
 )

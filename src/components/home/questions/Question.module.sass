@@ -52,3 +52,28 @@ $button-font-size: fonts.$size-regular
   border: 2px solid colors.$accent1
   background: transparent
   color: colors.$accent1
+
+.submittedAnswers
+  display: flex
+  align-items: baseline
+
+.submittedAnswers > *
+  margin: 0
+
+.submittedAnswers > p
+  margin-right: layout.$space / 2
+
+.submittedAnswers > ul
+  margin-top: 0
+  justify-content: flex-start
+  flex-wrap: wrap
+
+.submittedAnswers > ul > li
+  @include button-shape(0.65)
+  margin-right: layout.$space / 2
+  border: 2px solid colors.$dark
+  background: transparent
+  color: colors.$dark
+  list-style: none
+.submittedAnswers > ul > li:last-child
+  margin-right: 0
