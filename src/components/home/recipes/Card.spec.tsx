@@ -7,12 +7,12 @@ configure({ adapter: new Adapter() })
 
 import React from 'react'
 
-import { Tag as TagData } from '../../lib/data/fetch'
-import TagList from '../tags/List'
-import ImageLoader from '../images/ImageLoader'
-import DetailLoader from '../detail/DetailLoader'
-import More from '../icons/More'
-import Close from '../icons/Close'
+import { Tag as TagData } from '../../../lib/data/fetch'
+import TagList from '../../tags/List'
+import ImageLoader from '../../images/ImageLoader'
+import DetailLoader from '../../detail/DetailLoader'
+import More from '../../icons/More'
+import Close from '../../icons/Close'
 
 import Card from './Card'
 

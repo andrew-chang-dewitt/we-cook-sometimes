@@ -13,7 +13,7 @@ configure({ adapter: new Adapter() })
 
 import React from 'react'
 
-import { Recipe } from '../../lib/data/fetch'
+import { Recipe } from '../../../lib/data/fetch'
 import Card from './Card'
 
 import List from './List'
@@ -29,11 +29,9 @@ describe('src/component/recipes/List', () => {
   let useLocationStub: SinonStub<any, any>
 
   beforeEach(() => {
-    useLocationStub = sinon.stub(Router, 'useLocation').callsFake(() => {
-      console.log('inside stubbed useLocation')
-
-      return { search: '' } as Location<{}>
-    })
+    useLocationStub = sinon
+      .stub(Router, 'useLocation')
+      .callsFake(() => ({ search: '' } as Location<{}>))
     wrapper = shallow(<List recipes={recipes} />)
   })
   afterEach(() => {

@@ -1,7 +1,7 @@
 import React from 'react'
 import { useLocation } from 'react-router-dom'
 
-import { Recipe } from '../../lib/data/fetch'
+import { Recipe } from '../../../lib/data/fetch'
 import Card from './Card'
 
 import styles from './List.module.sass'

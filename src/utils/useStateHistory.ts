@@ -8,6 +8,7 @@ interface Store<T> {
   readonly state: T
   setState: (newValue: T) => void
   undo: () => void
+  readonly onOldest: boolean
 }
 
 export default function <T>(initial: State<T>): Store<T> {
@@ -36,6 +37,10 @@ export default function <T>(initial: State<T>): Store<T> {
         throw RangeError(
           'Unable to undo to a previous state, already at the oldest change.'
         )
+    },
+
+    get onOldest() {
+      return history.length === 0
     },
   }
 }

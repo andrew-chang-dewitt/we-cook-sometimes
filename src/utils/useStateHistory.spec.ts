@@ -40,10 +40,16 @@ describe('utils/useStateHistory', () => {
     it("can't undo if there is no previous value", () => {
       const { result } = renderHook(() => useStateHistory('initial value'))
 
-      expect((_: any) => result.current.undo()).to.throw(
+      expect(() => result.current.undo()).to.throw(
         RangeError,
         /.*unable to undo.*already at the oldest/i
       )
+    })
+
+    it('knows if it is already on the oldest value', () => {
+      const { result } = renderHook(() => useStateHistory('initial value'))
+
+      expect(result.current.onOldest).to.be.true
     })
   })
 })
