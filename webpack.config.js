@@ -7,32 +7,33 @@ const CopyPlugin = require('copy-webpack-plugin')
 module.exports = (env) => {
   const isProd = env ? env.production : false
 
+  console.log('Building in ' + isProd ? 'PRODUCTION' : 'DEV')
+
   return {
     mode: isProd ? 'production' : 'development',
 
     entry: path.resolve(__dirname, 'src/index.tsx'),
 
-    // enable sourcemaps for debugging
     devtool: 'source-map',
 
-    devServer: {
-      contentBase: path.resolve(__dirname, 'src/'),
-      hot: true,
-      public: 'devtest.andrew-chang-dewitt.dev',
-      historyApiFallback: {
-        index: '/index.html',
-      },
-    },
+    devServer: isProd
+      ? {}
+      : {
+          contentBase: path.resolve(__dirname, 'src/'),
+          hot: true,
+          public: 'devtest.andrew-chang-dewitt.dev',
+          historyApiFallback: {
+            index: '/index.html',
+          },
+        },
 
     resolve: {
       extensions: ['.ts', '.tsx', '.js', '.sass', '.css'],
     },
 
-    // entry: { index: '.src/index.tsx' },
-
     output: {
-      filename: '[name].[hash].bundle.js',
-      chunkFilename: '[name].[hash].bundle.js',
+      filename: isProd ? '[hash].min.js' : '[name].[hash].bundle.js',
+      chunkFilename: isProd ? '[hash].min.js' : '[name].[hash].bundle.js',
       path: path.resolve(__dirname, 'dist'),
       publicPath: '/',
     },
@@ -45,7 +46,9 @@ module.exports = (env) => {
       new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
       new HtmlWebpackPlugin({
         title: 'We Cook Sometimes - Recipes',
-        template: path.resolve(__dirname, 'src/index.html'),
+        template: isProd
+          ? path.resolve(__dirname, 'src/index.prod.html')
+          : path.resolve(__dirname, 'src/index.html'),
         filename: 'index.html',
       }),
       new CopyPlugin({

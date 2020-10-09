@@ -200,5 +200,11 @@ describe('lib/core/RecipeList', () => {
         'recipe3',
       ])
     })
+
+    it('returns only those that have the specified tag that were still remaining', () => {
+      const list = recipeList.filterByTag('tag3')
+
+      expect(list.filterByTag('tag2').remaining).to.deep.equal(['recipe3'])
+    })
   })
 })

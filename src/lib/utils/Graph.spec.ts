@@ -311,5 +311,73 @@ describe('lib/utils/Graph', () => {
 
       expect(visited).to.include.members(['A', 'B', 'C'])
     })
+
+    it('can control the order in which nodes are visited', () => {
+      const orderFn = (nodes: Array<string>): Array<string> =>
+        nodes.sort().reverse()
+
+      const aGraph = graph.create(
+        {
+          A: ['B', 'C', 'E'],
+          B: ['C'],
+          C: ['D', 'E'],
+          D: ['F'],
+          E: [],
+          F: [],
+        },
+        true,
+        false,
+        'A'
+      )
+
+      let visited: string[] = []
+
+      aGraph.forEach((node) => visited.push(node), orderFn)
+
+      expect(visited).to.deep.equal(['A', 'E', 'C', 'D', 'F', 'B'])
+    })
+  })
+
+  describe('flatten()', () => {
+    it('returns an array of all nodes in the graph', () => {
+      const aGraph = graph
+        .create()
+        .addNode('A')
+        .addNode('B')
+        .addNode('C')
+        .addEdge('A', 'B')
+        .addEdge('A', 'C')
+        .addEdge('B', 'C')
+
+      expect(aGraph.flatten()).to.include.members(['A', 'B', 'C'])
+    })
+
+    it('can control the order in which nodes are visited', () => {
+      const orderFn = (nodes: Array<string>): Array<string> =>
+        nodes.sort().reverse()
+
+      const aGraph = graph.create(
+        {
+          A: ['B', 'C', 'E'],
+          B: ['C'],
+          C: ['D', 'E'],
+          D: ['F'],
+          E: [],
+          F: [],
+        },
+        true,
+        false,
+        'A'
+      )
+
+      expect(aGraph.flatten(orderFn)).to.deep.equal([
+        'A',
+        'E',
+        'C',
+        'D',
+        'F',
+        'B',
+      ])
+    })
   })
 })

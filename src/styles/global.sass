@@ -1,7 +1,6 @@
 @use 'fonts.variables.sass'
 @use 'colors.variables.sass'
 @use 'layout.variables.sass'
-@use '../components/recipes/List.variables.sass'
 
 :root
   scroll-behavior: smooth
@@ -29,7 +28,7 @@ blockquote
   font-style: italic
 blockquote + blockquote
   margin-top: -20px
-@media all and (min-width: #{ List.$medium-width })
+@media all and (min-width: #{ layout.$screen-medium })
   blockquote
     padding: layout.$space * 0.75 layout.$space * 2.5 layout.$space * 0.75 layout.$space * 2.5
 

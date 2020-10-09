@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 
 // internal dependencies
 import LookupContext from '../../utils/LookupContext'
-import { publishedTagId } from '../Root'
+import { publishedTagId } from '../../lib/data/fetch'
 
 interface Props {
   href: string

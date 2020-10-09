@@ -6,8 +6,9 @@ import React from 'react'
 import { MemoryRouter } from 'react-router-dom'
 
 // internal dependencies
-import { Recipe } from '../../lib/data/fetch'
-import LookupContext from '../../utils/LookupContext'
+import { Recipe, Tag } from '../../lib/data/fetch'
+import LookupContext, { LookupTables } from '../../utils/LookupContext'
+import { publishedTagId } from '../../lib/data/fetch'
 
 // component under test
 import ContentLink from './ContentLink'
@@ -16,20 +17,25 @@ describe('component/detail/ContentLink', () => {
   const recipesByID = {
     'recipe-id': {
       name: 'Recipe Name',
+      tags: [{ id: publishedTagId } as Tag],
     } as Recipe,
   }
   const recipesByUrl = {
-    'https://trello.com/some-recipe': 'recipe-id',
+    shortLink: 'recipe-id',
   }
   const context = {
     recipeByID: recipesByID,
     recipeByUrl: recipesByUrl,
   }
 
-  const setup = (href: string, Child: React.ReactNode) =>
+  const setup = (
+    href: string,
+    Child: React.ReactNode,
+    ctx: LookupTables = context
+  ) =>
     render(
       <MemoryRouter>
-        <LookupContext.Provider value={context}>
+        <LookupContext.Provider value={ctx}>
           <ContentLink href={href}>{Child}</ContentLink>
         </LookupContext.Provider>
       </MemoryRouter>
@@ -48,11 +54,32 @@ describe('component/detail/ContentLink', () => {
     )
   })
 
-  it('links to other Recipes will direct to their page on this site', async () => {
-    setup('https://trello.com/some-recipe', "This won't display")
+  it('links to published recipes open their card on the list', async () => {
+    setup('https://trello.com/c/shortLink/some-recipe', "This won't display")
 
     expect(
       (await screen.findByText(/Recipe Name/i)).getAttribute('href')
     ).equals('/?open=recipe-id')
+  })
+
+  it('links to unpublished recipes open an unlisted /recipes/:id ', async () => {
+    const byID = {
+      'recipe-id': {
+        id: 'recipe-id',
+        name: 'Recipe Name',
+        tags: [{ id: 'unpublished' } as Tag],
+      } as Recipe,
+    }
+    const byUrl = { unpublishedShortLink: 'recipe-id' }
+
+    setup(
+      'https://trello.com/c/unpublishedShortLink/recipe',
+      "This won't display",
+      { recipeByID: byID, recipeByUrl: byUrl }
+    )
+
+    expect(
+      (await screen.findByText(/Recipe Name/i)).getAttribute('href')
+    ).equals('/recipe/recipe-id')
   })
 })
