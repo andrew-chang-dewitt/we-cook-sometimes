@@ -10,7 +10,7 @@ import React from 'react'
 import { Image as ImageType } from '../../lib/data/fetch'
 import Image from './Image'
 
-describe('src/components/Image', () => {
+describe('components/Image', () => {
   it('fetches image data from a given card & attachment Id, then renders an image', () => {
     const img = {
       name: 'name',

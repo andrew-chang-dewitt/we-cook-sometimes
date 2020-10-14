@@ -18,7 +18,7 @@ import WIP from '../../WIPTag'
 // component under test
 import Card from './Card'
 
-describe('src/component/recipes/Card', () => {
+describe('component/recipes/Card', () => {
   const recipe = {
     id: 'a recipe',
     name: 'A Recipe',
