@@ -341,7 +341,7 @@ describe('lib/data/fetch', () => {
     it('returns a list of recipes matching the given query', async () => {
       server.use(
         rest.get(root + `/search`, (_, res, ctx) =>
-          res(ctx.json([{ name: 'found me' } as RecipeAPI]))
+          res(ctx.json({ cards: [{ name: 'found me' } as RecipeAPI] }))
         )
       )
 

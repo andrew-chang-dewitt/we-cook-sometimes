@@ -252,10 +252,12 @@ export const search = async (query: string) => {
   return trello<SearchResults>(
     `/search?query=${query}&idBoards=${boardId}&card_fields=id,name,shortLink,idList,labels,idAttachmentCover`
   )
-    .then((res) => res.mapOk<Array<RecipeAPI>>((ok) => ok.cards) as Result<
-      Array<RecipeAPI>,
-      FetchError
-    >
+    .then(
+      (res) =>
+        res.mapOk<Array<RecipeAPI>>((ok) => ok.cards) as Result<
+          Array<RecipeAPI>,
+          FetchError
+        >
     )
     .then((res) => res.mapOk<Array<Recipe>>(processRecipes))
 }
