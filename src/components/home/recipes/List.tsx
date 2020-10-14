@@ -1,21 +1,23 @@
+// external dependencies
 import React from 'react'
-import { useLocation } from 'react-router-dom'
 
+// internal utilities
+import useQueryParam from '../../../utils/useQueryParam'
+
+// core logic
 import { Recipe } from '../../../lib/data/fetch'
+
+// other components
 import Card from './Card'
 
 import styles from './List.module.sass'
-
-const useQueryParams = (location: { search: string }) =>
-  new URLSearchParams(location.search)
 
 interface Props {
   recipes: Recipe[]
 }
 
 export default ({ recipes }: Props) => {
-  const location = useLocation()
-  const query = useQueryParams(location)
+  const [open, setOpen] = useQueryParam('open', '')
 
   return (
     <ul className={styles.cardsList}>
@@ -23,7 +25,8 @@ export default ({ recipes }: Props) => {
         <Card
           recipe={recipe}
           key={recipe.id}
-          detailsOpen={query.get('open') === recipe.id}
+          detailsOpen={open === recipe.id}
+          openHandler={setOpen}
         />
       ))}
     </ul>
