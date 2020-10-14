@@ -3,7 +3,7 @@ import { expect } from 'chai'
 
 import { Result, ok, err, tryCatch, mergeResults } from './Result'
 
-describe('src/utils/Result', () => {
+describe('utils/Result', () => {
   describe('creation functions', () => {
     it('ok() represents something that succeded', () => {
       expect(ok(1)).to.exist
