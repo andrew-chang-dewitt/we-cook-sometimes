@@ -1,9 +1,11 @@
 // external libraries
 import React from 'react'
-import { Link } from 'react-router-dom'
 
 // internal utilities
 import { Recipe } from '../../../lib/data/fetch'
+
+// core logic
+import { publishedTagId } from '../../../lib/data/fetch'
 
 // other components
 import TagsList from '../../tags/List'
@@ -11,6 +13,7 @@ import ImageLoader from '../../images/ImageLoader'
 import DetailLoader from '../../detail/DetailLoader'
 import More from '../../icons/More'
 import Less from '../../icons/Close'
+import WIP from '../../WIPTag'
 
 // CSS-modules
 import styles from './Card.module.sass'
@@ -18,16 +21,23 @@ import styles from './Card.module.sass'
 interface Props {
   recipe: Recipe
   detailsOpen: boolean
+  openHandler: (newValue: string) => void
 }
 
-export default ({ recipe, detailsOpen }: Props) => {
-  const {
-    id,
-    name,
-    tags,
-    // idList,
-    idAttachmentCover,
-  } = recipe
+export default ({ recipe, detailsOpen, openHandler }: Props) => {
+  const { id, name, tags, idAttachmentCover } = recipe
+  const processedName = tags.every((tag) => tag.id !== publishedTagId) ? (
+    <>
+      {name} <WIP />
+    </>
+  ) : (
+    <>{name}</>
+  )
+
+  const toggleOpen = (e: React.MouseEvent<HTMLElement>): void => {
+    openHandler(detailsOpen ? '' : id)
+    e.preventDefault()
+  }
 
   // if a card is open, scroll it into view by getting a ref
   // on the parent element & calling it's scrollIntoView()
@@ -60,7 +70,7 @@ export default ({ recipe, detailsOpen }: Props) => {
       }
       ref={ref}
     >
-      <Link to={detailsOpen ? '' : `?open=${id}`}>
+      <a href={`/recipe/${id}`} onClick={toggleOpen}>
         <div
           className={`${styles.imgContainer} ${
             idAttachmentCover ? styles.hasImage : ''
@@ -78,6 +88,7 @@ export default ({ recipe, detailsOpen }: Props) => {
             ) : (
               <>
                 <div></div>
+
                 <div>
                   <Less />
                 </div>
@@ -96,8 +107,10 @@ export default ({ recipe, detailsOpen }: Props) => {
 
         {/* Open details using a Router Switch maybe? */}
         {/* can definitely do it off a prop though */}
-        {!detailsOpen ? <h3 className={styles.title}>{name}</h3> : null}
-      </Link>
+        {!detailsOpen ? (
+          <h3 className={styles.title}>{processedName}</h3>
+        ) : null}
+      </a>
 
       {detailsOpen ? <DetailLoader recipe={recipe} /> : null}
     </li>

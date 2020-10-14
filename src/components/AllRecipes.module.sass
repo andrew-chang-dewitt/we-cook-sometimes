@@ -1,0 +1,9 @@
+@use '../styles/layout.variables.sass'
+@use './home/recipes/List.variables.sass'
+
+.searchBar
+  width: List.$card-width
+  margin: layout.$space auto 0 auto
+@media all and (min-width: #{ List.$medium-width })
+  .searchBar
+    width: List.$card-width * 2 + layout.$space

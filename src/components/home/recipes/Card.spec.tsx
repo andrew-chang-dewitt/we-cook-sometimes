@@ -33,7 +33,9 @@ describe('src/component/recipes/Card', () => {
   let card: ShallowWrapper<any, any>
 
   before(() => {
-    card = shallow(<Card recipe={recipe} detailsOpen={false} />)
+    card = shallow(
+      <Card recipe={recipe} detailsOpen={false} openHandler={() => {}} />
+    )
   })
 
   it('renders the recipe title', () => {
@@ -53,7 +55,9 @@ describe('src/component/recipes/Card', () => {
       ...recipe,
       idAttachmentCover: null,
     }
-    card = shallow(<Card recipe={noImage} detailsOpen={false} />)
+    card = shallow(
+      <Card recipe={noImage} detailsOpen={false} openHandler={() => {}} />
+    )
     expect(card.find(Image)).to.have.lengthOf(0)
   })
 
@@ -63,7 +67,9 @@ describe('src/component/recipes/Card', () => {
 
   describe('open details', () => {
     before(() => {
-      card = shallow(<Card recipe={recipe} detailsOpen={true} />)
+      card = shallow(
+        <Card recipe={recipe} detailsOpen={true} openHandler={() => {}} />
+      )
     })
 
     it('includes details when the detailsOpen prop is true', () => {
