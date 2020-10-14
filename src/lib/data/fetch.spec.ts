@@ -7,7 +7,7 @@ import { setupServer } from 'msw/node'
 chai.use(chaiAsPromised)
 const expect = chai.expect
 
-import fetch, { Tag, ImageAPI, RecipeAPI, FetchError } from './fetch'
+import fetch, { Tag, Image, ImageAPI, RecipeAPI, FetchError } from './fetch'
 
 export const Factories = {
   API: {
@@ -92,7 +92,8 @@ export const Factories = {
 
 describe('lib/data/fetch', () => {
   const root = 'https://api.trello.com/1'
-  const board = '/board/5820f9c22043447d3f4fa857'
+  const boardId = '5820f9c22043447d3f4fa857'
+  const board = `/board/${boardId}`
 
   const server = setupServer()
 
@@ -175,14 +176,18 @@ describe('lib/data/fetch', () => {
     it('can return the smallest scaled image that is still >= the optionally given dimensions', async () => {
       const result = (
         await fetch.image('1', '1', { height: 9, width: 9 })
-      ).unwrap()
+      ).unwrap<Image>()
 
       expect(result ? result.url : null).to.equal('url10')
     })
 
     it('only requires a min height or a width to be specified', async () => {
-      const height = (await fetch.image('1', '1', { height: 100 })).unwrap()
-      const width = (await fetch.image('1', '1', { width: 100 })).unwrap()
+      const height = (await fetch.image('1', '1', { height: 100 })).unwrap<
+        Image
+      >()
+      const width = (await fetch.image('1', '1', { width: 100 })).unwrap<
+        Image
+      >()
 
       expect(height ? height.url : null).to.equal('url100')
       expect(width ? width.url : null).to.equal('url100')
@@ -200,7 +205,7 @@ describe('lib/data/fetch', () => {
     it('must be >= both, if two dimensions are given', async () => {
       const result = (
         await fetch.image('1', '1', { height: 1, width: 100 })
-      ).unwrap()
+      ).unwrap<Image>()
 
       expect(result ? result.url : null).to.deep.equal('url100')
     })
@@ -208,7 +213,7 @@ describe('lib/data/fetch', () => {
     it("returns the largest available, if there isn't one any bigger", async () => {
       const result = (
         await fetch.image('1', '1', { height: 101, width: 101 })
-      ).unwrap()
+      ).unwrap<Image>()
 
       expect(result ? result.url : null).to.deep.equal('url100')
     })
@@ -329,6 +334,20 @@ describe('lib/data/fetch', () => {
       const result = (await fetch.details('1')).unwrap() as any
 
       expect(result.images).to.have.lengthOf(0)
+    })
+  })
+
+  describe('search()', () => {
+    it('returns a list of recipes matching the given query', async () => {
+      server.use(
+        rest.get(root + `/search`, (_, res, ctx) =>
+          res(ctx.json([{ name: 'found me' } as RecipeAPI]))
+        )
+      )
+
+      const result = (await fetch.search('a query')).unwrap() as any
+
+      expect(result[0].name).to.equal('found me')
     })
   })
 })
