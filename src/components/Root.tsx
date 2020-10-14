@@ -20,7 +20,9 @@ import LookupContext, {
 } from '../utils/LookupContext'
 import Header from './header/Header'
 import Home from './home/Home'
+import AllRecipes from './AllRecipes'
 import RecipePage from './RecipePage'
+import NavMenu from './header/NavMenu'
 
 // import styles from './Root.module.sass'
 
@@ -86,6 +88,16 @@ export default () => {
               'loading...'
             )}
           </Route>
+
+          <Route path="/all-recipes">
+            {recipes.loaded ? (
+              <AllRecipes recipes={recipes.data} />
+            ) : (
+              'loading...'
+            )}
+          </Route>
+
+          <Route path="/menu">{<NavMenu />}</Route>
 
           <Route path="/recipe/:recipeID">
             {recipes.loaded ? <RecipePage /> : 'loading...'}
