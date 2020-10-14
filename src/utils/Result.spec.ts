@@ -129,46 +129,6 @@ describe('src/utils/Result', () => {
         })
       })
     })
-
-    describe('apply()', () => {
-      it('transforms an Ok Result, but can return a different wrapped type', () => {
-        expect(
-          ok(1)
-            .apply((_) => 'changed')
-            .unwrap()
-        ).to.equal('changed')
-      })
-
-      it('but it leaves an Err Result unchanged', () => {
-        expect(
-          err(new Error('not this'))
-            .apply((x) => (x as number) + 1)
-            .unwrap((e) => e.message)
-        ).to.equal('not this')
-      })
-
-      it('can transform complex Objects in addition to Primatives', () => {
-        interface A {
-          a: string
-          b: number
-        }
-
-        interface B {
-          a: string
-        }
-
-        const a: A = {
-          a: 'a',
-          b: 2,
-        }
-
-        const res: Result<B, Error> = ok(a).apply((a) => ({
-          a: a.a,
-        })) as Result<B, Error>
-
-        expect(res.unwrap()).to.deep.equal({ a: 'a' })
-      })
-    })
   })
 
   describe('Result helper functions', () => {
