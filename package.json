@@ -1,6 +1,6 @@
 {
   "name": "we-cook-sometimes",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "scripts": {
     "format": "prettier --config .prettierrc.yaml --write './(*.html|*.js|*.json|src/**/*.ts|src/**/*.tsx)'",
     "test": "TS_NODE_FILES=true mocha",
