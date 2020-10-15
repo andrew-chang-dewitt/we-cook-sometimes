@@ -5,7 +5,7 @@ import * as fetch from '../data/fetch'
 import { Factories as fetchFactories } from '../data/fetch.spec'
 import RecipeList from './RecipeList'
 
-const Factories = {
+export const Factories = {
   Fetch: {
     Recipe: {
       create: (): fetch.Recipe =>
