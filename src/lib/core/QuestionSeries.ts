@@ -1,4 +1,4 @@
-import Graph from '../utils/Graph'
+import Graph from '../../utils/Graph'
 import shuffle from '../../utils/FisherYatesShuffle'
 import { Question } from '../data/questions'
 
