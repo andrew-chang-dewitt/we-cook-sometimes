@@ -1,53 +1,21 @@
+// testing tools
 import 'mocha'
 import { expect } from 'chai'
+import DataFactories from '../../testUtils/Factories'
 
+// dependencies
 import * as fetch from '../data/fetch'
-import { Factories as fetchFactories } from '../data/fetch.spec'
+
+// module under test
 import RecipeList from './RecipeList'
-
-const Factories = {
-  Fetch: {
-    Recipe: {
-      create: (): fetch.Recipe =>
-        ({
-          id: 'recipeId',
-          name: 'recipeName',
-          tags: [
-            fetchFactories.API.Tag.createWithData({
-              id: 'tagId',
-              name: 'tag',
-            }),
-          ],
-        } as fetch.Recipe),
-
-      createWithProperties: (
-        properties: { key: string; value: any }[]
-      ): fetch.Recipe => {
-        const recipe = Factories.Fetch.Recipe.create()
-
-        properties.map(({ key, value }) => {
-          recipe[key] = value
-        })
-
-        return recipe
-      },
-    },
-  },
-}
 
 describe('lib/core/RecipeList', () => {
   describe('properties', () => {
     const data = [
-      Factories.Fetch.Recipe.createWithProperties([
-        {
-          key: 'id',
-          value: 'recipe1',
-        },
-        {
-          key: 'name',
-          value: 'a recipe',
-        },
-      ]),
+      DataFactories.fetch.Recipe.createWithProperties({
+        id: 'recipe1',
+        name: 'a recipe',
+      } as fetch.Recipe),
     ]
     let recipeList: any
 
@@ -65,51 +33,33 @@ describe('lib/core/RecipeList', () => {
   })
 
   describe('elminateByTags()', () => {
-    const tag1 = fetchFactories.API.Tag.createWithData({
+    const tag1 = DataFactories.fetch.API.Tag.createWithData({
       id: 'tag1',
       name: 'on all',
     })
-    const tag2 = fetchFactories.API.Tag.createWithData({
+    const tag2 = DataFactories.fetch.API.Tag.createWithData({
       id: 'tag2',
       name: 'on two',
     })
-    const tag3 = fetchFactories.API.Tag.createWithData({
+    const tag3 = DataFactories.fetch.API.Tag.createWithData({
       id: 'tag3',
       name: 'on one',
     })
-    const recipe1 = Factories.Fetch.Recipe.createWithProperties([
-      {
-        key: 'id',
-        value: 'recipe1',
-      },
-      {
-        key: 'name',
-        value: 'a recipe',
-      },
-      { key: 'tags', value: [tag1] },
-    ])
-    const recipe2 = Factories.Fetch.Recipe.createWithProperties([
-      {
-        key: 'id',
-        value: 'recipe2',
-      },
-      {
-        key: 'name',
-        value: 'another recipe',
-      },
-      { key: 'tags', value: [tag1, tag2] },
-    ])
-    const recipe3 = Factories.Fetch.Recipe.createWithProperties([
-      {
-        key: 'id',
-        value: 'recipe3',
-      },
-      {
-        key: 'name',
-        value: 'yet another recipe',
-      },
-      { key: 'tags', value: [tag1, tag2, tag3] },
-    ])
+    const recipe1 = DataFactories.fetch.Recipe.createWithProperties({
+      id: 'recipe1',
+      name: 'a recipe',
+      tags: [tag1],
+    } as fetch.Recipe)
+    const recipe2 = DataFactories.fetch.Recipe.createWithProperties({
+      id: 'recipe2',
+      name: 'another recipe',
+      tags: [tag1, tag2],
+    } as fetch.Recipe)
+    const recipe3 = DataFactories.fetch.Recipe.createWithProperties({
+      id: 'recipe3',
+      name: 'yet another recipe',
+      tags: [tag1, tag2, tag3],
+    } as fetch.Recipe)
     const data = [recipe1, recipe2, recipe3]
     let recipeList: any
 
@@ -134,51 +84,33 @@ describe('lib/core/RecipeList', () => {
   })
 
   describe('filterByTags()', () => {
-    const tag1 = fetchFactories.API.Tag.createWithData({
+    const tag1 = DataFactories.fetch.API.Tag.createWithData({
       id: 'tag1',
       name: 'on all',
     })
-    const tag2 = fetchFactories.API.Tag.createWithData({
+    const tag2 = DataFactories.fetch.API.Tag.createWithData({
       id: 'tag2',
       name: 'on two',
     })
-    const tag3 = fetchFactories.API.Tag.createWithData({
+    const tag3 = DataFactories.fetch.API.Tag.createWithData({
       id: 'tag3',
       name: 'on one',
     })
-    const recipe1 = Factories.Fetch.Recipe.createWithProperties([
-      {
-        key: 'id',
-        value: 'recipe1',
-      },
-      {
-        key: 'name',
-        value: 'a recipe',
-      },
-      { key: 'tags', value: [tag1] },
-    ])
-    const recipe2 = Factories.Fetch.Recipe.createWithProperties([
-      {
-        key: 'id',
-        value: 'recipe2',
-      },
-      {
-        key: 'name',
-        value: 'another recipe',
-      },
-      { key: 'tags', value: [tag1, tag2] },
-    ])
-    const recipe3 = Factories.Fetch.Recipe.createWithProperties([
-      {
-        key: 'id',
-        value: 'recipe3',
-      },
-      {
-        key: 'name',
-        value: 'yet another recipe',
-      },
-      { key: 'tags', value: [tag1, tag2, tag3] },
-    ])
+    const recipe1 = DataFactories.fetch.Recipe.createWithProperties({
+      id: 'recipe1',
+      name: 'a recipe',
+      tags: [tag1],
+    } as fetch.Recipe)
+    const recipe2 = DataFactories.fetch.Recipe.createWithProperties({
+      id: 'recipe2',
+      name: 'another recipe',
+      tags: [tag1, tag2],
+    } as fetch.Recipe)
+    const recipe3 = DataFactories.fetch.Recipe.createWithProperties({
+      id: 'recipe3',
+      name: 'yet another recipe',
+      tags: [tag1, tag2, tag3],
+    } as fetch.Recipe)
     const data = [recipe1, recipe2, recipe3]
     let recipeList: any
 

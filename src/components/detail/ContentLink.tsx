@@ -6,6 +6,12 @@ import { Link } from 'react-router-dom'
 import LookupContext from '../../utils/LookupContext'
 import { publishedTagId } from '../../lib/data/fetch'
 
+// other components
+import WIP from '../WIPTag'
+
+// CSS-modules
+import styles from './ContentLink.module.sass'
+
 interface Props {
   href: string
   children: React.ReactNode
@@ -39,9 +45,10 @@ export default ({ href, children }: Props) => {
   return (
     <Link
       to={isPublished(recipeID) ? `?open=${recipeID}` : `/recipe/${recipeID}`}
+      className={styles.contentLink}
     >
       {lookups.recipeByID[recipeID].name}
-      {isPublished(recipeID) ? null : ' (Work in Progress)'}
+      {isPublished(recipeID) ? null : <WIP />}
     </Link>
   )
 }

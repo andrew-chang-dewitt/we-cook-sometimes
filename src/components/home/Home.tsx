@@ -1,3 +1,4 @@
+// external dependencies
 import React from 'react'
 
 // core logic

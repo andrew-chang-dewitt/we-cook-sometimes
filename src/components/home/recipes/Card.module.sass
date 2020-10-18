@@ -1,5 +1,6 @@
-@use '../../../styles/colors.variables.sass'
 @use '../../../styles/layout.variables.sass'
+@use '../../../styles/fonts.variables.sass'
+@use '../../../styles/colors.variables.sass'
 @use './List.variables.sass'
 
 $shadow-size: 0.1rem
@@ -28,20 +29,24 @@ $svg-adjustment: -0.5rem
   width: auto
   height: auto
 
-.card .title
+.title
   margin: 0 $space $space $space
   min-height: 3rem
 
+.title svg
+  position: relative
+  top: -0.75rem
+  height: fonts.$size-regular
+  width: fonts.$size-regular
+  stroke-width: 2
+
 .imgContainer
   position: relative
-  min-height: 2.5rem
-
-.imgContainer.hasImage
-  height: 16rem
+  min-height: 4rem
 
 .imgContainer img
   width: 100%
-  height: 100%
+  height: 16rem
 
 .imgContainer .info
   position: absolute
@@ -61,7 +66,7 @@ $svg-adjustment: -0.5rem
 @media all and (min-width: #{ List.$medium-width })
   .card.details
     grid-column: span 2
-  .card.details .imgContainer.hasImage
+  .card.details .imgContainer img
     height: 32rem
 @media all and (min-width: #{ List.$large-width })
   .card.details

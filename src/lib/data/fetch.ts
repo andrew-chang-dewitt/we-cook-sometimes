@@ -1,7 +1,8 @@
 import { ok, err, mergeResults, Result } from '../../utils/Result'
 import { Response } from 'node-fetch'
 
-const board = '/board/5820f9c22043447d3f4fa857'
+const boardId = '5820f9c22043447d3f4fa857'
+const board = `/board/${boardId}`
 export const publishedTagId = '5f55960c17f08e1fde18785e'
 
 export class FetchError extends Error {}
@@ -151,14 +152,7 @@ export const image = (
     `/card/${cardId}/attachments/${imageId}?fields=id,name,url,previews,edgeColor`
   )
     .then((res) => checkPublished(res.unwrap()))
-    .then(
-      (res) =>
-        // type assertion needed here to identify the type returned by apply
-        res.apply((img) => processImage(img, minDimensions)) as Result<
-          Image,
-          FetchError
-        >
-    )
+    .then((res) => res.mapOk<Image>((img) => processImage(img, minDimensions)))
 }
 
 export interface RecipeAPI {
@@ -193,24 +187,20 @@ export interface RecipesByLabelId {
   [index: string]: Array<string>
 }
 
-export const recipes = (): Promise<Result<Array<Recipe>, FetchError>> => {
-  const processRecipes = (recipes: Array<RecipeAPI>): Array<Recipe> =>
-    recipes.map(
-      ({ id, name, shortLink, idAttachmentCover, idList, labels }) => ({
-        id,
-        name,
-        shortLink,
-        idAttachmentCover,
-        idList,
-        tags: labels,
-      })
-    )
+const processRecipes = (recipes: Array<RecipeAPI>): Array<Recipe> =>
+  recipes.map(({ id, name, shortLink, idAttachmentCover, idList, labels }) => ({
+    id,
+    name,
+    shortLink,
+    idAttachmentCover,
+    idList,
+    tags: labels,
+  }))
 
+export const recipes = (): Promise<Result<Array<Recipe>, FetchError>> => {
   return trello<Array<RecipeAPI>>(
     board + '/cards?fields=id,name,shortLink,idList,labels,idAttachmentCover'
-  ).then(
-    (res) => res.apply(processRecipes) as Result<Array<Recipe>, FetchError>
-  )
+  ).then((res) => res.mapOk<Array<Recipe>>(processRecipes))
 }
 
 export interface RecipeAPIDetails {
@@ -237,22 +227,39 @@ export const details = async (
   const details = await trello<RecipeAPIDetails>(`/card/${id}?fields=id,desc`)
   const images = await trello<Array<ImageAPI>>(
     `/card/${id}/attachments?fields=id,name,url,previews,edgeColor`
-  ).then(
-    (res) =>
-      res.apply((images) =>
-        images
-          .reduce((published, img) => {
-            published.push(
-              checkPublished(img).unwrap((_) => (null as unknown) as ImageAPI)
-            )
+  ).then((res) =>
+    res.mapOk((images) =>
+      images
+        .reduce((published, img) => {
+          published.push(
+            checkPublished(img).unwrap((_) => (null as unknown) as ImageAPI)
+          )
 
-            return published
-          }, [] as Array<ImageAPI>)
-          .filter((img) => img !== null)
-      ) as Result<Array<ImageAPI>, FetchError>
+          return published
+        }, [] as Array<ImageAPI>)
+        .filter((img) => img !== null)
+    )
   )
 
   return mergeResults(details, images, compileRecipeDetails)
+}
+
+interface SearchResults {
+  cards: Array<RecipeAPI>
+}
+
+export const search = async (query: string) => {
+  return trello<SearchResults>(
+    `/search?query=${query}&idBoards=${boardId}&card_fields=id,name,shortLink,idList,labels,idAttachmentCover`
+  )
+    .then(
+      (res) =>
+        res.mapOk<Array<RecipeAPI>>((ok) => ok.cards) as Result<
+          Array<RecipeAPI>,
+          FetchError
+        >
+    )
+    .then((res) => res.mapOk<Array<Recipe>>(processRecipes))
 }
 
 export default {
@@ -260,4 +267,5 @@ export default {
   image,
   recipes,
   details,
+  search,
 }

@@ -3,7 +3,7 @@ import { expect } from 'chai'
 
 import shuffle from './FisherYatesShuffle'
 
-describe('src/utils/FisherYatesShuffle', () => {
+describe('utils/FisherYatesShuffle', () => {
   it('returns a shuffled copy of a given array', () => {
     let fakeRandomNumbers = [4 / 5, 1 / 4, 1 / 3, 0, 1][Symbol.iterator]()
 

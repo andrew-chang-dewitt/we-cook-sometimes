@@ -1,0 +1,38 @@
+@use '../styles/layout.variables.sass'
+@use '../styles/fonts.variables.sass'
+@use '../styles/colors.variables.sass'
+
+$input-size: fonts.$size-regular-medium
+$button-size: fonts.$size-medium
+
+.container
+  background-color: colors.$light
+  border: none
+  border-radius: $input-size / 2
+  display: grid
+  grid-template-columns: 1fr ( $button-size + layout.$space / 2)
+  grid-gap: layout.$space / 2
+
+.button[type="submit"]
+  padding: 0
+  margin-right: layout.$space / 2
+  background-color: transparent
+  border: none
+
+.button[type="submit"]:hover
+  background-color: transparent
+
+.button svg
+  height: $button-size
+  width: $button-size
+  stroke-width: 2
+  stroke: colors.$action
+
+.input
+  width: calc( 100% - #{layout.$space * 2})
+  padding: 0 layout.$space
+  border: none
+  background-color: transparent
+  color: colors.$dark
+  font-size: $input-size
+  text-align: center

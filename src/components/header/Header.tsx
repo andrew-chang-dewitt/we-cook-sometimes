@@ -1,25 +1,21 @@
 // external dependencies
 import React from 'react'
-import { Link, useLocation } from 'react-router-dom'
-
+//
 // other components
-import BackButton from './BackButton'
+import MenuButton from './MenuButton'
 
 // CSS-modules
 import styles from './Header.module.sass'
 
-export default () => {
-  const location = useLocation()
-
-  return (
-    <div className={styles.container}>
-      <div className={styles.backButton}>
-        {location.pathname !== '/' ? <BackButton /> : null}
-      </div>
-      <div className={styles.branding}>
-        <Link to="/">We Cook Sometimes</Link>
-      </div>
-      <div className={styles.menuButton}></div>
+export default () => (
+  <div className={styles.container}>
+    {/* branding left blank until we decide we actually
+     * want to use this instead of it just being a
+     * portfolio project
+     */}
+    <div className={styles.branding}></div>
+    <div className={styles.menuButton}>
+      <MenuButton />
     </div>
-  )
-}
+  </div>
+)
