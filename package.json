@@ -3,7 +3,8 @@
   "version": "0.3.0",
   "scripts": {
     "format": "prettier --config .prettierrc.yaml --write './(*.html|*.js|*.json|src/**/*.ts|src/**/*.tsx)'",
-    "test": "TS_NODE_FILES=true mocha",
+    "test": "TS_NODE_FILES=true mocha 'src/**/*.spec.{ts,tsx}'",
+    "test-one": "TS_NODE_FILES=true mocha $MATCH",
     "coverage": "nyc npm run test",
     "clean": "rm -rf dist",
     "clean-hard": "rm -rf ./node_modules package-lock.json && npm cache clear --force && npm run clean && npm i",
@@ -39,10 +40,6 @@
     "extension": [
       "ts",
       "tsx"
-    ],
-    "spec": [
-      "src/**/*.spec.tsx",
-      "src/**/*.spec.ts"
     ],
     "require": [
       "ts-node/register",
