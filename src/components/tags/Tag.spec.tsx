@@ -11,7 +11,7 @@ import { Tag as TagType } from '../../lib/data/fetch'
 
 import Tag from './Tag'
 
-describe('src/component/Tag', () => {
+describe('component/Tag', () => {
   it("renders a tag's name from a given tag", () => {
     const tag = {
       name: 'a tag',

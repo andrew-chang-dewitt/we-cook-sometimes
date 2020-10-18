@@ -18,23 +18,28 @@ import Card from './Card'
 
 import List from './List'
 
-describe('src/component/recipes/List', () => {
+describe('component/recipes/List', () => {
   const recipes = [
     { id: 'recipe' } as Recipe,
     { id: 'recipe' } as Recipe,
     { id: 'recipe' } as Recipe,
   ]
-
-  let wrapper: ShallowWrapper
   let useLocationStub: SinonStub<any, any>
 
-  beforeEach(() => {
+  let wrapper: ShallowWrapper
+
+  before(() => {
     useLocationStub = sinon
       .stub(Router, 'useLocation')
       .callsFake(() => ({ search: '' } as Location<{}>))
+  })
+  beforeEach(() => {
     wrapper = shallow(<List recipes={recipes} />)
   })
   afterEach(() => {
+    useLocationStub.resetHistory()
+  })
+  after(() => {
     useLocationStub.restore()
   })
 

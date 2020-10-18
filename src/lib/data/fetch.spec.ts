@@ -3,96 +3,17 @@ import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
+import DataFactories from '../../testUtils/Factories'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
 
-import fetch, { Tag, ImageAPI, RecipeAPI, FetchError } from './fetch'
-
-export const Factories = {
-  API: {
-    Image: {
-      create: (): ImageAPI => ({
-        id: '1',
-        name: '[published]name',
-        edgeColor: 'color',
-        url: 'url',
-        previews: [
-          {
-            height: 1,
-            width: 1,
-            url: 'url1',
-          },
-          {
-            height: 10,
-            width: 10,
-            url: 'url10',
-          },
-          {
-            height: 100,
-            width: 100,
-            url: 'url100',
-          },
-        ],
-      }),
-
-      createWithId: (id: string): ImageAPI => {
-        const img = Factories.API.Image.create()
-        img.id = id
-
-        return img
-      },
-
-      createWithProperties: (
-        properties: { key: string; value: any }[]
-      ): ImageAPI => {
-        const img = Factories.API.Image.create()
-
-        properties.map(({ key, value }) => {
-          img[key] = value
-        })
-
-        return img
-      },
-    },
-
-    Recipe: {
-      create: (): RecipeAPI => ({
-        id: 'id',
-        name: 'one',
-        shortLink: 'https://a-link',
-        idAttachmentCover: 'img',
-        idList: 'list',
-        labels: [
-          Factories.API.Tag.createWithData({
-            id: 'labelATag',
-            name: 'a tag',
-          }),
-        ],
-      }),
-
-      createWithProperties: (
-        properties: { key: string; value: any }[]
-      ): RecipeAPI => {
-        const recipe = Factories.API.Recipe.create()
-
-        properties.map(({ key, value }) => {
-          recipe[key] = value
-        })
-
-        return recipe
-      },
-    },
-
-    Tag: {
-      createWithData: (data: { id: string; name: string }): Tag => data as Tag,
-    },
-  },
-}
+import fetch, { Tag, Image, RecipeAPI, FetchError } from './fetch'
 
 describe('lib/data/fetch', () => {
   const root = 'https://api.trello.com/1'
-  const board = '/board/5820f9c22043447d3f4fa857'
+  const boardId = '5820f9c22043447d3f4fa857'
+  const board = `/board/${boardId}`
 
   const server = setupServer()
 
@@ -117,7 +38,7 @@ describe('lib/data/fetch', () => {
   })
 
   describe('image()', () => {
-    const imgObj = Factories.API.Image.create()
+    const imgObj = DataFactories.fetch.API.Image.create()
     imgObj.name = '[published]a name'
 
     beforeEach(() => {
@@ -175,14 +96,18 @@ describe('lib/data/fetch', () => {
     it('can return the smallest scaled image that is still >= the optionally given dimensions', async () => {
       const result = (
         await fetch.image('1', '1', { height: 9, width: 9 })
-      ).unwrap()
+      ).unwrap<Image>()
 
       expect(result ? result.url : null).to.equal('url10')
     })
 
     it('only requires a min height or a width to be specified', async () => {
-      const height = (await fetch.image('1', '1', { height: 100 })).unwrap()
-      const width = (await fetch.image('1', '1', { width: 100 })).unwrap()
+      const height = (await fetch.image('1', '1', { height: 100 })).unwrap<
+        Image
+      >()
+      const width = (await fetch.image('1', '1', { width: 100 })).unwrap<
+        Image
+      >()
 
       expect(height ? height.url : null).to.equal('url100')
       expect(width ? width.url : null).to.equal('url100')
@@ -200,7 +125,7 @@ describe('lib/data/fetch', () => {
     it('must be >= both, if two dimensions are given', async () => {
       const result = (
         await fetch.image('1', '1', { height: 1, width: 100 })
-      ).unwrap()
+      ).unwrap<Image>()
 
       expect(result ? result.url : null).to.deep.equal('url100')
     })
@@ -208,7 +133,7 @@ describe('lib/data/fetch', () => {
     it("returns the largest available, if there isn't one any bigger", async () => {
       const result = (
         await fetch.image('1', '1', { height: 101, width: 101 })
-      ).unwrap()
+      ).unwrap<Image>()
 
       expect(result ? result.url : null).to.deep.equal('url100')
     })
@@ -224,7 +149,7 @@ describe('lib/data/fetch', () => {
   })
 
   describe('recipes()', () => {
-    const card1 = Factories.API.Recipe.createWithProperties([
+    const card1 = DataFactories.fetch.API.Recipe.createWithProperties([
       { key: 'id', value: 'recipe1' },
       {
         key: 'labels',
@@ -234,7 +159,7 @@ describe('lib/data/fetch', () => {
         ],
       },
     ])
-    const card2 = Factories.API.Recipe.createWithProperties([
+    const card2 = DataFactories.fetch.API.Recipe.createWithProperties([
       { key: 'id', value: 'recipe2' },
       {
         key: 'labels',
@@ -245,7 +170,7 @@ describe('lib/data/fetch', () => {
         ],
       },
     ])
-    const card3 = Factories.API.Recipe.createWithProperties([
+    const card3 = DataFactories.fetch.API.Recipe.createWithProperties([
       { key: 'id', value: 'recipe3' },
       { key: 'idAttachmentCover', value: null },
       {
@@ -289,8 +214,12 @@ describe('lib/data/fetch', () => {
       desc: 'description',
     }
     const images = [
-      Factories.API.Image.createWithProperties([{ key: 'id', value: 'img1' }]),
-      Factories.API.Image.createWithProperties([{ key: 'id', value: 'img2' }]),
+      DataFactories.fetch.API.Image.createWithProperties([
+        { key: 'id', value: 'img1' },
+      ]),
+      DataFactories.fetch.API.Image.createWithProperties([
+        { key: 'id', value: 'img2' },
+      ]),
     ]
 
     beforeEach(() => {
@@ -315,7 +244,7 @@ describe('lib/data/fetch', () => {
 
     it("filters out images that aren't marked published", async () => {
       const images = [
-        Factories.API.Image.createWithProperties([
+        DataFactories.fetch.API.Image.createWithProperties([
           { key: 'name', value: 'unpublished' },
         ]),
       ]
@@ -329,6 +258,20 @@ describe('lib/data/fetch', () => {
       const result = (await fetch.details('1')).unwrap() as any
 
       expect(result.images).to.have.lengthOf(0)
+    })
+  })
+
+  describe('search()', () => {
+    it('returns a list of recipes matching the given query', async () => {
+      server.use(
+        rest.get(root + `/search`, (_, res, ctx) =>
+          res(ctx.json({ cards: [{ name: 'found me' } as RecipeAPI] }))
+        )
+      )
+
+      const result = (await fetch.search('a query')).unwrap() as any
+
+      expect(result[0].name).to.equal('found me')
     })
   })
 })

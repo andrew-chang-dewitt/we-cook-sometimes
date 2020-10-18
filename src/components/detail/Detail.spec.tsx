@@ -14,7 +14,7 @@ import TagsList from '../tags/List'
 import Content from './Content'
 import ImageCarousel from './ImageCarousel'
 
-describe('src/component/details/Detail', () => {
+describe('component/details/Detail', () => {
   let detail: ShallowWrapper
 
   const recipe = {

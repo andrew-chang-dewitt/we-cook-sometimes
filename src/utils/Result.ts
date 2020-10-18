@@ -20,27 +20,27 @@ const isErr = <T, E extends Error>(
   result: ResultType<T, E>
 ): result is Err<E> => result._tag === 'err'
 
-interface ErrorHandler<T, E extends Error> {
-  (e: E): T
+interface ErrorHandler<U, E extends Error> {
+  (e: E): U
 }
 
-const unwrap = <T, E extends Error>(
+const unwrap = <T, U, E extends Error>(
   result: ResultType<T, E>,
-  errHandler?: ErrorHandler<T, E>
-): T => {
+  errHandler?: ErrorHandler<U, E>
+): T | U => {
   if (isOk(result)) return result.ok
   if (errHandler !== undefined) return errHandler(result.err)
   else throw result.err
 }
 
-interface MapOkFn<T> {
-  (okValue: T): T
+interface MapOkFn<T, U> {
+  (okValue: T): U
 }
 
-const mapOk = <T, E extends Error>(
+const mapOk = <T, U, E extends Error>(
   result: ResultType<T, E>,
-  fn: MapOkFn<T>
-): ResultType<T, E> => {
+  fn: MapOkFn<T, U>
+): ResultType<U, E> => {
   if (isOk(result)) return okType(fn(result.ok))
   else return result
 }
@@ -57,43 +57,31 @@ const mapErr = <T, E extends Error>(
   else return result
 }
 
-const map = <T, E extends Error>(
+const map = <T, U, E extends Error>(
   result: ResultType<T, E>,
-  onOk: MapOkFn<T>,
+  onOk: MapOkFn<T, U>,
   onErr: MapErrFn<E>
-): ResultType<T, E> => {
+): ResultType<U, E> => {
   if (isOk(result)) return okType(onOk(result.ok))
   else return errType(onErr(result.err))
 }
 
-interface ApplyFn<T> {
-  (x: T): unknown
-}
-
-const apply = <T, E extends Error>(
-  result: ResultType<T, E>,
-  onOk: ApplyFn<T>
-): ResultType<unknown, E> => {
-  if (isOk(result)) return okType(onOk(result.ok))
-  else return result
-}
-
 export interface Result<T, E extends Error> {
-  unwrap: (errorHandler?: ErrorHandler<T, E>) => T
-  map: (onOk: MapOkFn<T>, onErr: MapErrFn<E>) => Result<T, E>
-  mapOk: (fn: MapOkFn<T>) => Result<T, E>
+  unwrap: <U>(errorHandler?: ErrorHandler<U, E>) => T | U
+  map: <U>(onOk: MapOkFn<T, U>, onErr: MapErrFn<E>) => Result<T | U, E>
+  mapOk: <U>(fn: MapOkFn<T, U>) => Result<U, E>
   mapErr: (fn: MapErrFn<E>) => Result<T, E>
-  apply: (onOk: ApplyFn<T>) => Result<unknown, E>
 }
 
 const ResultBuilder = <T, E extends Error>(
   result: ResultType<T, E>
 ): Result<T, E> => ({
-  unwrap: (errorHandler?: ErrorHandler<T, E>) => unwrap(result, errorHandler),
-  map: (onOk, onErr) => ResultBuilder(map(result, onOk, onErr)),
-  mapOk: (fn) => ResultBuilder(mapOk(result, fn)),
+  unwrap: <U = T>(errorHandler?: ErrorHandler<U, E>) =>
+    unwrap(result, errorHandler),
+  map: <U = T>(onOk: MapOkFn<T, U>, onErr: MapErrFn<E>) =>
+    ResultBuilder<T | U, E>(map(result, onOk, onErr)),
+  mapOk: <U = T>(fn: MapOkFn<T, U>) => ResultBuilder<U, E>(mapOk(result, fn)),
   mapErr: (fn) => ResultBuilder(mapErr(result, fn)),
-  apply: (onOk) => ResultBuilder(apply(result, onOk)),
 })
 
 export const ok = <T, E extends Error>(value: T): Result<T, E> =>

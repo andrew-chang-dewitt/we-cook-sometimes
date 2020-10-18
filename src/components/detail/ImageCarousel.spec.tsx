@@ -14,7 +14,7 @@ import * as hook from '../../utils/useAutoPause'
 // component under test
 import ImageCarousel from './ImageCarousel'
 
-describe('src/component/detail/ImageCarousel', () => {
+describe('component/detail/ImageCarousel', () => {
   // interface CustomMockSetup {
   //   restore: () => void
   // }

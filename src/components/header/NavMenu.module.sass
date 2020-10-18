@@ -1,0 +1,22 @@
+@use '../../styles/layout.variables.sass'
+@use '../../styles/fonts.variables.sass'
+@use '../../styles/colors.variables.sass'
+
+.menu
+  height: 70vh
+  max-width: layout.$screen-small
+  margin: 0 auto
+  padding: 0 layout.$space
+  display: flex
+  flex-direction: column
+  align-items: center
+
+.menu > li
+  width: 100%
+  text-align: center
+  margin-bottom: layout.$space
+  list-style: none
+
+.menu a
+  font-size: fonts.$size-medium
+  color: colors.$dark
