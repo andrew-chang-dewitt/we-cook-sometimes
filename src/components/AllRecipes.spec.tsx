@@ -8,8 +8,8 @@ configure({ adapter: new Adapter() })
 
 // dependencies
 import React from 'react'
-import fetch from '../lib/data/fetch'
-import { Factories } from '../lib/core/RecipeList.spec'
+import DataFactories from '../testUtils/Factories'
+import fetch, { Recipe } from '../lib/data/fetch'
 import { ok } from '../utils/Result'
 import { RecipeList as RecipeListType } from '../lib/core/RecipeList'
 import * as hooks from '../utils/useQueryParam'
@@ -43,22 +43,24 @@ describe('component/AllRecipes', () => {
   const recipes = ({
     remaining: ['a', 'b', 'c'],
     allByID: {
-      a: Factories.Fetch.Recipe.createWithProperties([
-        { key: 'id', value: 'a' },
-      ]),
-      b: Factories.Fetch.Recipe.createWithProperties([
-        { key: 'id', value: 'b' },
-      ]),
-      c: Factories.Fetch.Recipe.createWithProperties([
-        { key: 'id', value: 'c' },
-      ]),
+      a: DataFactories.fetch.Recipe.createWithProperties({
+        id: 'a',
+      } as Recipe),
+      b: DataFactories.fetch.Recipe.createWithProperties({
+        id: 'b',
+      } as Recipe),
+      c: DataFactories.fetch.Recipe.createWithProperties({
+        id: 'c',
+      } as Recipe),
     },
   } as unknown) as RecipeListType
   let rendered: ShallowWrapper
   let useQueryParamSetterSpy: SinonSpy<any, any>
   let useQueryParamStub: SinonStub<any, any>
   let useEffectStub: SinonStub<any, any>
-  let fetchSearchMock = Promise.resolve(ok([Factories.Fetch.Recipe.create()]))
+  let fetchSearchMock = Promise.resolve(
+    ok([DataFactories.fetch.Recipe.create()])
+  )
   let fetchSearchStub: SinonStub<any, any>
 
   const setup = (value: string = '') => {

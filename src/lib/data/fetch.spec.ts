@@ -3,92 +3,12 @@ import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
+import DataFactories from '../../testUtils/Factories'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
 
-import fetch, { Tag, Image, ImageAPI, RecipeAPI, FetchError } from './fetch'
-
-export const Factories = {
-  API: {
-    Image: {
-      create: (): ImageAPI => ({
-        id: '1',
-        name: '[published]name',
-        edgeColor: 'color',
-        url: 'url',
-        previews: [
-          {
-            height: 1,
-            width: 1,
-            url: 'url1',
-          },
-          {
-            height: 10,
-            width: 10,
-            url: 'url10',
-          },
-          {
-            height: 100,
-            width: 100,
-            url: 'url100',
-          },
-        ],
-      }),
-
-      createWithId: (id: string): ImageAPI => {
-        const img = Factories.API.Image.create()
-        img.id = id
-
-        return img
-      },
-
-      createWithProperties: (
-        properties: { key: string; value: any }[]
-      ): ImageAPI => {
-        const img = Factories.API.Image.create()
-
-        properties.map(({ key, value }) => {
-          img[key] = value
-        })
-
-        return img
-      },
-    },
-
-    Recipe: {
-      create: (): RecipeAPI => ({
-        id: 'id',
-        name: 'one',
-        shortLink: 'https://a-link',
-        idAttachmentCover: 'img',
-        idList: 'list',
-        labels: [
-          Factories.API.Tag.createWithData({
-            id: 'labelATag',
-            name: 'a tag',
-          }),
-        ],
-      }),
-
-      createWithProperties: (
-        properties: { key: string; value: any }[]
-      ): RecipeAPI => {
-        const recipe = Factories.API.Recipe.create()
-
-        properties.map(({ key, value }) => {
-          recipe[key] = value
-        })
-
-        return recipe
-      },
-    },
-
-    Tag: {
-      createWithData: (data: { id: string; name: string }): Tag => data as Tag,
-    },
-  },
-}
+import fetch, { Tag, Image, RecipeAPI, FetchError } from './fetch'
 
 describe('lib/data/fetch', () => {
   const root = 'https://api.trello.com/1'
@@ -118,7 +38,7 @@ describe('lib/data/fetch', () => {
   })
 
   describe('image()', () => {
-    const imgObj = Factories.API.Image.create()
+    const imgObj = DataFactories.fetch.API.Image.create()
     imgObj.name = '[published]a name'
 
     beforeEach(() => {
@@ -229,7 +149,7 @@ describe('lib/data/fetch', () => {
   })
 
   describe('recipes()', () => {
-    const card1 = Factories.API.Recipe.createWithProperties([
+    const card1 = DataFactories.fetch.API.Recipe.createWithProperties([
       { key: 'id', value: 'recipe1' },
       {
         key: 'labels',
@@ -239,7 +159,7 @@ describe('lib/data/fetch', () => {
         ],
       },
     ])
-    const card2 = Factories.API.Recipe.createWithProperties([
+    const card2 = DataFactories.fetch.API.Recipe.createWithProperties([
       { key: 'id', value: 'recipe2' },
       {
         key: 'labels',
@@ -250,7 +170,7 @@ describe('lib/data/fetch', () => {
         ],
       },
     ])
-    const card3 = Factories.API.Recipe.createWithProperties([
+    const card3 = DataFactories.fetch.API.Recipe.createWithProperties([
       { key: 'id', value: 'recipe3' },
       { key: 'idAttachmentCover', value: null },
       {
@@ -294,8 +214,12 @@ describe('lib/data/fetch', () => {
       desc: 'description',
     }
     const images = [
-      Factories.API.Image.createWithProperties([{ key: 'id', value: 'img1' }]),
-      Factories.API.Image.createWithProperties([{ key: 'id', value: 'img2' }]),
+      DataFactories.fetch.API.Image.createWithProperties([
+        { key: 'id', value: 'img1' },
+      ]),
+      DataFactories.fetch.API.Image.createWithProperties([
+        { key: 'id', value: 'img2' },
+      ]),
     ]
 
     beforeEach(() => {
@@ -320,7 +244,7 @@ describe('lib/data/fetch', () => {
 
     it("filters out images that aren't marked published", async () => {
       const images = [
-        Factories.API.Image.createWithProperties([
+        DataFactories.fetch.API.Image.createWithProperties([
           { key: 'name', value: 'unpublished' },
         ]),
       ]

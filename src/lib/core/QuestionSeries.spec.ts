@@ -6,7 +6,7 @@ import QuestionSeries, {
   QuestionSeries as QuestionSeriesType,
 } from './QuestionSeries'
 
-const questions = [
+export const questions = [
   {
     id: 'fastSlow',
     text: 'Do you want something...',
