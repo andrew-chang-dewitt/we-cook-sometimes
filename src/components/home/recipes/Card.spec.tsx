@@ -117,7 +117,6 @@ describe('component/recipes/Card', () => {
             recipe={recipe}
             detailsOpen={false}
             openHandler={(arg: string) => {
-              console.log('handler called')
               handlerCalledWith = arg
             }}
           />
@@ -136,7 +135,6 @@ describe('component/recipes/Card', () => {
             recipe={recipe}
             detailsOpen={true}
             openHandler={(arg: string) => {
-              console.log('handler called')
               handlerCalledWith = arg
             }}
           />

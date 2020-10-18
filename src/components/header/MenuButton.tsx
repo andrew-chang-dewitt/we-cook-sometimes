@@ -1,6 +1,6 @@
 // external dependencies
 import React from 'react'
-import { Link, useLocation, useHistory } from 'react-router-dom'
+import { useLocation, useHistory } from 'react-router-dom'
 
 // other components
 import HamburgerIcon from '../icons/HamburgerIcon'
@@ -10,15 +10,16 @@ export default () => {
   const history = useHistory()
   const location = useLocation()
 
+  const openMenuButtonHandler = (): void => {
+    history.push('/menu')
+  }
   const closeMenuButtonHandler = (): void => {
     history.goBack()
   }
 
   const menuClosed = (
-    <button aria-label="Open navigation menu">
-      <Link to="/menu">
-        <HamburgerIcon open={false} />
-      </Link>
+    <button aria-label="Open navigation menu" onClick={openMenuButtonHandler}>
+      <HamburgerIcon open={false} />
     </button>
   )
 
@@ -29,6 +30,7 @@ export default () => {
   )
 
   React.useEffect(() => {
+    console.log('useEffect location.pathname:', location.pathname)
     location.pathname === '/menu' ? setOpen(true) : setOpen(false)
   }, [location])
 

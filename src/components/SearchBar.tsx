@@ -14,6 +14,9 @@ interface Props {
 }
 
 export default ({ value, changeHandler, submitHandler }: Props) => {
+  // skip testing this as there doesn't seem to be a way to test
+  // that e.preventDefault worked using React Testing Library
+  /* istanbul ignore next */
   if (!submitHandler)
     submitHandler = (e) => {
       e.preventDefault()

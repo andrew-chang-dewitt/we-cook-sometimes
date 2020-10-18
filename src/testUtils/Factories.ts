@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 import * as fetchLib from '../lib/data/fetch'
 import { exclusionary, inclusionary, Question } from '../lib/data/questions'
 
