@@ -2,7 +2,7 @@
 @use '../../styles/fonts.variables.sass'
 @use '../../styles/layout.variables.sass'
 
-$header-height: 2.2rem
+$header-height: layout.$header-height
 
 .container
   z-index: 1
@@ -12,6 +12,7 @@ $header-height: 2.2rem
   display: flex
   justify-content: space-between
   align-items: center
+  background-color: colors.$slightly-darker-light
 
 .branding > a
   height: $header-height
