@@ -2,6 +2,7 @@
 import React from 'react'
 
 // other components
+import LayoutContext from './LayoutContext'
 import Search from './icons/Search'
 
 // CSS-modules
@@ -21,6 +22,12 @@ export default ({ value, changeHandler, submitHandler }: Props) => {
     submitHandler = (e) => {
       e.preventDefault()
     }
+
+  const setYOffset = React.useContext(LayoutContext).setScrollYOffset
+
+  React.useEffect(() => {
+    setYOffset(70)
+  }, [])
 
   return (
     <form className={styles.container} onSubmit={submitHandler}>
