@@ -33,15 +33,37 @@ export const inclusionary = (
 export const isExclusionary = (choice: Choice): choice is Exclusionary =>
   choice._tag === 'exclusionary'
 
-export interface Question {
+interface QuestionCore {
   id: string
   text: string
   choices: Array<Choice>
   possibleNexts: Array<string> // Array<Question.id>
 }
 
-export default [
-  {
+interface SingleChoice extends QuestionCore {
+  _tag: 'single'
+}
+interface MultiChoice extends QuestionCore {
+  _tag: 'multi'
+}
+
+export const single = (data: QuestionCore): SingleChoice => ({
+  ...data,
+  _tag: 'single',
+})
+export const multi = (data: QuestionCore): MultiChoice => ({
+  ...data,
+  _tag: 'multi',
+})
+
+export const isSingleChoiceQuestion = (
+  question: Question
+): question is SingleChoice => question._tag === 'single'
+
+export type Question = SingleChoice | MultiChoice
+
+const questions: Array<Question> = [
+  single({
     id: 'fastSlow',
     text: 'Do you want something...',
     choices: [
@@ -53,9 +75,9 @@ export default [
       ]),
     ],
     possibleNexts: ['party', 'drinkSnackMeal'],
-  },
+  }),
 
-  {
+  single({
     id: 'easy',
     text: 'Are you feeling...',
     choices: [
@@ -67,9 +89,9 @@ export default [
       ]),
     ],
     possibleNexts: ['party', 'fastSlow', 'fancy', 'meal'],
-  },
+  }),
 
-  {
+  single({
     id: 'fancy',
     text: 'Are you feeling...',
     choices: [
@@ -81,9 +103,9 @@ export default [
       ]),
     ],
     possibleNexts: ['party', 'easy'],
-  },
+  }),
 
-  {
+  multi({
     id: 'meal',
     text: 'Do you want...',
     choices: [
@@ -101,9 +123,9 @@ export default [
       ]),
     ],
     possibleNexts: ['easy', 'fastSlow', 'fancy'],
-  },
+  }),
 
-  {
+  multi({
     id: 'flavor',
     text: 'Are you feeling...',
     choices: [
@@ -114,9 +136,9 @@ export default [
       // inclusionary('Bitter', [ '5c1bbb49e75cdb8a9b3e9618', ]),
     ],
     possibleNexts: ['meal', 'protein', 'cuisine'],
-  },
+  }),
 
-  {
+  multi({
     id: 'protein',
     text: 'Pick a protein:',
     choices: [
@@ -132,9 +154,9 @@ export default [
       inclusionary('Tofu', ['5dde8d51a74ee95f426a4ad6']),
     ],
     possibleNexts: ['cuisine', 'meal', 'cuisine'],
-  },
+  }),
 
-  {
+  multi({
     id: 'cuisine',
     text: 'Pick a cuisine:',
     choices: [
@@ -149,9 +171,9 @@ export default [
       inclusionary('fusion', ['5f7125307129a16f7c76d211']),
     ],
     possibleNexts: ['meal', 'protein'],
-  },
+  }),
 
-  {
+  multi({
     id: 'drinkSnackMeal',
     text: 'Are you feeling...',
     choices: [
@@ -166,9 +188,9 @@ export default [
       ]),
     ],
     possibleNexts: [],
-  },
+  }),
 
-  {
+  single({
     id: 'party',
     text: 'Party party party?',
     choices: [
@@ -180,5 +202,7 @@ export default [
       ]),
     ],
     possibleNexts: ['drinkSnackMeal'],
-  },
-] as Array<Question>
+  }),
+]
+
+export default questions

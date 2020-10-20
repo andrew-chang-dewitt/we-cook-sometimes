@@ -1,7 +1,13 @@
 /* istanbul ignore file */
 
 import * as fetchLib from '../lib/data/fetch'
-import { exclusionary, inclusionary, Question } from '../lib/data/questions'
+import {
+  exclusionary,
+  inclusionary,
+  single,
+  multi,
+  Question,
+} from '../lib/data/questions'
 
 export const fetch = {
   API: {
@@ -110,15 +116,27 @@ export const fetch = {
 
 export const questions = {
   Question: {
-    create: (): Question => ({
-      id: 'question',
-      text: 'Question',
-      choices: [
-        inclusionary('include', ['aTag']),
-        exclusionary('exclude', ['aTag']),
-      ],
-      possibleNexts: [],
-    }),
+    create: (): Question =>
+      single({
+        id: 'question',
+        text: 'Question',
+        choices: [
+          inclusionary('include', ['aTag']),
+          exclusionary('exclude', ['aTag']),
+        ],
+        possibleNexts: [],
+      }),
+
+    createMulti: (): Question =>
+      multi({
+        id: 'question',
+        text: 'Question',
+        choices: [
+          inclusionary('include', ['aTag']),
+          exclusionary('exclude', ['aTag']),
+        ],
+        possibleNexts: [],
+      }),
 
     createWithProperties: (properties: Question): Question => {
       const question = questions.Question.create()
