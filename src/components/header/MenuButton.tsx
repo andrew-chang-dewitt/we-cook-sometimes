@@ -5,6 +5,9 @@ import { useLocation, useHistory } from 'react-router-dom'
 // other components
 import HamburgerIcon from '../icons/HamburgerIcon'
 
+// CSS-modules
+import styles from './MenuButton.module.sass'
+
 export default () => {
   const [open, setOpen] = React.useState(false)
   const history = useHistory()
@@ -18,19 +21,26 @@ export default () => {
   }
 
   const menuClosed = (
-    <button aria-label="Open navigation menu" onClick={openMenuButtonHandler}>
+    <button
+      aria-label="Open navigation menu"
+      onClick={openMenuButtonHandler}
+      className={styles.button}
+    >
       <HamburgerIcon open={false} />
     </button>
   )
 
   const menuOpened = (
-    <button aria-label="Close navigation Menu" onClick={closeMenuButtonHandler}>
+    <button
+      aria-label="Close navigation Menu"
+      onClick={closeMenuButtonHandler}
+      className={styles.button}
+    >
       <HamburgerIcon open={true} />
     </button>
   )
 
   React.useEffect(() => {
-    console.log('useEffect location.pathname:', location.pathname)
     location.pathname === '/menu' ? setOpen(true) : setOpen(false)
   }, [location])
 

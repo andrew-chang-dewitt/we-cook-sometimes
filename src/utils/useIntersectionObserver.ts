@@ -10,18 +10,20 @@
  * now, the entire hook is excluded from test coverage reports.
  *
  */
+/* istanbul ignore file */
+
 // external libraries
 import React from 'react'
 
 // not a complete definition of the possible options that can be passed to
 // an intersection observer, properties will need added if more are used
 interface IOOptions {
-  threshold?: number
+  threshold?: number | Array<number>
+  rootMargin?: string
 }
 
 // inconsistent use function declaration syntax due to
 // https://github.com/Microsoft/TypeScript/issues/4922
-/* istanbul ignore next */
 export function useIntersectionObserver<T extends Element>(
   nodeRef: React.RefObject<T>,
   options: IOOptions
@@ -36,16 +38,10 @@ export function useIntersectionObserver<T extends Element>(
     {} as IntersectionObserverEntry
   )
   const observer = React.useRef(
-    // using window.IntersectionObserver syntax to allow for mocking
-    // IO in tests; JSDOM doesn't implement a stub for IO & this will
-    // cause tests to throw errors without stubbing or mocking it
-    new window.IntersectionObserver(
-      ([newEntry]: IntersectionObserverEntry[]) => {
-        // store entry as state to return from hook
-        setEntry(newEntry)
-      },
-      options
-    )
+    new IntersectionObserver(([newEntry]: IntersectionObserverEntry[]) => {
+      // store entry as state to return from hook
+      setEntry(newEntry)
+    }, options)
   )
 
   // whenever the nodeRef changes, register an observer on the new

@@ -3,6 +3,7 @@ import React from 'react'
 import { Link, useHistory } from 'react-router-dom'
 
 // other components
+import Layout from '../Layout'
 import SearchBar from '../SearchBar'
 
 // CSS-modules
@@ -21,20 +22,22 @@ export default () => {
   }
 
   return (
-    <ul className={styles.menu}>
-      <li>
-        <Link to="/">Home</Link>
-      </li>
-      <li>
-        <Link to="/all-recipes">All recipes</Link>
-      </li>
-      <li className={styles.searchbar}>
-        <SearchBar
-          value={search}
-          changeHandler={searchHandler}
-          submitHandler={executeSearch}
-        />
-      </li>
-    </ul>
+    <Layout>
+      <ul className={styles.menu}>
+        <li>
+          <Link to="/">Home</Link>
+        </li>
+        <li>
+          <Link to="/all-recipes">All recipes</Link>
+        </li>
+        <li className={styles.searchbar}>
+          <SearchBar
+            value={search}
+            changeHandler={searchHandler}
+            submitHandler={executeSearch}
+          />
+        </li>
+      </ul>
+    </Layout>
   )
 }

@@ -7,7 +7,7 @@
   display: grid
   grid-template-columns: repeat(1, minmax(List.$card-width, List.$card-width * 1.5))
   grid-gap: layout.$grid-gap
-  padding: layout.$grid-gap
+  padding: 0 layout.$grid-gap layout.$grid-gap layout.$grid-gap
 @media all and (min-width: #{ List.$medium-width })
   .cardsList
     max-width: List.$card-width * 2 + layout.$space

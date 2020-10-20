@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom'
 import LookupContext from '../utils/LookupContext'
 
 // other components
+import Layout from './Layout'
 import DetailLoader from './detail/DetailLoader'
 import ImageLoader from './images/ImageLoader'
 
@@ -18,7 +19,7 @@ export default () => {
   const recipe = recipeByID[recipeID]
 
   return (
-    <>
+    <Layout>
       <div className={styles.imgContainer}>
         {recipe.idAttachmentCover !== null ? (
           <ImageLoader
@@ -29,6 +30,6 @@ export default () => {
         ) : null}
       </div>
       <DetailLoader recipe={recipe} />
-    </>
+    </Layout>
   )
 }

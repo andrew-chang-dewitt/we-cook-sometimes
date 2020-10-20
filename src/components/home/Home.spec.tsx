@@ -7,6 +7,7 @@ import DataFactories from '../../testUtils/Factories'
 
 // dependencies
 import React from 'react'
+import { MemoryRouter } from 'react-router-dom'
 import {
   publishedTagId,
   Tag as TagType,
@@ -68,10 +69,12 @@ describe('component/home/Home', () => {
 
   it('starts showing all published recipes', () => {
     render(
-      <Home
-        recipes={recipes}
-        questions={[DataFactories.questions.Question.create()]}
-      />
+      <MemoryRouter>
+        <Home
+          recipes={recipes}
+          questions={[DataFactories.questions.Question.create()]}
+        />
+      </MemoryRouter>
     )
 
     expect(screen.getByTitle('List').textContent).to.match(
@@ -134,7 +137,11 @@ describe('component/home/Home', () => {
     ])
 
     before(() => {
-      render(<Home recipes={answerQuestionRecipes} questions={questions} />)
+      render(
+        <MemoryRouter>
+          <Home recipes={answerQuestionRecipes} questions={questions} />
+        </MemoryRouter>
+      )
     })
 
     it('removes recipes on Inclusionary answer types', () => {

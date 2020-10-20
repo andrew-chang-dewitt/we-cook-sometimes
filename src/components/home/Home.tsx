@@ -16,6 +16,7 @@ import { RecipeList as RecipeListType } from '../../lib/core/RecipeList'
 import useStateHistory from '../../utils/useStateHistory'
 
 // other components
+import Layout from '../Layout'
 import Question from './questions/Question'
 import List from './recipes/List'
 
@@ -66,7 +67,7 @@ export default ({ recipes, questions }: Props) => {
   }
 
   return (
-    <>
+    <Layout>
       <Question
         question={state.questions.current}
         submittedAnswers={state.answers}
@@ -80,6 +81,6 @@ export default ({ recipes, questions }: Props) => {
           (recipe) => state.recipes.allByID[recipe]
         )}
       />
-    </>
+    </Layout>
   )
 }

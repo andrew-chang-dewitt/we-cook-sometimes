@@ -1,9 +1,21 @@
 @use '../styles/layout.variables.sass'
+@use '../styles/colors.variables.sass'
 @use './home/recipes/List.variables.sass'
+
+.searchBarRoot
+  position: sticky
+  z-index: 1
+  top: layout.$header-height
+  width: 100%
+  padding: (layout.$space / 2) 0
+  background-color: colors.$slightly-darker-light
+@media all and (min-width: #{ layout.$screen-small })
+  .searchBarRoot
+    top: layout.$header-height * 1.25
 
 .searchBar
   width: List.$card-width
-  margin: layout.$space auto 0 auto
+  margin: 0 auto
 @media all and (min-width: #{ List.$medium-width })
   .searchBar
     width: List.$card-width * 2 + layout.$space

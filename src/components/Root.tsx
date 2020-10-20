@@ -18,7 +18,6 @@ import LookupContext, {
   RecipeLookup,
   RecipeByID,
 } from '../utils/LookupContext'
-import Header from './header/Header'
 import Home from './home/Home'
 import AllRecipes from './AllRecipes'
 import RecipePage from './RecipePage'
@@ -79,7 +78,6 @@ export default () => {
   return (
     <LookupContext.Provider value={lookupTables}>
       <Router>
-        <Header />
         <Switch>
           <Route exact path="/">
             {recipes.loaded ? (
