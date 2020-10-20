@@ -49,7 +49,10 @@ export default ({
   return (
     <div className={styles.root}>
       <div className={styles.container}>
-        <div className={styles.questionContainer}>
+        <div
+          className={styles.questionContainer}
+          style={questionCollapsed ? { height: 0 } : {}}
+        >
           {question ? (
             <>
               <h2

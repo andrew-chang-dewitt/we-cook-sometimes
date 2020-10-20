@@ -56,14 +56,10 @@ export default ({ recipe, detailsOpen, openHandler }: Props) => {
   /* istanbul ignore next */
   React.useEffect(() => {
     if (detailsOpen && ref.current) {
-      console.log('using yOffset of ', layoutConstants.scrollYOffset)
-
       const y =
         ref.current.getBoundingClientRect().top +
         window.pageYOffset +
         -1 * layoutConstants.scrollYOffset
-
-      console.log('scrolling to', y)
 
       window.scrollTo({ top: y })
     }
