@@ -49,16 +49,17 @@ export default ({
   return (
     <div className={styles.root}>
       <div className={styles.container}>
-        <div
-          className={`${styles.questionContainer} ${
-            questionCollapsed ? styles.collapsed : ''
-          }`}
-        >
+        <div className={styles.questionContainer}>
           {question ? (
             <>
-              <h2 className={styles.question}>{question.text}</h2>
+              <h2
+                className={styles.question}
+                style={questionCollapsed ? { visibility: 'hidden' } : {}}
+              >
+                {question.text}
+              </h2>
 
-              <ul>
+              <ul style={questionCollapsed ? { visibility: 'hidden' } : {}}>
                 {question.choices.map((choice) => (
                   <Choice
                     key={choice.text}
@@ -87,11 +88,11 @@ export default ({
           <hr />
 
           {questionCollapsed ? (
-            <button onClick={openQuestion}>
+            <button aria-label="Expand question" onClick={openQuestion}>
               <Down />
             </button>
           ) : (
-            <button onClick={closeQuestion}>
+            <button aria-label="Collapse question" onClick={closeQuestion}>
               <Up />
             </button>
           )}
