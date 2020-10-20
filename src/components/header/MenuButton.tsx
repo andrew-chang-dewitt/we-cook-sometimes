@@ -30,7 +30,6 @@ export default () => {
   )
 
   React.useEffect(() => {
-    console.log('useEffect location.pathname:', location.pathname)
     location.pathname === '/menu' ? setOpen(true) : setOpen(false)
   }, [location])
 

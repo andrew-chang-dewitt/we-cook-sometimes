@@ -8,6 +8,7 @@ import { Recipe } from '../../../lib/data/fetch'
 import { publishedTagId } from '../../../lib/data/fetch'
 
 // other components
+import LayoutContext from '../../LayoutContext'
 import TagsList from '../../tags/List'
 import ImageLoader from '../../images/ImageLoader'
 import DetailLoader from '../../detail/DetailLoader'
@@ -26,6 +27,8 @@ interface Props {
 
 export default ({ recipe, detailsOpen, openHandler }: Props) => {
   const { id, name, tags, idAttachmentCover } = recipe
+  const layoutConstants = React.useContext(LayoutContext)
+
   const processedName = tags.every((tag) => tag.id !== publishedTagId) ? (
     <>
       {name} <WIP />
@@ -53,14 +56,17 @@ export default ({ recipe, detailsOpen, openHandler }: Props) => {
   /* istanbul ignore next */
   React.useEffect(() => {
     if (detailsOpen && ref.current) {
-      const yOffset = -48
+      console.log('using yOffset of ', layoutConstants.scrollYOffset)
+
       const y =
-        ref.current.getBoundingClientRect().top + window.pageYOffset + yOffset
+        ref.current.getBoundingClientRect().top +
+        window.pageYOffset +
+        -1 * layoutConstants.scrollYOffset
+
+      console.log('scrolling to', y)
+
       window.scrollTo({ top: y })
     }
-    // detailsOpen && ref.current
-    //   ? ref.current.scrollIntoView({ block: 'start' })
-    //   : null
   }, [detailsOpen, ref.current])
 
   return (

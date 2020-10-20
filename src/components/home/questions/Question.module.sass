@@ -11,22 +11,23 @@ $button-font-size: fonts.$size-regular
   border-radius: ( $button-padding * $scale * 2 + $button-font-size * $scale ) / 2
   font-size: $button-font-size * $scale
 
+.root
+  position: sticky
+  top: layout.$header-height
+  z-index: 1
+  width: 100%
+  background-color: colors.$slightly-darker-light
+@media all and (min-width: #{ layout.$screen-small })
+  .root
+    top: layout.$header-height * 1.25
+
 .container
   width: List.$card-width
-  margin: layout.$space auto 0 auto
+  margin: 0 auto
+  padding: ( layout.$space / 2 ) 0
 @media all and (min-width: #{ List.$medium-width })
   .container
     width: List.$card-width * 2 + layout.$space
-
-.container > *
-  margin-top: layout.$space
-.container > *:last-child
-  margin-bottom: layout.$space
-
-.question
-  margin: 0
-  width: 100%
-  text-align: center
 
 .container ul
   margin: 0
@@ -43,6 +44,16 @@ $button-font-size: fonts.$size-regular
   background-color: colors.$accent1
   color: colors.$light
 
+.questionContainer > *
+  margin-top: layout.$space
+.questionContainer > *:last-child
+  margin-bottom: layout.$space
+
+.question
+  margin: 0
+  width: 100%
+  text-align: center
+
 .questionNavigation
   display: flex
   justify-content: space-between
@@ -53,8 +64,34 @@ $button-font-size: fonts.$size-regular
   background: transparent
   color: colors.$accent1
 
-.container hr
+.divider
+  display: flex
+  justify-content: space-between
+  align-items: center
+
+.divider hr
+  margin: 0 0.25rem
+  height: 0
+  width: 100%
   color: colors.$accent1
+
+.divider button
+  padding: 0
+
+.divider button,
+.divider button:hover,
+.divider button:focus
+  background: transparent
+.divider button:hover,
+.divider button:focus
+  box-shadow: none
+
+.divider button svg
+  stroke: colors.$dark
+  height: 2rem
+  width: 2rem
+.divider button:hover svg
+  stroke: colors.$accent1
 
 .submittedAnswers
   display: flex

@@ -1,6 +1,8 @@
 // testing tools
 import 'mocha'
-import { expect } from 'chai'
+import { expect, use } from 'chai'
+import ChaiDom from 'chai-dom'
+use(ChaiDom)
 import React from 'react'
 import { render, cleanup, screen, fireEvent } from '@testing-library/react'
 
@@ -193,6 +195,45 @@ describe('component/questions/Question', () => {
       expect(() => screen.getByText(/filtering by/i)).to.throw(
         /unable to find/i
       )
+    })
+  })
+
+  describe('collapse question', () => {
+    it('can collapse the current question to free up screen space', () => {
+      render(
+        <Question
+          question={question}
+          submittedAnswers={[]}
+          submitAnswer={() => {}}
+          previous={() => {}}
+          previousExists={true}
+          reset={() => {}}
+        />
+      )
+
+      fireEvent.click(screen.getByRole('button', { name: /collapse/i }))
+
+      expect(screen.getByText(/a question/i)).to.not.be.visible
+      expect(screen.getByText(/a choice/i)).to.not.be.visible
+    })
+
+    it('can expand a collapsed question', () => {
+      render(
+        <Question
+          question={question}
+          submittedAnswers={[]}
+          submitAnswer={() => {}}
+          previous={() => {}}
+          previousExists={true}
+          reset={() => {}}
+        />
+      )
+
+      fireEvent.click(screen.getByRole('button', { name: /collapse/i }))
+      fireEvent.click(screen.getByRole('button', { name: /expand/i }))
+
+      expect(screen.getByText(/a question/i)).to.be.visible
+      expect(screen.getByText(/a choice/i)).to.be.visible
     })
   })
 })

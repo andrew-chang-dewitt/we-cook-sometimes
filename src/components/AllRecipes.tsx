@@ -11,6 +11,7 @@ import RecipeList, {
 } from '../lib/core/RecipeList'
 
 // other components
+import Layout from './Layout'
 import List from './home/recipes/List'
 import SearchBar from './SearchBar'
 
@@ -40,15 +41,17 @@ export default ({ recipes }: Props) => {
   }, [search])
 
   return (
-    <>
-      <div className={styles.searchBar}>
-        <SearchBar value={search} changeHandler={searchHandler} />
+    <Layout>
+      <div className={styles.searchBarRoot}>
+        <div className={styles.searchBar}>
+          <SearchBar value={search} changeHandler={searchHandler} />
+        </div>
       </div>
       {list ? (
         <List recipes={list.remaining.map((recipe) => list.allByID[recipe])} />
       ) : (
         '...loading'
       )}
-    </>
+    </Layout>
   )
 }
