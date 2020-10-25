@@ -67,9 +67,9 @@ const map = <T, U, E extends Error>(
 }
 
 export interface Result<T, E extends Error> {
-  unwrap: <U>(errorHandler?: ErrorHandler<U, E>) => T | U
-  map: <U>(onOk: MapOkFn<T, U>, onErr: MapErrFn<E>) => Result<T | U, E>
-  mapOk: <U>(fn: MapOkFn<T, U>) => Result<U, E>
+  unwrap: <U = T>(errorHandler?: ErrorHandler<U, E>) => T | U
+  map: <U = T>(onOk: MapOkFn<T, U>, onErr: MapErrFn<E>) => Result<T | U, E>
+  mapOk: <U = T>(fn: MapOkFn<T, U>) => Result<U, E>
   mapErr: (fn: MapErrFn<E>) => Result<T, E>
 }
 

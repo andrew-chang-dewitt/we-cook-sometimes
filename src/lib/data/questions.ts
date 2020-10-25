@@ -56,6 +56,102 @@ export default [
   },
 
   {
+    id: 'easy',
+    text: 'Are you feeling...',
+    choices: [
+      inclusionary('Lazy', [
+        '5820fc9e84e677fd363792e9', // easy
+      ]),
+      exclusionary('Not', [
+        '5820fc9e84e677fd363792e9', // easy
+      ]),
+    ],
+    possibleNexts: ['party', 'fastSlow', 'fancy', 'meal'],
+  },
+
+  {
+    id: 'fancy',
+    text: 'Are you feeling...',
+    choices: [
+      inclusionary('Fancy', [
+        '5820fc4a061669ff36d85f50', // fancy
+      ]),
+      exclusionary('Not', [
+        '5820fc4a061669ff36d85f50', // fancy
+      ]),
+    ],
+    possibleNexts: ['party', 'easy'],
+  },
+
+  {
+    id: 'meal',
+    text: 'Do you want...',
+    choices: [
+      inclusionary('Breakfast', [
+        '5820fc0a10f309bba3d8e37a', // breakfast
+      ]),
+      inclusionary('Lunch', [
+        '5820fc0fe6179a908622d2d2', // lunch
+      ]),
+      inclusionary('Dinner', [
+        '5820fc13c6efcd83e1fae625', // dinner
+      ]),
+      inclusionary('Snack', [
+        '5820f9c22043447d3f4fa85f', // snack
+      ]),
+    ],
+    possibleNexts: ['easy', 'fastSlow', 'fancy'],
+  },
+
+  {
+    id: 'flavor',
+    text: 'Are you feeling...',
+    choices: [
+      inclusionary('Spicy', ['5dd84833f481b06290eb1ecc']),
+      inclusionary('Sweet', ['5c1bbbe668274c3e739b2590']),
+      inclusionary('Sour', ['5f03a85d9ecda666647b6ee9']),
+      inclusionary('Savory', ['5c1bbbeabe2f7158532a9c03']),
+      // inclusionary('Bitter', [ '5c1bbb49e75cdb8a9b3e9618', ]),
+    ],
+    possibleNexts: ['meal', 'protein', 'cuisine'],
+  },
+
+  {
+    id: 'protein',
+    text: 'Pick a protein:',
+    choices: [
+      inclusionary('Beef', ['5820fc1b34022f18c8ba44e0']),
+      inclusionary('Lamb', ['5ca4b4bc3f5b757470608bee']),
+      inclusionary('Pork', ['5820fbfc8ff793dec8f9d1a4']),
+      inclusionary('Sausage', ['582f9f7084e677fd36645aba']),
+      inclusionary('Duck', ['5c1bbb49e75cdb8a9b3e9618']),
+      inclusionary('Chicken', ['5820fc02404c9790300516af']),
+      inclusionary('Turkey', ['583b29ae84e677fd3680d4a7']),
+      inclusionary('Seafood', ['5c1d066b34fff57f75201e05']),
+      inclusionary('Egg', ['5ee79f50747c36365be6fd57']),
+      inclusionary('Tofu', ['5dde8d51a74ee95f426a4ad6']),
+    ],
+    possibleNexts: ['cuisine', 'meal', 'cuisine'],
+  },
+
+  {
+    id: 'cuisine',
+    text: 'Pick a cuisine:',
+    choices: [
+      inclusionary('Japanese', ['5dd7e53fab4a00396e333654']),
+      inclusionary('Chinese', ['5cab4b8730cdb388e871be5d']),
+      inclusionary('Sichuan', ['5dd8480cbb9143711b46e21a']),
+      inclusionary('Indian', ['5d43358555b95771bc203922']),
+      inclusionary('Western', ['5f71253eb8f52b5d31d9989b']),
+      inclusionary('Thai', ['5ee7a260e763741b25e45640']),
+      inclusionary('Taiwanese', ['5ceade3e01f0764348eecf39']),
+      inclusionary('Italian', ['5dde8cc2d3108918348ed554']),
+      inclusionary('fusion', ['5f7125307129a16f7c76d211']),
+    ],
+    possibleNexts: ['meal', 'protein'],
+  },
+
+  {
     id: 'drinkSnackMeal',
     text: 'Are you feeling...',
     choices: [
