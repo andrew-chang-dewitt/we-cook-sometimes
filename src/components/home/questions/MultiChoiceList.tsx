@@ -54,6 +54,7 @@ export default ({ choices, handler }: Props) => {
     }, [] as Array<ChoiceType>)
 
     handler(selected)
+    setAnswers({})
     e.preventDefault()
   }
 
