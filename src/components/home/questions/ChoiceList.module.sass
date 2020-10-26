@@ -1,0 +1,38 @@
+@use '../../../styles/fonts.variables.sass'
+@use '../../../styles/colors.variables.sass'
+@use '../../../styles/layout.variables.sass'
+
+.container
+  margin: 0
+  margin-top: layout.$space
+  padding: 0
+  display: flex
+  justify-content: center
+
+.container > li
+  list-style: none
+
+.container > li button
+  margin-left: layout.$space / 2
+.container > li:first-child button
+  margin-left: 0
+.container > li:last-child button
+  margin-right: layout.$space / 2
+
+.container button
+  background-color: colors.$action
+
+.container.multi button
+  background-color: transparent
+  border: 2px solid colors.$action
+  color: colors.$action
+  font-weight: fonts.$weight-sans-semi-bold
+.container.multi button[type="submit"]
+  background-color: colors.$action
+  border-color: none
+  color: colors.$light
+
+.container.multi button.selected
+  background-color: colors.$accent1
+  border-color: colors.$accent1
+  color: colors.$light

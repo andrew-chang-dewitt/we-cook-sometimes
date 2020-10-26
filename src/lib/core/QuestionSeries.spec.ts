@@ -1,13 +1,13 @@
 import 'mocha'
 import { expect } from 'chai'
 
-import { exclusionary, inclusionary } from '../data/questions'
+import { exclusionary, inclusionary, single, multi } from '../data/questions'
 import QuestionSeries, {
   QuestionSeries as QuestionSeriesType,
 } from './QuestionSeries'
 
 export const questions = [
-  {
+  single({
     id: 'fastSlow',
     text: 'Do you want something...',
     choices: [
@@ -19,9 +19,9 @@ export const questions = [
       ]),
     ],
     possibleNexts: ['party', 'drinkSnackMeal'],
-  },
+  }),
 
-  {
+  multi({
     id: 'drinkSnackMeal',
     text: 'Are you feeling...',
     choices: [
@@ -36,9 +36,9 @@ export const questions = [
       ]),
     ],
     possibleNexts: [],
-  },
+  }),
 
-  {
+  single({
     id: 'party',
     text: 'Party party party?',
     choices: [
@@ -50,7 +50,7 @@ export const questions = [
       ]),
     ],
     possibleNexts: ['drinkSnackMeal'],
-  },
+  }),
 ]
 
 describe('lib/core/QuestionSeries', () => {

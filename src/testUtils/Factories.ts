@@ -1,7 +1,14 @@
 /* istanbul ignore file */
 
 import * as fetchLib from '../lib/data/fetch'
-import { exclusionary, inclusionary, Question } from '../lib/data/questions'
+import {
+  exclusionary,
+  inclusionary,
+  single,
+  multi,
+  Question,
+  Choice,
+} from '../lib/data/questions'
 
 export const fetch = {
   API: {
@@ -97,31 +104,79 @@ export const fetch = {
         ],
       } as fetchLib.Recipe),
 
-    createWithProperties: (properties: fetchLib.Recipe): fetchLib.Recipe => {
+    createWithProperties: (properties: any): fetchLib.Recipe => {
       const recipe = fetch.Recipe.create()
 
       return {
         ...recipe,
-        ...properties,
+        ...(properties as fetchLib.Recipe),
       }
     },
   },
 }
 
+interface QuestionProps {
+  id?: string
+  text?: string
+  choices?: Array<Choice>
+  possibleNexts?: Array<string> // Array<Question.id>
+}
+
 export const questions = {
   Question: {
-    create: (): Question => ({
-      id: 'question',
-      text: 'Question',
-      choices: [
-        inclusionary('include', ['aTag']),
-        exclusionary('exclude', ['aTag']),
-      ],
-      possibleNexts: [],
-    }),
+    create: (): Question =>
+      single({
+        id: 'question',
+        text: 'Question',
+        choices: [
+          inclusionary('include', ['aTag']),
+          exclusionary('exclude', ['aTag']),
+        ],
+        possibleNexts: [],
+      }),
 
-    createWithProperties: (properties: Question): Question => {
+    createSingle: (): Question =>
+      single({
+        id: 'question',
+        text: 'Question',
+        choices: [
+          inclusionary('include', ['aTag']),
+          exclusionary('exclude', ['aTag']),
+        ],
+        possibleNexts: [],
+      }),
+
+    createMulti: (): Question =>
+      multi({
+        id: 'question',
+        text: 'Question',
+        choices: [
+          inclusionary('include', ['aTag']),
+          exclusionary('exclude', ['aTag']),
+        ],
+        possibleNexts: [],
+      }),
+
+    createWithProperties: (properties: QuestionProps): Question => {
       const question = questions.Question.create()
+
+      return {
+        ...question,
+        ...properties,
+      }
+    },
+
+    createSingleWithProperties: (properties: QuestionProps): Question => {
+      const question = questions.Question.createSingle()
+
+      return {
+        ...question,
+        ...properties,
+      }
+    },
+
+    createMultiWithProperties: (properties: QuestionProps): Question => {
+      const question = questions.Question.createMulti()
 
       return {
         ...question,
@@ -131,8 +186,33 @@ export const questions = {
   },
 
   Choice: {
-    createInclusionary: inclusionary,
-    createExclusionary: exclusionary,
+    createInclusionary: (): Choice => inclusionary('A choice', []),
+
+    createExclusionary: (): Choice => exclusionary('A choice', []),
+
+    createInclusionaryWithProperties: (properties: {
+      text?: string
+      tagsRequired?: Array<string>
+    }): Choice => {
+      const choice = questions.Choice.createInclusionary()
+
+      return {
+        ...choice,
+        ...properties,
+      }
+    },
+
+    createExclusionaryWithProperties: (properties: {
+      text?: string
+      tagsEliminated?: Array<string>
+    }): Choice => {
+      const choice = questions.Choice.createExclusionary()
+
+      return {
+        ...choice,
+        ...properties,
+      }
+    },
   },
 }
 
