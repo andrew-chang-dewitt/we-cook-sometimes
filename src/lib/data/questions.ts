@@ -84,7 +84,7 @@ const questions: Array<Question> = [
       inclusionary('Lazy', [
         '5820fc9e84e677fd363792e9', // easy
       ]),
-      exclusionary('Not', [
+      exclusionary('Not lazy', [
         '5820fc9e84e677fd363792e9', // easy
       ]),
     ],
@@ -98,7 +98,7 @@ const questions: Array<Question> = [
       inclusionary('Fancy', [
         '5820fc4a061669ff36d85f50', // fancy
       ]),
-      exclusionary('Not', [
+      exclusionary('Not fancy', [
         '5820fc4a061669ff36d85f50', // fancy
       ]),
     ],
