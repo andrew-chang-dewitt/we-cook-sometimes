@@ -35,6 +35,7 @@ export default ({ choices, handler }: Props) => {
       selected: false,
     }
   })
+
   const [answers, setAnswers] = React.useState<Answers>(initialAnswers)
 
   const handleSelect = (choice: ChoiceType): void => {
@@ -70,7 +71,7 @@ export default ({ choices, handler }: Props) => {
                 handleSelect(choice)
                 e.preventDefault()
               }}
-              className={answers[choice.text].selected ? styles.selected : ''}
+              className={answers[choice.text]?.selected ? styles.selected : ''}
             >
               {choice.text}
             </button>
