@@ -228,7 +228,7 @@ const edgeAddable = (state: State): { addEdge: AddEdge } => {
     // a directed acyclical graph should throw an error when
     // traversed with forEach() if a cycle is found
     try {
-      graph.forEach((_) => {})
+      graph.forEach(() => {})
     } catch (err) {
       /* istanbul ignore else */
       if (err instanceof CycleError)

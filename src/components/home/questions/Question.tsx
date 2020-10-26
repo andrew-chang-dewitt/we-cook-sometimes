@@ -2,21 +2,33 @@
 import React from 'react'
 
 // core logic
-import { Question, Choice as ChoiceType } from '../../../lib/data/questions'
+import {
+  isSingleChoiceQuestion,
+  Question,
+  Choice as ChoiceType,
+} from '../../../lib/data/questions'
 
 // other components
 import LayoutContext from '../../LayoutContext'
-import Choice from './Choice'
+import SingleChoiceList from './SingleChoiceList'
+import MultiChoiceList from './MultiChoiceList'
 import Up from '../../icons/Up'
 import Down from '../../icons/Down'
 
 // CSS-modules
 import styles from './Question.module.sass'
 
+interface SingleAnswerHandler {
+  (answer: ChoiceType): void
+}
+interface MultiAnswerHandler {
+  (answers: Array<ChoiceType>): void
+}
+
 interface Props {
   question: Question | null
   submittedAnswers: Array<string>
-  submitAnswer: (answer: ChoiceType) => void
+  submitHandlers: [SingleAnswerHandler, MultiAnswerHandler]
   previous: () => void
   previousExists: boolean
   reset: () => void
@@ -25,7 +37,7 @@ interface Props {
 export default ({
   question,
   submittedAnswers,
-  submitAnswer,
+  submitHandlers,
   previous,
   previousExists,
   reset,
@@ -62,21 +74,33 @@ export default ({
                 {question.text}
               </h2>
 
-              <ul style={questionCollapsed ? { visibility: 'hidden' } : {}}>
-                {question.choices.map((choice) => (
-                  <Choice
-                    key={choice.text}
-                    data={choice}
-                    handler={() => submitAnswer(choice)}
+              <div style={questionCollapsed ? { visibility: 'hidden' } : {}}>
+                {isSingleChoiceQuestion(question) ? (
+                  <SingleChoiceList
+                    choices={question.choices}
+                    handler={submitHandlers[0]}
                   />
-                ))}
-              </ul>
+                ) : (
+                  <MultiChoiceList
+                    choices={question.choices}
+                    handler={submitHandlers[1]}
+                  />
+                )}
+              </div>
             </>
           ) : (
-            <h2 className={styles.question}>...no more questions</h2>
+            <h2
+              className={styles.question}
+              style={questionCollapsed ? { visibility: 'hidden' } : {}}
+            >
+              ...no more questions
+            </h2>
           )}
 
-          <div className={styles.questionNavigation}>
+          <div
+            className={styles.questionNavigation}
+            style={questionCollapsed ? { visibility: 'hidden' } : {}}
+          >
             {previousExists ? (
               <>
                 <button onClick={previous}>Previous question</button>

@@ -1,4 +1,5 @@
 {
+  "exclude": ["./scripts"],
   "compilerOptions": {
     "incremental": true,
     "target": "es6",
