@@ -25,6 +25,17 @@ interface Props {
   questions: Array<QuestionType>
 }
 
+const filterByTags = (
+  list: RecipeListType,
+  answer: Inclusionary
+): RecipeListType => {
+  answer.tagsRequired.forEach((tag: string) => {
+    list = list.filterByTag(tag)
+  })
+
+  return list
+}
+
 export default ({ recipes, questions }: Props) => {
   const { state, setState, undo, onOldest } = useStateHistory({
     recipes: recipes.filterByTag(publishedTagId),
@@ -32,18 +43,7 @@ export default ({ recipes, questions }: Props) => {
     answers: [] as Array<string>,
   })
 
-  const answerQuestion = (answer: ChoiceType) => {
-    const filterByTags = (
-      list: RecipeListType,
-      answer: Inclusionary
-    ): RecipeListType => {
-      answer.tagsRequired.forEach((tag: string) => {
-        list = list.filterByTag(tag)
-      })
-
-      return list
-    }
-
+  const singleAnswer = (answer: ChoiceType): void => {
     const newAnswers = [...state.answers]
     newAnswers.push(answer.text)
 
@@ -60,6 +60,25 @@ export default ({ recipes, questions }: Props) => {
         })
   }
 
+  const multiAnswer = (answers: Array<ChoiceType>): void => {
+    const newAnswers = [...state.answers]
+    let newList = state.recipes
+
+    answers.forEach((answer) => {
+      newAnswers.push(answer.text)
+
+      isExclusionary(answer)
+        ? (newList = newList.eliminateByTags(answer.tagsEliminated))
+        : (newList = filterByTags(newList, answer))
+    })
+
+    setState({
+      recipes: newList,
+      questions: state.questions.next(),
+      answers: newAnswers,
+    })
+  }
+
   const resetQuestions = (): void => {
     while (!onOldest) {
       undo()
@@ -71,7 +90,7 @@ export default ({ recipes, questions }: Props) => {
       <Question
         question={state.questions.current}
         submittedAnswers={state.answers}
-        submitAnswer={answerQuestion}
+        submitHandlers={[singleAnswer, multiAnswer]}
         previous={undo}
         previousExists={!onOldest}
         reset={resetQuestions}
