@@ -92,7 +92,7 @@ export const err = <T, E extends Error>(value: E): Result<T, E> =>
 
 export const tryCatch = <T, E extends Error>(
   callback: () => T,
-  onError: (error: unknown) => E
+  onError: (error: E) => E
 ): Result<T, E> => {
   try {
     return ok(callback())
@@ -110,21 +110,17 @@ export const mergeResults = <T, S, V, E extends Error>(
   b: Result<S, E>,
   mergeFn: MergeFn<T, S, V>
 ): Result<V, E> => {
-  let aValue: T | void
-  let bValue: S | void
+  return tryCatch(
+    () => mergeFn(a.unwrap(), b.unwrap()),
+    (e) => e
+  )
 
-  try {
-    aValue = a.unwrap()
-    bValue = b.unwrap()
-  } catch (e) {
-    return err(e)
-  }
+  // try {
+  //   aValue = a.unwrap()
+  //   bValue = b.unwrap()
+  // } catch (e) {
+  //   return err(e)
+  // }
 
-  // FIXME: I think this should never happen? unwrap() should only return
-  // void if it is given an error handler
-  /* istanbul ignore next */
-  if (!aValue || !bValue)
-    return err(new Error('unable to merge a void type') as E)
-
-  return ok(mergeFn(aValue, bValue))
+  // return ok(mergeFn(aValue, bValue))
 }
