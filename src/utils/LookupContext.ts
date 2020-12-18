@@ -1,12 +1,12 @@
 import React from 'react'
 
-import { Recipe } from '../lib/data/fetch'
+import { RecipeCard } from '../lib/data/schema'
 
 export interface RecipeLookup {
   [key: string]: string
 }
 export interface RecipeByID {
-  [key: string]: Recipe
+  [key: string]: RecipeCard
 }
 export interface LookupTables {
   recipeByUrl: RecipeLookup
