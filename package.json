@@ -10,7 +10,7 @@
     "clean-hard": "rm -rf ./node_modules package-lock.json && npm cache clear --force && npm run clean && npm i",
     "prebuild": "npm run clean && npm run format && npm run coverage",
     "build": "webpack --env.production --env.host=andrew-chang-dewitt.dev",
-    "dev": "webpack-dev-server"
+    "dev": "PORT=8000 webpack-dev-server"
   },
   "nyc": {
     "all": true,
