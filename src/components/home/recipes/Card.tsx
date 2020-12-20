@@ -1,16 +1,15 @@
 // external libraries
 import React from 'react'
 
-// internal utilities
-import { Recipe } from '../../../lib/data/fetch'
-
 // core logic
+import { RecipeCard } from '../../../lib/data/schema'
 import { publishedTagId } from '../../../lib/data/fetch'
 
 // other components
 import LayoutContext from '../../LayoutContext'
+import LookupContext from '../../../utils/LookupContext'
 import TagsList from '../../tags/List'
-import ImageLoader from '../../images/ImageLoader'
+import Image from '../../images/Image'
 import DetailLoader from '../../detail/DetailLoader'
 import More from '../../icons/More'
 import Less from '../../icons/Close'
@@ -20,16 +19,17 @@ import WIP from '../../WIPTag'
 import styles from './Card.module.sass'
 
 interface Props {
-  recipe: Recipe
+  recipe: RecipeCard
   detailsOpen: boolean
   openHandler: (newValue: string) => void
 }
 
 export default ({ recipe, detailsOpen, openHandler }: Props) => {
-  const { id, name, tags, idAttachmentCover } = recipe
+  const { id, name, tags, cover } = recipe
   const layoutConstants = React.useContext(LayoutContext)
+  const tagsByID = React.useContext(LookupContext).tagsByID
 
-  const processedName = tags.every((tag) => tag.id !== publishedTagId) ? (
+  const processedName = tags.every((tag) => tag !== publishedTagId) ? (
     <>
       {name} <WIP />
     </>
@@ -74,15 +74,17 @@ export default ({ recipe, detailsOpen, openHandler }: Props) => {
     >
       <a href={`/recipe/${id}`} onClick={toggleOpen}>
         <div
-          className={`${styles.imgContainer} ${
-            idAttachmentCover ? styles.hasImage : ''
-          }`}
+          className={`${styles.imgContainer} ${cover ? styles.hasImage : ''}`}
         >
           <div className={styles.info}>
             {!detailsOpen ? (
               <>
                 <div>
-                  <TagsList tags={tags.filter((tag) => tag.color !== null)} />
+                  <TagsList
+                    tags={tags
+                      .map((id) => tagsByID[id])
+                      .filter((tag) => tag.color !== null)}
+                  />
                 </div>
 
                 <More />
@@ -98,13 +100,7 @@ export default ({ recipe, detailsOpen, openHandler }: Props) => {
             )}
           </div>
 
-          {idAttachmentCover !== null ? (
-            <ImageLoader
-              cardId={id}
-              attachmentId={idAttachmentCover}
-              size={{ width: 320 }}
-            />
-          ) : null}
+          {cover !== null ? <Image data={cover} /> : null}
         </div>
 
         {/* Open details using a Router Switch maybe? */}

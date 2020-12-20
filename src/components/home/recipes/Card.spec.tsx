@@ -4,10 +4,13 @@ import { expect } from 'chai'
 import { shallow, configure, ShallowWrapper } from 'enzyme'
 import Adapter from 'enzyme-adapter-react-16'
 configure({ adapter: new Adapter() })
+import Factories from '../../../testUtils/Factories'
+
+// external dependencies
 import React from 'react'
 
 // internal dependencies
-import { publishedTagId, Tag as TagType } from '../../../lib/data/fetch'
+import { publishedTagId } from '../../../lib/data/fetch'
 import TagList from '../../tags/List'
 import ImageLoader from '../../images/ImageLoader'
 import DetailLoader from '../../detail/DetailLoader'
@@ -19,18 +22,9 @@ import WIP from '../../WIPTag'
 import Card from './Card'
 
 describe('component/recipes/Card', () => {
-  const recipe = {
-    id: 'a recipe',
+  const recipe = Factories.schema.RecipeCard.createWithProperties({
     name: 'A Recipe',
-    shortLink: 'a url',
-    tags: [
-      ('1' as any) as TagType,
-      ('2' as any) as TagType,
-      ('3' as any) as TagType,
-    ],
-    idList: 'a list',
-    idAttachmentCover: 'img',
-  }
+  })
 
   let card: ShallowWrapper<any, any>
 
@@ -53,10 +47,10 @@ describe('component/recipes/Card', () => {
   })
 
   it('skips the image, if there is no cover Id', () => {
-    const noImage = {
-      ...recipe,
-      idAttachmentCover: null,
-    }
+    const noImage = Factories.schema.RecipeCard.createWithProperties({
+      cover: null,
+    })
+
     card = shallow(
       <Card recipe={noImage} detailsOpen={false} openHandler={() => {}} />
     )
@@ -69,10 +63,8 @@ describe('component/recipes/Card', () => {
 
   describe('work in progress', () => {
     it("indicates if a recipe isn't tagged as published", () => {
-      const wip = {
-        ...recipe,
-        tags: [],
-      }
+      const wip = Factories.schema.RecipeCard.createWithProperties({ tags: [] })
+
       const rendered = shallow(
         <Card recipe={wip} detailsOpen={false} openHandler={() => {}} />
       )
@@ -80,11 +72,10 @@ describe('component/recipes/Card', () => {
       expect(rendered.find('h3').contains(<WIP />)).to.be.true
     })
 
-    it("indicates if a recipe isn't tagged as published", () => {
-      const wip = {
-        ...recipe,
-        tags: [{ id: publishedTagId } as TagType],
-      }
+    it('indicates if a recipe is tagged as published', () => {
+      const wip = Factories.schema.RecipeCard.createWithProperties({
+        tags: [publishedTagId],
+      })
       const rendered = shallow(
         <Card recipe={wip} detailsOpen={false} openHandler={() => {}} />
       )
