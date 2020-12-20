@@ -29,7 +29,7 @@ export default ({ href, children }: Props) => {
   }
   // if a recipe has a tag matching the published ID, it is published
   const isPublished = (id: string) =>
-    lookups.recipeByID[id].tags.some((tag) => tag.id === publishedTagId)
+    lookups.recipeByID[id].tags.some((tag) => tag === publishedTagId)
 
   // early return external link in a new tab if not a recipe
   if (!isRecipe(href))
@@ -43,6 +43,8 @@ export default ({ href, children }: Props) => {
   const recipeID = lookups.recipeByUrl[getShortLink(href)]
   // and replace given Trello link with an internal link to the recipe
   return (
+    // error indicated here by vim not coming from Typescript compiler & ALE
+    // doesn't seem to be a real error
     <Link
       to={isPublished(recipeID) ? `?open=${recipeID}` : `/recipe/${recipeID}`}
       className={styles.contentLink}
