@@ -8,7 +8,7 @@ import LookupContext from '../utils/LookupContext'
 // other components
 import Layout from './Layout'
 import DetailLoader from './detail/DetailLoader'
-import ImageLoader from './images/ImageLoader'
+import Image from './images/Image'
 
 // CSS-modules
 import styles from './RecipePage.module.sass'
@@ -21,13 +21,7 @@ export default () => {
   return (
     <Layout>
       <div className={styles.imgContainer}>
-        {recipe.idAttachmentCover !== null ? (
-          <ImageLoader
-            cardId={recipe.id}
-            attachmentId={recipe.idAttachmentCover}
-            size={{ width: 640 }}
-          />
-        ) : null}
+        {recipe.cover !== null ? <Image data={recipe.cover} /> : null}
       </div>
       <DetailLoader recipe={recipe} />
     </Layout>
