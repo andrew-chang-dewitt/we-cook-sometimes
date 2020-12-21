@@ -8,7 +8,7 @@ import React from 'react'
 import * as hook from '../../utils/useAutoPause'
 
 // core logic
-import { ImageAPI } from '../../lib/data/fetch'
+import { Image as ImageType } from '../../lib/data/schema'
 
 // other components
 import Image from '../images/Image'
@@ -29,19 +29,19 @@ const getExtension = (url: string): string => {
 
 // check if a given attachment is an image or video by
 // assuming it's file type by the URL ending
-export const isImage = (item: ImageAPI): boolean => {
+export const isImage = (item: ImageType): boolean => {
   const images = ['jpg', 'JPG', 'jpeg', 'png', 'PNG']
 
   return images.includes(getExtension(item.url))
 }
-export const isVideo = (item: ImageAPI): boolean => {
+export const isVideo = (item: ImageType): boolean => {
   const videos = ['mp4', 'MOV']
 
   return videos.includes(getExtension(item.url))
 }
 
 interface Props {
-  attachments: Array<ImageAPI>
+  attachments: Array<ImageType>
 }
 
 export default ({ attachments }: Props) => {

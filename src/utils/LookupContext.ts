@@ -1,19 +1,24 @@
 import React from 'react'
 
-import { Recipe } from '../lib/data/fetch'
+import { RecipeCard, Tag } from '../lib/data/schema'
 
 export interface RecipeLookup {
   [key: string]: string
 }
 export interface RecipeByID {
-  [key: string]: Recipe
+  [key: string]: RecipeCard
+}
+export interface TagByID {
+  [key: string]: Tag
 }
 export interface LookupTables {
   recipeByUrl: RecipeLookup
   recipeByID: RecipeByID
+  tagsByID: TagByID
 }
 
 export default React.createContext<LookupTables>({
   recipeByUrl: {},
   recipeByID: {},
+  tagsByID: {},
 })

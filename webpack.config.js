@@ -25,6 +25,7 @@ module.exports = (env) => {
           historyApiFallback: {
             index: '/index.html',
           },
+          port: process.env.PORT || 8000,
         },
 
     resolve: {

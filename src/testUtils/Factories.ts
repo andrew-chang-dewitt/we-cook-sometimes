@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 
-import * as fetchLib from '../lib/data/fetch'
+import * as schemaLib from '../lib/data/schema'
 import {
   exclusionary,
   inclusionary,
@@ -10,109 +10,110 @@ import {
   Choice,
 } from '../lib/data/questions'
 
-export const fetch = {
-  API: {
-    Image: {
-      create: (): fetchLib.ImageAPI => ({
-        id: '1',
-        name: '[published]name',
-        edgeColor: 'color',
-        url: 'url',
-        previews: [
-          {
-            height: 1,
-            width: 1,
-            url: 'url1',
-          },
-          {
-            height: 10,
-            width: 10,
-            url: 'url10',
-          },
-          {
-            height: 100,
-            width: 100,
-            url: 'url100',
-          },
-        ],
-      }),
+interface TagProps {
+  id?: string
+  idBoard?: string
+  name?: string
+  color?: string
+}
 
-      createWithId: (id: string): fetchLib.ImageAPI => {
-        const img = fetch.API.Image.create()
-        img.id = id
+export class Tag {
+  static create(): schemaLib.Tag {
+    return {
+      id: 'id',
+      idBoard: 'idBoard',
+      name: 'name',
+      color: 'color,',
+    }
+  }
 
-        return img
-      },
+  static createWithProperties(props: TagProps): schemaLib.Tag {
+    return {
+      ...Tag.create(),
+      ...props,
+    }
+  }
+}
 
-      createWithProperties: (
-        properties: { key: string; value: any }[]
-      ): fetchLib.ImageAPI => {
-        const img = fetch.API.Image.create()
+interface ImageProps {
+  id?: string
+  edgeColor?: string
+  name?: string
+  url?: string
+  scaled?: Array<schemaLib.ScaledImage>
+}
 
-        properties.map(({ key, value }) => {
-          img[key] = value
-        })
+export class Image {
+  static create(): schemaLib.Image {
+    return {
+      id: 'id',
+      edgeColor: 'edgeColor',
+      name: 'name',
+      url: 'url',
+      scaled: [],
+    }
+  }
 
-        return img
-      },
-    },
+  static createWithProperties(props: ImageProps): schemaLib.Image {
+    return {
+      ...Image.create(),
+      ...props,
+    }
+  }
+}
 
-    Recipe: {
-      create: (): fetchLib.RecipeAPI => ({
-        id: 'id',
-        name: 'one',
-        shortLink: 'https://a-link',
-        idAttachmentCover: 'img',
-        idList: 'list',
-        labels: [
-          fetch.API.Tag.createWithData({
-            id: 'labelATag',
-            name: 'a tag',
-          }),
-        ],
-      }),
+interface RecipeCardProps {
+  id?: string
+  name?: string
+  shortLink?: string
+  idList?: string
+  cover?: schemaLib.Image | null
+  tags?: Array<string>
+}
 
-      createWithProperties: (
-        properties: { key: string; value: any }[]
-      ): fetchLib.RecipeAPI => {
-        const recipe = fetch.API.Recipe.create()
+export class RecipeCard {
+  static create(): schemaLib.RecipeCard {
+    return {
+      id: 'id',
+      name: 'name',
+      shortLink: 'shortLink',
+      tags: ['tagId'],
+      cover: Image.create(),
+      idList: 'idList',
+    }
+  }
 
-        properties.map(({ key, value }) => {
-          recipe[key] = value
-        })
+  static createWithProperties(props: RecipeCardProps): schemaLib.RecipeCard {
+    return {
+      ...RecipeCard.create(),
+      ...props,
+    }
+  }
+}
 
-        return recipe
-      },
-    },
+interface RecipeDetailsProps {
+  id?: string
+  desc?: string
+  images?: Array<schemaLib.Image>
+}
 
-    Tag: {
-      createWithData: (data: { id: string; name: string }): fetchLib.Tag =>
-        data as fetchLib.Tag,
-    },
-  },
+export class RecipeDetails {
+  static create(): schemaLib.RecipeDetails {
+    return {
+      id: 'id',
+      desc: 'description',
+      images: [Image.create()],
+    }
+  }
 
-  Recipe: {
-    create: (): fetchLib.Recipe =>
-      ({
-        id: 'recipeId',
-        name: 'recipeName',
-        tags: [
-          fetch.API.Tag.createWithData({
-            id: 'tagId',
-            name: 'tag',
-          }),
-        ],
-      } as fetchLib.Recipe),
-
-    createWithProperties: (properties: any): fetchLib.Recipe => {
-      const recipe = fetch.Recipe.create()
-
-      return {
-        ...recipe,
-        ...(properties as fetchLib.Recipe),
-      }
-    },
-  },
+  static createWithProperties(
+    props: RecipeDetailsProps
+  ): schemaLib.RecipeDetails {
+    return {
+      ...RecipeDetails.create(),
+      ...props,
+    }
+  }
 }
 
 interface QuestionProps {
@@ -216,4 +217,7 @@ export const questions = {
   },
 }
 
-export default { questions, fetch }
+export default {
+  questions,
+  schema: { Tag, Image, RecipeCard, RecipeDetails },
+}

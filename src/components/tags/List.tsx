@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Tag as TagType } from '../../lib/data/fetch'
+import { Tag as TagType } from '../../lib/data/schema'
 import Tag from './Tag'
 
 import styles from './List.module.sass'

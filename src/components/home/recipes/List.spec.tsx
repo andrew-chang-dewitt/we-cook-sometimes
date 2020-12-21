@@ -1,28 +1,31 @@
+// testing tools
 import 'mocha'
 import { expect } from 'chai'
 import sinon, { SinonStub } from 'sinon'
 import { shallow, configure, ShallowWrapper } from 'enzyme'
 import Adapter from 'enzyme-adapter-react-16'
+configure({ adapter: new Adapter() })
+
+// external dependencies
+import React from 'react'
 // despite importing useLocation from 'react-router-dom'
 // it needs imported from 'react-router' here for some reason
 // to allow it to be stubbed by sinon
 import Router from 'react-router'
 import { Location } from 'history'
 
-configure({ adapter: new Adapter() })
-
-import React from 'react'
-
-import { Recipe } from '../../../lib/data/fetch'
+// internal dependencies
+import Factories from '../../../testUtils/Factories'
 import Card from './Card'
 
+// component under test
 import List from './List'
 
 describe('component/recipes/List', () => {
   const recipes = [
-    { id: 'recipe' } as Recipe,
-    { id: 'recipe' } as Recipe,
-    { id: 'recipe' } as Recipe,
+    Factories.schema.RecipeCard.create(),
+    Factories.schema.RecipeCard.create(),
+    Factories.schema.RecipeCard.create(),
   ]
   let useLocationStub: SinonStub<any, any>
 

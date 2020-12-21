@@ -5,14 +5,13 @@ import sinon, { SinonStub } from 'sinon'
 import { render, cleanup, screen, fireEvent } from '@testing-library/react'
 import DataFactories from '../../testUtils/Factories'
 
-// dependencies
+// external dependencies
 import React from 'react'
 import { MemoryRouter } from 'react-router-dom'
-import {
-  publishedTagId,
-  Tag as TagType,
-  Recipe as RecipeType,
-} from '../../lib/data/fetch'
+
+// internal dependencies
+import { publishedTagId } from '../../lib/data/fetch'
+import { RecipeCard as RecipeType } from '../../lib/data/schema'
 import { Question as QuestionType } from '../../lib/data/questions'
 import RecipeList, {
   RecipeList as RecipeListType,
@@ -23,8 +22,6 @@ import * as ListModule from './recipes/List'
 import Home from './Home'
 
 describe('component/home/Home', () => {
-  const publishedTag = { id: publishedTagId } as TagType
-
   let ListStub: SinonStub<any, any>
   const ListFake = ({ recipes }: { recipes: Array<RecipeType> }) => (
     <div title="List">{JSON.stringify(recipes)}</div>
@@ -52,21 +49,21 @@ describe('component/home/Home', () => {
   })
 
   it('starts showing all published recipes', () => {
-    const recipe1 = DataFactories.fetch.Recipe.createWithProperties({
+    const recipe1 = DataFactories.schema.RecipeCard.createWithProperties({
       id: 'recipe one',
-      tags: [publishedTag],
-    } as RecipeType)
-    const recipe2 = DataFactories.fetch.Recipe.createWithProperties({
+      tags: [publishedTagId],
+    })
+    const recipe2 = DataFactories.schema.RecipeCard.createWithProperties({
       id: 'recipe two',
-      tags: [publishedTag],
-    } as RecipeType)
-    const recipe3 = DataFactories.fetch.Recipe.createWithProperties({
+      tags: [publishedTagId],
+    })
+    const recipe3 = DataFactories.schema.RecipeCard.createWithProperties({
       id: 'recipe three',
-      tags: [publishedTag],
-    } as RecipeType)
-    const recipe4 = DataFactories.fetch.Recipe.createWithProperties({
+      tags: [publishedTagId],
+    })
+    const recipe4 = DataFactories.schema.RecipeCard.createWithProperties({
       id: 'recipe unpublished',
-    } as RecipeType)
+    })
 
     const recipes = RecipeList.create([recipe1, recipe2, recipe3, recipe4])
 
@@ -91,12 +88,8 @@ describe('component/home/Home', () => {
 
   describe('answering questions', () => {
     describe('questions with single answers', () => {
-      const includedTag = {
-        id: 'included',
-      } as TagType
-      const excludedTag = {
-        id: 'excluded',
-      } as TagType
+      const includedTag = 'included'
+      const excludedTag = 'excluded'
 
       const questions = [
         DataFactories.questions.Question.createSingleWithProperties({
@@ -104,7 +97,7 @@ describe('component/home/Home', () => {
           choices: [
             DataFactories.questions.Choice.createInclusionaryWithProperties({
               text: 'Include Me',
-              tagsRequired: [includedTag.id],
+              tagsRequired: [includedTag],
             }),
           ],
           possibleNexts: ['exclude'],
@@ -114,26 +107,30 @@ describe('component/home/Home', () => {
           choices: [
             DataFactories.questions.Choice.createExclusionaryWithProperties({
               text: 'Exclude Me',
-              tagsEliminated: [excludedTag.id],
+              tagsEliminated: [excludedTag],
             }),
           ],
         } as QuestionType),
       ]
 
-      const alwaysIncluded = DataFactories.fetch.Recipe.createWithProperties({
-        id: 'always included',
-        tags: [publishedTag, includedTag],
-      } as RecipeType)
-      const includedThenExcluded = DataFactories.fetch.Recipe.createWithProperties(
+      const alwaysIncluded = DataFactories.schema.RecipeCard.createWithProperties(
+        {
+          id: 'always included',
+          tags: [publishedTagId, includedTag],
+        }
+      )
+      const includedThenExcluded = DataFactories.schema.RecipeCard.createWithProperties(
         {
           id: 'included then excluded',
-          tags: [publishedTag, includedTag, excludedTag],
-        } as RecipeType
+          tags: [publishedTagId, includedTag, excludedTag],
+        }
       )
-      const alwaysExcluded = DataFactories.fetch.Recipe.createWithProperties({
-        id: 'always excluded',
-        tags: [publishedTag, excludedTag],
-      } as RecipeType)
+      const alwaysExcluded = DataFactories.schema.RecipeCard.createWithProperties(
+        {
+          id: 'always excluded',
+          tags: [publishedTagId, excludedTag],
+        }
+      )
 
       const recipes = RecipeList.create([
         alwaysIncluded,
@@ -195,18 +192,10 @@ describe('component/home/Home', () => {
     })
 
     describe('questions with multiple answers', () => {
-      const includedTag = {
-        id: 'included',
-      } as TagType
-      const alsoIncludedTag = {
-        id: 'also included',
-      } as TagType
-      const excludedTag = {
-        id: 'excluded',
-      } as TagType
-      const alsoExcludedTag = {
-        id: 'also excluded',
-      } as TagType
+      const includedTag = 'included'
+      const alsoIncludedTag = 'also included'
+      const excludedTag = 'excluded'
+      const alsoExcludedTag = 'also excluded'
 
       interface HomeProps {
         recipes?: RecipeListType
@@ -230,14 +219,14 @@ describe('component/home/Home', () => {
       it('removes recipes on only one answer of Inclusionary type', () => {
         setup({
           recipes: RecipeList.create([
-            DataFactories.fetch.Recipe.createWithProperties({
+            DataFactories.schema.RecipeCard.createWithProperties({
               id: 'excluded only',
-              tags: [publishedTag, excludedTag],
+              tags: [publishedTagId, excludedTag],
             }),
 
-            DataFactories.fetch.Recipe.createWithProperties({
+            DataFactories.schema.RecipeCard.createWithProperties({
               id: 'included only',
-              tags: [publishedTag, includedTag],
+              tags: [publishedTagId, includedTag],
             }),
           ]),
 
@@ -248,7 +237,7 @@ describe('component/home/Home', () => {
                 DataFactories.questions.Choice.createInclusionaryWithProperties(
                   {
                     text: 'Include Me',
-                    tagsRequired: [includedTag.id],
+                    tagsRequired: [includedTag],
                   }
                 ),
               ],
@@ -268,24 +257,24 @@ describe('component/home/Home', () => {
       it('removes recipes on multiple Inclusionary answer types', async () => {
         setup({
           recipes: RecipeList.create([
-            DataFactories.fetch.Recipe.createWithProperties({
+            DataFactories.schema.RecipeCard.createWithProperties({
               id: 'excluded only',
-              tags: [publishedTag, excludedTag],
+              tags: [publishedTagId, excludedTag],
             }),
 
-            DataFactories.fetch.Recipe.createWithProperties({
+            DataFactories.schema.RecipeCard.createWithProperties({
               id: 'included both',
-              tags: [publishedTag, includedTag, alsoIncludedTag],
+              tags: [publishedTagId, includedTag, alsoIncludedTag],
             }),
 
-            DataFactories.fetch.Recipe.createWithProperties({
+            DataFactories.schema.RecipeCard.createWithProperties({
               id: 'included one',
-              tags: [publishedTag, alsoIncludedTag],
+              tags: [publishedTagId, alsoIncludedTag],
             }),
 
-            DataFactories.fetch.Recipe.createWithProperties({
+            DataFactories.schema.RecipeCard.createWithProperties({
               id: 'included another',
-              tags: [publishedTag, includedTag],
+              tags: [publishedTagId, includedTag],
             }),
           ]),
 
@@ -296,14 +285,14 @@ describe('component/home/Home', () => {
                 DataFactories.questions.Choice.createInclusionaryWithProperties(
                   {
                     text: 'Include Me',
-                    tagsRequired: [includedTag.id],
+                    tagsRequired: [includedTag],
                   }
                 ),
 
                 DataFactories.questions.Choice.createInclusionaryWithProperties(
                   {
                     text: 'Also Me',
-                    tagsRequired: [alsoIncludedTag.id],
+                    tagsRequired: [alsoIncludedTag],
                   }
                 ),
               ],
@@ -324,14 +313,14 @@ describe('component/home/Home', () => {
       it('removes recipes on only one answer of Exclusionary type', () => {
         setup({
           recipes: RecipeList.create([
-            DataFactories.fetch.Recipe.createWithProperties({
+            DataFactories.schema.RecipeCard.createWithProperties({
               id: 'excluded only',
-              tags: [publishedTag, excludedTag],
+              tags: [publishedTagId, excludedTag],
             }),
 
-            DataFactories.fetch.Recipe.createWithProperties({
+            DataFactories.schema.RecipeCard.createWithProperties({
               id: 'included both',
-              tags: [publishedTag, includedTag, alsoIncludedTag],
+              tags: [publishedTagId, includedTag, alsoIncludedTag],
             }),
           ]),
 
@@ -342,7 +331,7 @@ describe('component/home/Home', () => {
                 DataFactories.questions.Choice.createInclusionaryWithProperties(
                   {
                     text: 'Exclude Me',
-                    tagsRequired: [excludedTag.id],
+                    tagsRequired: [excludedTag],
                   }
                 ),
               ],
@@ -362,24 +351,24 @@ describe('component/home/Home', () => {
       it('removes recipes on multiple Exclusionary answer types', async () => {
         setup({
           recipes: RecipeList.create([
-            DataFactories.fetch.Recipe.createWithProperties({
+            DataFactories.schema.RecipeCard.createWithProperties({
               id: 'included only',
-              tags: [publishedTag, includedTag],
+              tags: [publishedTagId, includedTag],
             }),
 
-            DataFactories.fetch.Recipe.createWithProperties({
+            DataFactories.schema.RecipeCard.createWithProperties({
               id: 'excluded both',
-              tags: [publishedTag, excludedTag, alsoExcludedTag],
+              tags: [publishedTagId, excludedTag, alsoExcludedTag],
             }),
 
-            DataFactories.fetch.Recipe.createWithProperties({
+            DataFactories.schema.RecipeCard.createWithProperties({
               id: 'excluded one',
-              tags: [publishedTag, alsoExcludedTag],
+              tags: [publishedTagId, alsoExcludedTag],
             }),
 
-            DataFactories.fetch.Recipe.createWithProperties({
+            DataFactories.schema.RecipeCard.createWithProperties({
               id: 'excluded another',
-              tags: [publishedTag, excludedTag],
+              tags: [publishedTagId, excludedTag],
             }),
           ]),
 
@@ -390,13 +379,13 @@ describe('component/home/Home', () => {
                 DataFactories.questions.Choice.createExclusionaryWithProperties(
                   {
                     text: 'Exclude Me',
-                    tagsEliminated: [excludedTag.id],
+                    tagsEliminated: [excludedTag],
                   }
                 ),
                 DataFactories.questions.Choice.createExclusionaryWithProperties(
                   {
                     text: 'Also Me',
-                    tagsEliminated: [alsoExcludedTag.id],
+                    tagsEliminated: [alsoExcludedTag],
                   }
                 ),
               ],

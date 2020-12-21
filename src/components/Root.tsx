@@ -4,9 +4,11 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 
 // internal utilities
 import shuffle from '../utils/FisherYatesShuffle'
+import { mergeResults } from '../utils/Result'
 
 // core logic
 import fetch from '../lib/data/fetch'
+import { Tag } from '../lib/data/schema'
 import questions from '../lib/data/questions'
 import RecipeList, {
   RecipeList as RecipeListType,
@@ -16,7 +18,7 @@ import RecipeList, {
 import LookupContext, {
   LookupTables,
   RecipeLookup,
-  RecipeByID,
+  TagByID,
 } from '../utils/LookupContext'
 import Home from './home/Home'
 import AllRecipes from './AllRecipes'
@@ -24,6 +26,13 @@ import RecipePage from './RecipePage'
 import NavMenu from './header/NavMenu'
 
 // import styles from './Root.module.sass'
+
+const buildTagsTable = (tags: Array<Tag>): TagByID =>
+  tags.reduce((hashed: TagByID, current: Tag) => {
+    hashed[current.id] = current
+
+    return hashed
+  }, {})
 
 const buildByUrlTable = (recipeList: RecipeListType): RecipeLookup => {
   const byUrl: RecipeLookup = {}
@@ -36,34 +45,44 @@ const buildByUrlTable = (recipeList: RecipeListType): RecipeLookup => {
 }
 
 export default () => {
+  // initialize state w/ empty empty objects, will be populated on data fetch
   const [recipes, setRecipes] = React.useState({
     data: {} as RecipeListType,
     loaded: false,
   })
-
   const [lookupTables, setLookupTables] = React.useState<LookupTables>({
-    recipeByUrl: {} as RecipeLookup,
-    recipeByID: {} as RecipeByID,
+    recipeByUrl: {},
+    recipeByID: {},
+    tagsByID: {},
   })
 
   // calling setState later allows for component to load while
   // waiting for promise returned by fetch.recipes() to resolve
   // with data
-  // wrapping all of it in useEffect keeps it from staring an
+  // wrapping all of it in useEffect keeps it from starting an
   // infinite loop as the component is reloaded because
   // setState was called
   React.useEffect(() => {
-    // Fetch Recipes from Trello API, then build Recipe List from lib
-    fetch
-      .recipes()
+    Promise.all([fetch.tags(), fetch.recipes()])
+      .then(([tagsRes, recipesRes]) =>
+        mergeResults(tagsRes, recipesRes, (tags, recipes) => ({
+          tags,
+          recipes,
+        }))
+      )
       .then((res) => {
-        const recipeList = RecipeList.create(shuffle(res.unwrap(), Math.random))
-
-        setLookupTables({
+        const unwrapped = res.unwrap()
+        // shuffle the list each time it's generated to change order displayed
+        const recipeList = RecipeList.create(
+          shuffle(unwrapped.recipes, Math.random)
+        )
+        const lookupTables = {
           recipeByUrl: buildByUrlTable(recipeList),
           recipeByID: recipeList.allByID,
-        })
+          tagsByID: buildTagsTable(unwrapped.tags),
+        }
 
+        setLookupTables(lookupTables)
         setRecipes({
           data: recipeList,
           loaded: true,

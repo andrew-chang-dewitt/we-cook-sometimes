@@ -1,14 +1,15 @@
+// testing tools
 import 'mocha'
 import { expect } from 'chai'
 import { shallow, configure, ShallowWrapper } from 'enzyme'
 import Adapter from 'enzyme-adapter-react-16'
-
 configure({ adapter: new Adapter() })
+import Factories from '../../testUtils/Factories'
 
+// external dependencies
 import React from 'react'
 
-import { Tag, Image, Recipe, RecipeDetails } from '../../lib/data/fetch'
-
+// internal dependencies
 import Detail from './Detail'
 import TagsList from '../tags/List'
 import Content from './Content'
@@ -17,17 +18,19 @@ import ImageCarousel from './ImageCarousel'
 describe('component/details/Detail', () => {
   let detail: ShallowWrapper
 
-  const recipe = {
+  const recipe = Factories.schema.RecipeCard.createWithProperties({
     id: 'id',
     name: 'name',
-    tags: ([1, 2, 3] as Array<unknown>) as Array<Tag>,
-  } as Recipe
-  const details = {
+    tags: ['a', 'b', 'c'],
+  })
+  const details = Factories.schema.RecipeDetails.createWithProperties({
     desc: 'a description',
-    images: [{ url: 'a.jpg' }, { url: 'b.mp4' }, { url: 'x.html' }] as Array<
-      Image
-    >,
-  } as RecipeDetails
+    images: [
+      Factories.schema.Image.createWithProperties({ url: 'a.jpg' }),
+      Factories.schema.Image.createWithProperties({ url: 'b.mp4' }),
+      Factories.schema.Image.createWithProperties({ url: 'x.html' }),
+    ],
+  })
 
   before(() => {
     detail = shallow(<Detail recipe={recipe} details={details} />)

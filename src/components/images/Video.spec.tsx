@@ -9,15 +9,12 @@ configure({ adapter: new Adapter() })
 import React from 'react'
 
 // component under test
-import { Image as ImageType } from '../../lib/data/fetch'
+import Factories from '../../testUtils/Factories'
 import Video from './Video'
 
 describe('components/images/Video', () => {
   it('renders a video element from a given ImageType', () => {
-    const img = {
-      name: 'name',
-      url: 'url',
-    } as ImageType
+    const img = Factories.schema.Image.create()
 
     expect(shallow(<Video data={img} />).find('video')).to.have.lengthOf(1)
   })
