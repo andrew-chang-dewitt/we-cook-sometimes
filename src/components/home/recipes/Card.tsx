@@ -27,7 +27,7 @@ interface Props {
 export default ({ recipe, detailsOpen, openHandler }: Props) => {
   const { id, name, tags, cover } = recipe
   const layoutConstants = React.useContext(LayoutContext)
-  const tagsByID = React.useContext(LookupContext).tagsByID
+  const { tagsByID } = React.useContext(LookupContext)
 
   const processedName = tags.every((tag) => tag !== publishedTagId) ? (
     <>

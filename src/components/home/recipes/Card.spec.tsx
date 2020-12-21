@@ -1,138 +1,198 @@
 // testing tools
 import 'mocha'
 import { expect } from 'chai'
-import { shallow, configure, ShallowWrapper } from 'enzyme'
-import Adapter from 'enzyme-adapter-react-16'
-configure({ adapter: new Adapter() })
+import sinon, { SinonStub } from 'sinon'
+import { render, cleanup, screen, fireEvent } from '@testing-library/react'
 import Factories from '../../../testUtils/Factories'
 
 // external dependencies
 import React from 'react'
 
 // internal dependencies
+import { RecipeCard } from '../../../lib/data/schema'
 import { publishedTagId } from '../../../lib/data/fetch'
-import TagList from '../../tags/List'
-import ImageLoader from '../../images/ImageLoader'
-import DetailLoader from '../../detail/DetailLoader'
-import More from '../../icons/More'
-import Close from '../../icons/Close'
-import WIP from '../../WIPTag'
+import LookupContext, {
+  LookupTables,
+  TagByID,
+} from '../../../utils/LookupContext'
+import * as DetailLoader from '../../detail/DetailLoader'
+// import Close from '../../icons/Close'
 
 // component under test
 import Card from './Card'
 
 describe('component/recipes/Card', () => {
-  const recipe = Factories.schema.RecipeCard.createWithProperties({
+  const defaultRecipe = Factories.schema.RecipeCard.createWithProperties({
     name: 'A Recipe',
+    tags: ['tagID'],
   })
 
-  let card: ShallowWrapper<any, any>
+  const defaultContext = {
+    recipeByID: {},
+    recipeByUrl: {},
+    tagsByID: {
+      tagID: Factories.schema.Tag.createWithProperties({ id: 'tagID' }),
+    },
+  }
 
-  before(() => {
-    card = shallow(
-      <Card recipe={recipe} detailsOpen={false} openHandler={() => {}} />
+  const createTagsContext = (ids: Array<string>): LookupTables => ({
+    ...defaultContext,
+    tagsByID: ids.reduce((hashed, id) => {
+      hashed[id] = Factories.schema.Tag.createWithProperties({ id })
+
+      return hashed
+    }, {} as TagByID),
+  })
+
+  const setup = (
+    recipe: RecipeCard = defaultRecipe,
+    context: LookupTables = defaultContext,
+    handler: (arg?: any) => void = () => {},
+    open: boolean = false
+  ) =>
+    render(
+      <LookupContext.Provider value={context}>
+        <Card recipe={recipe} detailsOpen={open} openHandler={handler} />
+      </LookupContext.Provider>
     )
-  })
+
+  const setupWithTags = (ids: Array<string>) =>
+    setup(
+      Factories.schema.RecipeCard.createWithProperties({ tags: ids }),
+      createTagsContext(ids)
+    )
+
+  afterEach(() => cleanup())
 
   it('renders the recipe title', () => {
-    expect(card.find('h3').text()).to.match(/A Recipe/)
+    setup()
+
+    expect(screen.getByRole('heading', { level: 3 }).textContent).to.match(
+      /A Recipe/
+    )
   })
 
   it('renders a list of Tags', () => {
-    expect(card.find(TagList)).to.have.lengthOf(1)
+    setupWithTags(['one tag'])
+
+    expect(screen.getByRole('list').children).to.have.lengthOf(1)
   })
 
   it('renders a cover image for the recipe', () => {
-    expect(card.find(ImageLoader)).to.have.lengthOf(1)
+    setup(
+      Factories.schema.RecipeCard.createWithProperties({
+        ...defaultRecipe,
+        cover: Factories.schema.Image.create(),
+      })
+    )
+
+    expect(screen.getByRole('img')).to.exist
   })
 
   it('skips the image, if there is no cover Id', () => {
-    const noImage = Factories.schema.RecipeCard.createWithProperties({
-      cover: null,
-    })
-
-    card = shallow(
-      <Card recipe={noImage} detailsOpen={false} openHandler={() => {}} />
+    setup(
+      Factories.schema.RecipeCard.createWithProperties({
+        ...defaultRecipe,
+        cover: null,
+      })
     )
-    expect(card.find(Image)).to.have.lengthOf(0)
+
+    expect(() => screen.getByRole('img')).to.throw(/unable to find/i)
   })
 
   it('displays an ellipsis indicating there is more to see about a recipe', () => {
-    expect(card.find(More)).to.have.lengthOf(1)
+    setup()
+
+    expect(screen.getByTitle('See more...')).to.exist
   })
 
   describe('work in progress', () => {
     it("indicates if a recipe isn't tagged as published", () => {
-      const wip = Factories.schema.RecipeCard.createWithProperties({ tags: [] })
+      setupWithTags([])
 
-      const rendered = shallow(
-        <Card recipe={wip} detailsOpen={false} openHandler={() => {}} />
+      expect(screen.getByRole('heading', { level: 3 }).textContent).to.match(
+        /WIP/
       )
-
-      expect(rendered.find('h3').contains(<WIP />)).to.be.true
     })
 
     it('indicates if a recipe is tagged as published', () => {
-      const wip = Factories.schema.RecipeCard.createWithProperties({
-        tags: [publishedTagId],
-      })
-      const rendered = shallow(
-        <Card recipe={wip} detailsOpen={false} openHandler={() => {}} />
-      )
+      setupWithTags([publishedTagId])
 
-      expect(rendered.find('h3').contains(<WIP />)).to.be.false
+      expect(
+        screen.getByRole('heading', { level: 3 }).textContent
+      ).to.not.match(/WIP/)
     })
   })
 
   describe('open details', () => {
+    let DetailLoaderStub: SinonStub<any, any>
+    const DetailLoaderFake = ({ recipe }: { recipe: RecipeCard }) => (
+      <div title="details">{JSON.stringify(recipe)}</div>
+    )
+
+    const setupOpenCard = () => setup(undefined, undefined, undefined, true)
+
     before(() => {
-      card = shallow(
-        <Card recipe={recipe} detailsOpen={true} openHandler={() => {}} />
-      )
+      // stubbing out List because it's an imperative layer & it's
+      // child components are well tested
+      DetailLoaderStub = sinon
+        .stub(DetailLoader, 'default')
+        .callsFake(DetailLoaderFake)
+    })
+    after(() => {
+      DetailLoaderStub.restore()
     })
 
     it('includes details when the detailsOpen prop is true', () => {
-      expect(card.find(DetailLoader)).to.have.lengthOf(1)
+      setupOpenCard()
+
+      expect(screen.getByTitle('details')).to.exist
     })
 
     it('displays an x icon indicating the details can be closed', () => {
-      expect(card.find(Close)).to.have.lengthOf(1)
+      setupOpenCard()
+
+      expect(screen.getByTitle('Close')).to.exist
+    })
+
+    it("and doesn't display the 'See More...' icon", () => {
+      setupOpenCard()
+
+      expect(() => screen.getByTitle('See more...')).to.throw(/unable to find/i)
     })
 
     describe('delegates a user clicking the x or ellipsis buttons to the consumer', () => {
       it('passes the recipe ID to the handler if the card is not yet open', () => {
         let handlerCalledWith = ''
 
-        card = shallow(
-          <Card
-            recipe={recipe}
-            detailsOpen={false}
-            openHandler={(arg: string) => {
-              handlerCalledWith = arg
-            }}
-          />
-        )
+        const recipe = Factories.schema.RecipeCard.createWithProperties({
+          id: 'id',
+          tags: [],
+        })
+        const handler = (arg: string) => {
+          handlerCalledWith = arg
+        }
 
-        card.find('a').simulate('click', { preventDefault: () => {} })
+        setup(recipe, undefined, handler, false)
+
+        fireEvent.click(screen.getByRole('link'))
 
         expect(handlerCalledWith).to.equal(recipe.id)
       })
 
       it('passes an empty string to the handler if the card is already open', () => {
         let handlerCalledWith = 'an id'
+        const recipe = Factories.schema.RecipeCard.createWithProperties({
+          id: 'id',
+          tags: [],
+        })
+        const handler = (arg: string) => {
+          handlerCalledWith = arg
+        }
 
-        card = shallow(
-          <Card
-            recipe={recipe}
-            detailsOpen={true}
-            openHandler={(arg: string) => {
-              handlerCalledWith = arg
-            }}
-          />
-        )
+        setup(recipe, undefined, handler, true)
 
-        card.find('a').simulate('click', { preventDefault: () => {} })
-
+        fireEvent.click(screen.getByRole('link'))
         expect(handlerCalledWith).to.equal('')
       })
     })
