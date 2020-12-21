@@ -2,7 +2,7 @@ import React from 'react'
 import 'lazysizes'
 import 'lazysizes/plugins/attrchange/ls.attrchange'
 
-import { Image } from '../../lib/data/fetch'
+import { Image } from '../../lib/data/schema'
 
 import styles from './Image.module.sass'
 
