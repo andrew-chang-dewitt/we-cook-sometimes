@@ -7,15 +7,15 @@ configure({ adapter: new Adapter() })
 
 import React from 'react'
 
-import { Tag as TagType } from '../../lib/data/fetch'
+import Factories from '../../testUtils/Factories'
 
 import Tag from './Tag'
 
 describe('component/Tag', () => {
   it("renders a tag's name from a given tag", () => {
-    const tag = {
+    const tag = Factories.schema.Tag.createWithProperties({
       name: 'a tag',
-    } as TagType
+    })
 
     expect(
       shallow(<Tag tag={tag} />)
@@ -25,11 +25,11 @@ describe('component/Tag', () => {
   })
 
   describe('color mappings from trello to local styles', () => {
-    let tag = {
+    let tag = Factories.schema.Tag.createWithProperties({
       name: 'a tag',
-    } as TagType
+    })
 
-    const setup = (t: TagType) => {
+    const setup = (t: any) => {
       return shallow(<Tag tag={t} />).get(0).props.style
     }
 

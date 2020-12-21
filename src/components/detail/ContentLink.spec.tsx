@@ -5,8 +5,10 @@ import { render, cleanup, screen } from '@testing-library/react'
 import React from 'react'
 import { MemoryRouter } from 'react-router-dom'
 
+// internal testing tools
+import Factories from '../../testUtils/Factories'
+
 // internal dependencies
-import { Recipe, Tag } from '../../lib/data/fetch'
 import LookupContext, { LookupTables } from '../../utils/LookupContext'
 import { publishedTagId } from '../../lib/data/fetch'
 
@@ -15,10 +17,11 @@ import ContentLink from './ContentLink'
 
 describe('component/detail/ContentLink', () => {
   const recipesByID = {
-    'recipe-id': {
+    'recipe-id': Factories.schema.RecipeCard.createWithProperties({
+      id: 'recipe-id',
       name: 'Recipe Name',
-      tags: [{ id: publishedTagId } as Tag],
-    } as Recipe,
+      tags: [publishedTagId],
+    }),
   }
   const recipesByUrl = {
     shortLink: 'recipe-id',
@@ -26,6 +29,7 @@ describe('component/detail/ContentLink', () => {
   const context = {
     recipeByID: recipesByID,
     recipeByUrl: recipesByUrl,
+    tagsByID: {},
   }
 
   const setup = (
@@ -64,18 +68,18 @@ describe('component/detail/ContentLink', () => {
 
   it('links to unpublished recipes open an unlisted /recipes/:id ', async () => {
     const byID = {
-      'recipe-id': {
+      'recipe-id': Factories.schema.RecipeCard.createWithProperties({
         id: 'recipe-id',
         name: 'Recipe Name',
-        tags: [{ id: 'unpublished' } as Tag],
-      } as Recipe,
+        tags: ['unpublished'],
+      }),
     }
     const byUrl = { unpublishedShortLink: 'recipe-id' }
 
     setup(
       'https://trello.com/c/unpublishedShortLink/recipe',
       "This won't display",
-      { recipeByID: byID, recipeByUrl: byUrl }
+      { recipeByID: byID, recipeByUrl: byUrl, tagsByID: {} }
     )
 
     expect(

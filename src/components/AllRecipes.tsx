@@ -22,8 +22,9 @@ interface Props {
   recipes: RecipeListType
 }
 
+const EMPTY_SEARCH = ''
+
 export default ({ recipes }: Props) => {
-  const EMPTY_SEARCH = ''
   const [search, setSearch] = useQueryParam<string>('search', EMPTY_SEARCH)
   const [list, setList] = React.useState<RecipeListType | null>(null)
 

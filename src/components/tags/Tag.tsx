@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Tag } from '../../lib/data/fetch'
+import { Tag } from '../../lib/data/schema'
 
 import styles from './Tag.module.sass'
 
@@ -37,7 +37,7 @@ enum TrelloColor {
   Blue = 'blue',
 }
 
-const trelloToLocalColor = (trello: string): string => {
+const trelloToLocalColor = (trello: string | null): string => {
   switch (trello) {
     case TrelloColor.Yellow:
       return LocalColor.Gold
@@ -65,7 +65,7 @@ const trelloToLocalColor = (trello: string): string => {
 }
 
 const colorStyles = (
-  trello: string
+  trello: string | null
 ): { backgroundColor: string; color: string } => {
   const backgroundColor = trelloToLocalColor(trello)
 

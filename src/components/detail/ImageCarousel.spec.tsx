@@ -5,10 +5,10 @@ import { default as chaiDom } from 'chai-dom'
 use(chaiDom)
 import sinon, { SinonStub } from 'sinon'
 import { render, cleanup, screen, fireEvent } from '@testing-library/react'
-import React from 'react'
+import Factories from '../../testUtils/Factories'
 
 // dependencies
-import { ImageAPI } from '../../lib/data/fetch'
+import React from 'react'
 import * as hook from '../../utils/useAutoPause'
 
 // component under test
@@ -50,19 +50,19 @@ describe('component/detail/ImageCarousel', () => {
   let useAutoPauseStub: SinonStub<any, any>
 
   const attachments = [
-    {
+    Factories.schema.Image.createWithProperties({
       name: 'name1',
       url: 'url1.jpeg',
-    },
-    {
+    }),
+    Factories.schema.Image.createWithProperties({
       name: 'name2',
       url: 'url2.jpeg',
-    },
-    {
+    }),
+    Factories.schema.Image.createWithProperties({
       name: 'name3',
       url: 'url3.jpeg',
-    },
-  ] as Array<ImageAPI>
+    }),
+  ]
 
   const setup = (): void => {
     render(<ImageCarousel attachments={attachments} />)
@@ -131,11 +131,11 @@ describe('component/detail/ImageCarousel', () => {
 
   it('displays nothing for extensions not included in the whitelist', async () => {
     const attachments = [
-      {
+      Factories.schema.Image.createWithProperties({
         name: "won't find me",
         url: 'url1.html',
-      },
-    ] as Array<ImageAPI>
+      }),
+    ]
 
     render(<ImageCarousel attachments={attachments} />)
 
@@ -164,11 +164,11 @@ describe('component/detail/ImageCarousel', () => {
     }
 
     const attachments = [
-      {
+      Factories.schema.Image.createWithProperties({
         name: 'movie',
         url: 'url1.mp4',
-      },
-    ] as Array<ImageAPI>
+      }),
+    ]
 
     const setup = () => {
       render(<ImageCarousel attachments={attachments} />)

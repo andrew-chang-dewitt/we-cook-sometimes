@@ -8,7 +8,8 @@
 import React from 'react'
 
 // core logic
-import fetch, { Recipe, RecipeDetails } from '../../lib/data/fetch'
+import fetch from '../../lib/data/fetch'
+import { RecipeCard, RecipeDetails } from '../../lib/data/schema'
 
 // other components
 import Detail from './Detail'
@@ -16,7 +17,7 @@ import Detail from './Detail'
 // import styles from './Detail.module.sass'
 
 interface Props {
-  recipe: Recipe
+  recipe: RecipeCard
 }
 
 export default ({ recipe }: Props) => {

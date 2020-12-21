@@ -5,7 +5,7 @@ import React from 'react'
 import useQueryParam from '../../../utils/useQueryParam'
 
 // core logic
-import { Recipe } from '../../../lib/data/fetch'
+import { RecipeCard } from '../../../lib/data/schema'
 
 // other components
 import Card from './Card'
@@ -13,7 +13,7 @@ import Card from './Card'
 import styles from './List.module.sass'
 
 interface Props {
-  recipes: Recipe[]
+  recipes: Array<RecipeCard>
 }
 
 export default ({ recipes }: Props) => {
