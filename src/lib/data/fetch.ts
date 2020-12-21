@@ -3,7 +3,7 @@
 import { ok, err, Result } from '../../utils/Result'
 import { Tag, RecipeCard, RecipeDetails } from './schema'
 
-const rootPath = '/api/1a/'
+const rootPath = '/api/1/'
 export const publishedTagId = '5f55960c17f08e1fde18785e'
 
 export class FetchError extends Error {}
