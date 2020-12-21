@@ -1,3 +1,5 @@
+// ignoring an imperative file for unit testing
+/*istanbul ignore file*/
 import { ok, err, Result } from '../../utils/Result'
 import { Tag, RecipeCard, RecipeDetails } from './schema'
 
@@ -6,15 +8,15 @@ export const publishedTagId = '5f55960c17f08e1fde18785e'
 
 export class FetchError extends Error {}
 
-const api = <T>(endpoint: string): Promise<Result<T, FetchError>> => fetch(rootPath + endpoint)
-  .then((res: Response) => {
-    if (!res.ok) throw new FetchError(`${res.status} ${res.statusText}`)
+const api = <T>(endpoint: string): Promise<Result<T, FetchError>> =>
+  fetch(rootPath + endpoint)
+    .then((res: Response) => {
+      if (!res.ok) throw new FetchError(`${res.status} ${res.statusText}`)
 
-    return res
-  })
-  .then((res: Response) => res.json().then((json: T) => ok(json)))
-  .catch((e: Error) => err(new FetchError(e.message)))
-
+      return res
+    })
+    .then((res: Response) => res.json().then((json: T) => ok(json)))
+    .catch((e: Error) => err(new FetchError(e.message)))
 
 export const tags = (): Promise<Result<Array<Tag>, FetchError>> =>
   api<Array<Tag>>('tag/all')
