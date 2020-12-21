@@ -5,9 +5,11 @@ import sinon, { SinonStub } from 'sinon'
 import { render, cleanup, screen, fireEvent } from '@testing-library/react'
 import DataFactories from '../../testUtils/Factories'
 
-// dependencies
+// external dependencies
 import React from 'react'
 import { MemoryRouter } from 'react-router-dom'
+
+// internal dependencies
 import { publishedTagId } from '../../lib/data/fetch'
 import { RecipeCard as RecipeType } from '../../lib/data/schema'
 import { Question as QuestionType } from '../../lib/data/questions'
